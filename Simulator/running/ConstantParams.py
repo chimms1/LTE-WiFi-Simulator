@@ -1,10 +1,10 @@
 import math
 
 class PARAMS:
-    numofLTEBS = 3
+    numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 30
-    numofWifiUE = 30
+    numofLTEUE = 50
+    numofWifiUE = 50
     length = 100
     breadth = 100
     pTxWifi = 20    # Unit: Watt

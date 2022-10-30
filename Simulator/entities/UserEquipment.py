@@ -6,7 +6,7 @@ class LTEUserEquipment:
     ueID: int
     x: int  # x-coordinate
     y: int  # y-coordinate
-    powerRcvd_list = np.empty([1,PARAMS().numofLTEBS])  # List of users associated with this BaseStation
+    powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     # bs: BaseStation  # the BS to which this UE is connected
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
@@ -29,7 +29,7 @@ class LTEUserEquipment:
     # Measure Power Recieved from all Base Stations, Assign max BS to self UE and return index of max BS
     def measurePowerRcvd(self,bs_list):
 
-        maxpwr = 0.00
+        maxpwr = -99999999
         maxind = 0
         ind = 0
 
@@ -72,7 +72,7 @@ class WifiUserEquipment:
     ueID: int
     x: int  # x-coordinate
     y: int  # y-coordinate
-    powerRcvd_list = np.empty([1,PARAMS().numofWifiBS])  # List of users associated with this BaseStation
+    powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
 
@@ -92,7 +92,7 @@ class WifiUserEquipment:
     # Measure Power Recieved from all Base Stations, Assign max BS to self UE and return index of max BS
     def measurePowerRcvd(self,bs_list):
 
-        maxpwr = 0.00
+        maxpwr = -99999999
         maxind = 0
         ind = 0
 

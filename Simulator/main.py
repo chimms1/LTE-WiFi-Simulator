@@ -1,16 +1,20 @@
 import numpy as np
-import pandas as pd
 from running.ConstantParams import PARAMS
 from running.ServiceClass import ServiceClass
+from running.ServiceClass import GraphService
 
 if __name__ == "__main__":
     print("Hello World!")
 
     service = ServiceClass()
+    graphservice = GraphService()
+
+    scene = 3
+    description = "multiple"
 
     # Create BS and UE using Service Class
-    lbss = service.createLTEBaseStations()
-    wbss = service.createWifiBaseStations()
+    lbss = service.createLTEBaseStations(scene)
+    wbss = service.createWifiBaseStations(scene)
 
     luss = service.createLTEUsers()
     wuss = service.createWifiUsers()
@@ -41,10 +45,11 @@ if __name__ == "__main__":
     # Creating CSVs
     service.createLocationCSV(wbss, lbss, luss, wuss)
 
+    # Plotting Graphs for scenes
+    graphservice.PlotScene(scene, description)
 
 
     # Printing
-
     print("x\ty of LTE Base Stations")
     for b in lbss:
         print("{}\t{}\t SINR = {}".format(b.x, b.y, b.SINR))
