@@ -8,6 +8,8 @@ if __name__ == "__main__":
 
     service = ServiceClass()
     graphservice = GraphService()
+    SINR=[]
+    SNR=[]
 
     scene = 3
     description = "multiple"
@@ -29,6 +31,7 @@ if __name__ == "__main__":
     # Connecting all the Wifi UE with a Wifi BS
     for u in wuss:
         ind = u.measurePowerRcvd(wbss)
+        print("\nINDEX:", ind)
 
         # Add this UE to user_list
         wbss[ind].user_list = np.append(wbss[ind].user_list, u)
@@ -37,10 +40,12 @@ if __name__ == "__main__":
     # Measuring SINR for LTE Users
     for u in luss:
         u.measureSINR(wbss)
+        SINR.append(u.SINR)
 
     # Measuring SNR for Wifi Users
     for u in wuss:
         u.measureSNR()
+        SNR.append(u.SNR)
 
     # Creating CSVs
     service.createLocationCSV(wbss, lbss, luss, wuss)
@@ -67,3 +72,10 @@ if __name__ == "__main__":
     print("\n\n\nx\ty of Wifi User Equipments\n")
     for u in wuss:
         print("{}\t{}\t Wifi-bs: {} SNR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SNR))
+
+    print("tttttttttttttttttttttttttttttttttttttttttt\n\n")
+    graphservice.PlotHistSINR(SINR)
+    # graphservice.PlotHistSINR(SINR)
+    print("\n\nbeech me\n\n")
+    graphservice.PlotHistSNR(SNR)
+    # graphservice.PlotHistSNR(SNR)
