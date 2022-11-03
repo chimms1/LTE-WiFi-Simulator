@@ -336,3 +336,45 @@ class GraphService:
         plt.title("Scene{} : {} LTE BS & {} Wi-Fi BS, {}".format(scenenum,PARAMS().numofLTEBS,PARAMS().numofWifiBS,description))
 
         plt.show()
+
+    def PlotHistSINR(self,SINR):
+
+        maxind=0
+        minind=0
+        maxSINR=max(SINR)
+        minSINR=min(SINR)
+        print("SINR:MIN = {}, MAX = {}".format(minSINR,maxSINR))
+        # for i in range(1,len(SINR)):
+        #     if(SINR[i]>maxSINR):
+        #         maxSINR=SINR[i]
+        #         maxind=i
+        # if (SINR[i] < minSINR):
+        #     minSINR = SINR[i]
+        #     minind = i
+
+        plt.hist(SINR,label="SINR of LTE Users", bins=5, edgecolor="black")
+        plt.title("SINR of LTE Users")
+        plt.ylabel("No. of LTE Users")
+        plt.xlabel("SINR")
+        plt.show()
+
+    def PlotHistSNR(self,SNR):
+
+        maxind=0
+        minind=0
+        maxSNR=max(SNR)
+        minSNR=min(SNR)
+        print("SNR:MIN = {}, MAX = {}".format(minSNR,maxSNR))
+        # for i in range(1,len(SINR)):
+        #     if(SINR[i]>maxSINR):
+        #         maxSINR=SINR[i]
+        #         maxind=i
+        # if (SINR[i] < minSINR):
+        #     minSINR = SINR[i]
+        #     minind = i
+
+        plt.hist(SNR,label="SNR of Wi-Fi Users", bins=5, edgecolor="black")
+        plt.title("SNR of Wi-Fi Users")
+        plt.ylabel("No. of Wi-Fi Users")
+        plt.xlabel("SNR")
+        plt.show()
