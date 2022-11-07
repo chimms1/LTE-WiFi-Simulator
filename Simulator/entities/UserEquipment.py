@@ -65,7 +65,7 @@ class LTEUserEquipment:
             wifi_power_recv = self.getPowerRcvd(w)
             wifi_power_sum = wifi_power_sum +PARAMS().get_Watt_from_dB( wifi_power_recv)
         
-        wifi_power_sum = wifi_power_sum + PARAMS().get_Watt_from_dBm(PARAMS().noise)
+        wifi_power_sum = wifi_power_sum + PARAMS().get_mWatt_from_dBm(PARAMS().noise)
         
         self.SINR = lte_power_rcvd-(PARAMS().get_dB_from_Watt(wifi_power_sum))
 
