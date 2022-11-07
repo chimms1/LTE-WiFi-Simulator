@@ -333,7 +333,7 @@ class GraphService:
 
         plt.xlabel("X-Coordinates")
         plt.ylabel("Y-Coordinates")
-        plt.title("Scene{} : {} LTE BS & {} Wi-Fi BS, {}".format(scenenum,PARAMS().numofLTEBS,PARAMS().numofWifiBS,description))
+        plt.title("Scene{} : {} LTE BS & {} Wi-Fi BS, {}".format(scenenum,len(x3),len(x4),description))
 
         plt.show()
 
