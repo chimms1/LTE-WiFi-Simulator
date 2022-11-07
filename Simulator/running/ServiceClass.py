@@ -46,7 +46,7 @@ class ServiceClass:
         elif(scenenum == 3):
             scene_params = PARAMS()
 
-            scene_params.numofLTEBS = 5
+            scene_params.numofLTEBS = 3
 
             nums1 = np.random.randint(30,70,scene_params.numofLTEBS)
             nums2 = np.random.randint(30,70,scene_params.numofLTEBS)
@@ -83,7 +83,7 @@ class ServiceClass:
         elif(scenenum == 5):
             scene_params = PARAMS()
 
-            scene_params.numofLTEBS = 5
+            scene_params.numofLTEBS = 3
 
             nums1 = np.random.randint(30,70,scene_params.numofLTEBS)
             nums2 = np.random.randint(30,70,scene_params.numofLTEBS)
@@ -155,7 +155,7 @@ class ServiceClass:
             
             scene_params = PARAMS()
 
-            scene_params.numofWifiBS = 5
+            scene_params.numofWifiBS = 3
 
             nums1 = np.random.randint(30,70,scene_params.numofWifiBS)
             nums2 = np.random.randint(30,70,scene_params.numofWifiBS)
@@ -177,7 +177,7 @@ class ServiceClass:
             
             scene_params = PARAMS()
 
-            scene_params.numofWifiBS = 5
+            scene_params.numofWifiBS = 3
 
             nums1 = np.random.randint(30,70,scene_params.numofWifiBS)
             nums2 = np.random.randint(30,70,scene_params.numofWifiBS)

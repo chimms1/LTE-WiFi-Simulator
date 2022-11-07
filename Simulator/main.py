@@ -13,9 +13,9 @@ if __name__ == "__main__":
 
     # Scene1: 1 LTE & 1 Wi-Fi (colocated)
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
-    # Scene3: 5 LTE & 5  Wi-Fi
-    # Scene4: 1 LTE & 5 Wi-Fi
-    # Scene5: 5 LTE & 1 Wi-Fi
+    # Scene3: 3 LTE & 3  Wi-Fi
+    # Scene4: 1 LTE & 3 Wi-Fi
+    # Scene5: 3 LTE & 1 Wi-Fi
 
     scene = 3
     description = "multiple"
