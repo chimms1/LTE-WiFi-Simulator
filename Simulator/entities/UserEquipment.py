@@ -2,6 +2,7 @@ import numpy as np
 import math
 from running.ConstantParams import PARAMS
 
+
 class LTEUserEquipment:
     ueID: int
     x: int  # x-coordinate
@@ -75,6 +76,7 @@ class WifiUserEquipment:
     powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
+    probability=None
 
     def getPowerRcvd(self,b):
         dist = float()
@@ -122,3 +124,10 @@ class WifiUserEquipment:
 
         wifi_power_rcvd = self.getPowerRcvd(self.bs)
         self.SNR = wifi_power_rcvd/(PARAMS().get_dB_from_dBm(PARAMS().noise))
+
+   
+
+            
+
+
+

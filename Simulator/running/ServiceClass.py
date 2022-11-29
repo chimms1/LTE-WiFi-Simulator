@@ -12,6 +12,21 @@ from entities.UserEquipment import WifiUserEquipment
 
 class ServiceClass:
 
+
+
+    
+    def countWifiUsersWhoTransmit(self,wuss):
+        WifiUsersWhoTransmit=0
+        for u in wuss:
+            if u.probability<PARAMS.prob:
+                WifiUsersWhoTransmit += 1
+            return WifiUsersWhoTransmit 
+
+
+
+
+
+
     # Returns List of Base Stations of size PARAMS.numofLTEBS
     # each BS with a sequential ID and random location in (length,breadth)
     # Locations are assigned based on scenes
@@ -266,10 +281,23 @@ class ServiceClass:
             u.ueID = i
             u.x = nums1[i]
             u.y = nums2[i]
+            
 
             uss = np.append(uss,u)
         
         return uss
+    
+
+    # Assigning random number to each user
+    def assignProb(self,wuss):
+        for u in wuss:
+            u.probability=round(random.uniform(0,1),4) #Assigning random number to each user
+
+
+
+
+
+
 
     # Creates CSVs of locations of BSs and Users
     def createLocationCSV(self, wbss, lbss, luss, wuss):
@@ -378,3 +406,8 @@ class GraphService:
         plt.ylabel("No. of Wi-Fi Users")
         plt.xlabel("SNR")
         plt.show()
+
+
+
+        
+
