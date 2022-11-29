@@ -6,8 +6,7 @@ class LTEUserEquipment:
     ueID: int
     x: int  # x-coordinate
     y: int  # y-coordinate
-    powerRcvd_list = np.array([])  # List of users associated with this BaseStation
-    # bs: BaseStation  # the BS to which this UE is connected
+    powerRcvd_list = np.array([])  # List of Powers of BaseStations associated with this user
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
 
@@ -77,6 +76,7 @@ class WifiUserEquipment:
     powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
+    probability = None
 
     def getPowerRcvd(self,b):
         dist = float()
