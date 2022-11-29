@@ -9,8 +9,8 @@ class PARAMS:
     breadth = 100
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
-    # temp_noise = -90    # Unit: dBm/Hz
-    noise=-96
+    # temp_noise = -90    # Unit: dBm
+    noise=-120
 
     def get_dB_from_dBm(self,value_dBm):
         return (value_dBm-30)

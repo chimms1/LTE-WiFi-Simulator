@@ -11,14 +11,14 @@ if __name__ == "__main__":
     SINR=[]
     SNR=[]
 
-    # Scene1: 1 LTE & 1 Wi-Fi (colocated)
+    # Scene1: 1 LTE & 1 Wi-Fi (Co-located)
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
     # Scene3: 3 LTE & 3  Wi-Fi
     # Scene4: 1 LTE & 3 Wi-Fi
     # Scene5: 3 LTE & 1 Wi-Fi
 
-    scene = 3
-    description = "multiple"
+    scene = 1
+    description = "Co-located"
 
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(scene)

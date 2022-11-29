@@ -9,6 +9,7 @@ class LTEBaseStation:
     #user_list: list[UserEquipment]  # List of users associated with this BaseStation
     user_list = np.array([])  # List of users associated with this BaseStation. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
+    transmitting = None
 
 
     # def measureSINR(self,wbss):
@@ -28,6 +29,7 @@ class WifiBaseStation:
     #user_list: list[UserEquipment]  # List of users associated with this BaseStation
     user_list = np.array([])  # List of users associated with this BaseStation. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
+    transmitting = None
 
     # def measureSNR(self):
 
