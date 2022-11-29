@@ -76,6 +76,7 @@ class WifiUserEquipment:
     powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
+    probability = None
 
     def getPowerRcvd(self,b):
         dist = float()

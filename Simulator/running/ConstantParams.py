@@ -3,14 +3,17 @@ import math
 class PARAMS:
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 50
-    numofWifiUE = 50
+    numofLTEUE = 15
+    numofWifiUE = 15
+    const=10
     length = 100
     breadth = 100
+    prob = 0.2
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
-    # temp_noise = -90    # Unit: dBm
-    noise=-120
+    # temp_noise = -90    # Unit: dBm/Hz
+    noise=-96
+
 
     def get_dB_from_dBm(self,value_dBm):
         return (value_dBm-30)
