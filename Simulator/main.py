@@ -17,6 +17,13 @@ if __name__ == "__main__":
     scene = 1
     description = "single"
 
+    # Scene1: 1 LTE & 1 Wi-Fi (colocated)
+    # Scene2: 1 LTE & 1 Wi-Fi (apart)
+    # Scene3: 3 LTE & 3  Wi-Fi
+    # Scene4: 1 LTE & 3 Wi-Fi
+    # Scene5: 3 LTE & 1 Wi-Fi
+
+
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(scene)
     wbss = service.createWifiBaseStations(scene)

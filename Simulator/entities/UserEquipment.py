@@ -2,13 +2,11 @@ import numpy as np
 import math
 from running.ConstantParams import PARAMS
 
-
 class LTEUserEquipment:
     ueID: int
     x: int  # x-coordinate
     y: int  # y-coordinate
-    powerRcvd_list = np.array([])  # List of users associated with this BaseStation
-    # bs: BaseStation  # the BS to which this UE is connected
+    powerRcvd_list = np.array([])  # List of Powers of BaseStations associated with this user
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
 
@@ -18,7 +16,7 @@ class LTEUserEquipment:
         dist = ((b.x-self.x)**2 + (b.y-self.y)**2 )**0.5
 
         pathloss = float()
-        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+30-28
+        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+19-28
 
         #Measure power
         prcvd = float()
@@ -64,9 +62,11 @@ class LTEUserEquipment:
 
         for w in wbss:
             wifi_power_recv = self.getPowerRcvd(w)
-            wifi_power_sum = wifi_power_sum + wifi_power_recv
+            wifi_power_sum = wifi_power_sum +PARAMS().get_Watt_from_dB( wifi_power_recv)
         
-        self.SINR = lte_power_rcvd/(PARAMS().get_dB_from_dBm(PARAMS().noise) + wifi_power_sum)
+        wifi_power_sum = wifi_power_sum + PARAMS().get_mWatt_from_dBm(PARAMS().noise)
+        
+        self.SINR = lte_power_rcvd-(PARAMS().get_dB_from_Watt(wifi_power_sum))
 
 
 class WifiUserEquipment:
@@ -76,14 +76,14 @@ class WifiUserEquipment:
     powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
-    probability=None
+    probability = None
 
     def getPowerRcvd(self,b):
         dist = float()
         dist = ((b.x-self.x)**2 + (b.y-self.y)**2 )**0.5
 
         pathloss = float()
-        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+30-28
+        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+19-28
 
         #Measure power
         prcvd = float()
@@ -123,11 +123,4 @@ class WifiUserEquipment:
             return
 
         wifi_power_rcvd = self.getPowerRcvd(self.bs)
-        self.SNR = wifi_power_rcvd/(PARAMS().get_dB_from_dBm(PARAMS().noise))
-
-   
-
-            
-
-
-
+        self.SNR = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))
