@@ -9,6 +9,7 @@ class LTEUserEquipment:
     powerRcvd_list = np.array([])  # List of Powers of BaseStations associated with this user
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
+    LTEslotsreq=PARAMS().LTEslotsreq
 
 
     def getPowerRcvd(self,b):
@@ -77,12 +78,15 @@ class WifiUserEquipment:
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
     probability = None
+    wifislotsreq=PARAMS().wifislotsreq
+
 
     def getPowerRcvd(self,b):
         dist = float()
         dist = ((b.x-self.x)**2 + (b.y-self.y)**2 )**0.5
 
         pathloss = float()
+
         pathloss=20*math.log(2400,10)+30*math.log(dist,10)+19-28
 
         #Measure power
@@ -123,4 +127,4 @@ class WifiUserEquipment:
             return
 
         wifi_power_rcvd = self.getPowerRcvd(self.bs)
-        self.SNR = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))
+        self.SNR = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))        

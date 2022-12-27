@@ -11,26 +11,23 @@ from entities.UserEquipment import LTEUserEquipment
 from entities.UserEquipment import WifiUserEquipment
 
 class ServiceClass:
-
-
-
     
     def countWifiUsersWhoTransmit(self,wuss):
         WifiUsersWhoTransmit=0
+        userind=[] #Index of users whose prob < given prob
+        i=0
         for u in wuss:
             if u.probability<PARAMS.prob:
+                userind.append(i)
                 WifiUsersWhoTransmit += 1
-            return WifiUsersWhoTransmit 
-
-
-
-
+            i+=1
+        return WifiUsersWhoTransmit,userind
 
 
     # Returns List of Base Stations of size PARAMS.numofLTEBS
     # each BS with a sequential ID and random location in (length,breadth)
     # Locations are assigned based on scenes
-    def createLTEBaseStations(self,scenenum=1):
+    def createLTEBaseStations(self,scene_params,scenenum=1):
         
         bss = np.array([])
 
@@ -59,7 +56,7 @@ class ServiceClass:
             return bss
 
         elif(scenenum == 3):
-            scene_params = PARAMS()
+            # scene_params = PARAMS()
 
             scene_params.numofLTEBS = 3
 
@@ -96,7 +93,7 @@ class ServiceClass:
             return bss
 
         elif(scenenum == 5):
-            scene_params = PARAMS()
+            # scene_params = PARAMS()
 
             scene_params.numofLTEBS = 3
 
@@ -119,10 +116,10 @@ class ServiceClass:
         
         #------------------------- Generic Scene ----------------
         elif(scenenum == 0):
-            nums1 = np.random.randint(1,PARAMS().length,PARAMS().numofLTEBS)
-            nums2 = np.random.randint(1,PARAMS().breadth,PARAMS().numofLTEBS)
+            nums1 = np.random.randint(1,PARAMS().length,scene_params.numofLTEBS)
+            nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofLTEBS)
 
-            for i in range(0,PARAMS.numofLTEBS):
+            for i in range(0,scene_params.numofLTEBS):
 
                 b = LTEBaseStation()
 
@@ -138,7 +135,7 @@ class ServiceClass:
     # Returns List of Base Stations of size PARAMS.numofWifiBS
     # each BS with a sequential ID and random location in (length,breadth)
     # If there is one BS then assign static location
-    def createWifiBaseStations(self,scenenum=1):
+    def createWifiBaseStations(self,scene_params,scenenum=1):
         
         bss = np.array([])
 
@@ -168,7 +165,7 @@ class ServiceClass:
 
         elif (scenenum==3):
             
-            scene_params = PARAMS()
+            # scene_params = PARAMS()
 
             scene_params.numofWifiBS = 3
 
@@ -190,7 +187,7 @@ class ServiceClass:
 
         elif (scenenum==4):
             
-            scene_params = PARAMS()
+            # scene_params = PARAMS()
 
             scene_params.numofWifiBS = 3
 
@@ -248,13 +245,13 @@ class ServiceClass:
 
     # Returns List of User Equipments of size PARAMS.numofLTEUE
     # each UE with a sequential ID and random location in (length,breadth)
-    def createLTEUsers(self):
+    def createLTEUsers(self,scene_params):
 
         uss = np.array([])
-        nums1 = np.random.randint(1,PARAMS().length,PARAMS().numofLTEUE)
-        nums2 = np.random.randint(1,PARAMS().breadth,PARAMS().numofLTEUE)
+        nums1 = np.random.randint(1,PARAMS().length,scene_params.numofLTEUE)
+        nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofLTEUE)
 
-        for i in range(0,PARAMS.numofLTEUE):
+        for i in range(0,scene_params.numofLTEUE):
 
             u = LTEUserEquipment()
 
@@ -268,13 +265,13 @@ class ServiceClass:
 
     # Returns List of User Equipments of size PARAMS.numofWifiUE
     # each UE with a sequential ID and random location in (length,breadth)
-    def createWifiUsers(self):
+    def createWifiUsers(self,scene_params):
 
         uss = np.array([])
-        nums1 = np.random.randint(1,PARAMS().length,PARAMS().numofWifiUE)
-        nums2 = np.random.randint(1,PARAMS().breadth,PARAMS().numofWifiUE)
+        nums1 = np.random.randint(1,PARAMS().length,scene_params.numofWifiUE)
+        nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofWifiUE)
 
-        for i in range(0,PARAMS.numofWifiUE):
+        for i in range(0,scene_params.numofWifiUE):
 
             u = WifiUserEquipment()
 
@@ -291,13 +288,7 @@ class ServiceClass:
     # Assigning random number to each user
     def assignProb(self,wuss):
         for u in wuss:
-            u.probability=round(random.uniform(0,1),4) #Assigning random number to each user
-
-
-
-
-
-
+            u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
 
     # Creates CSVs of locations of BSs and Users
     def createLocationCSV(self, wbss, lbss, luss, wuss):
@@ -355,22 +346,48 @@ class GraphService:
         plt.scatter(x2, y2, marker='x', color='blue')
         plt.scatter(x3, y3, marker='^', color='red', s=100)
         plt.scatter(x4, y4, marker='^', color='blue', s=100)
-        plt.legend(["LTE User", "Wi-Fi User", "LTE BS", "Wi-Fi BS"])
+        plt.legend(["LTE User", "Wi-Fi User", "LTE BS", "Wi-Fi BS"],fontsize=14)
         plt.xlim(0, 100)
         plt.ylim(0, 100)
 
-        plt.xlabel("X-Coordinates")
-        plt.ylabel("Y-Coordinates")
-        plt.title("Scene{} : {} LTE BS & {} Wi-Fi BS, {}".format(scenenum,len(x3),len(x4),description))
+        plt.xlabel("X-Coordinates",fontsize=18)
+        plt.ylabel("Y-Coordinates",fontsize=18)
+        plt.title("Scene{} : {} LTE BS & {} Wi-Fi BS, {}".format(scenenum,len(x3),len(x4),description),fontsize=18)
 
         plt.show()
 
-    def PlotHistSINR(self,SINR):
+    def PlotHistSINR(self,SINR,scene_params):
 
         maxind=0
         minind=0
         maxSINR=max(SINR)
         minSINR=min(SINR)
+        avg=maxSINR/5
+        xt=[]
+        here=minSINR
+        for i in range(0,5):
+            xt.append(round(here,2))
+            here+=avg
+    
+        xt.append(round(maxSINR,2))
+
+        lab = []
+        mids = []
+
+        for i in range(0,5):
+            one = xt[i]
+            two = xt[i+1]
+            temp = one+two/2
+            mids.append(temp)
+            lab.append(str(one)+" to "+str(two))
+
+        print(lab)
+        print("========")
+        print(xt)
+
+
+
+
         print("SINR:MIN = {}, MAX = {}".format(minSINR,maxSINR))
         # for i in range(1,len(SINR)):
         #     if(SINR[i]>maxSINR):
@@ -380,18 +397,35 @@ class GraphService:
         #     minSINR = SINR[i]
         #     minind = i
 
+
         plt.hist(SINR,label="SINR of LTE Users", bins=5, edgecolor="black")
-        plt.title("SINR of LTE Users")
-        plt.ylabel("No. of LTE Users")
-        plt.xlabel("SINR")
+        plt.title("SINR of LTE Users",fontsize=18)
+        plt.ylabel("No. of LTE Users",fontsize=18)
+        plt.xlabel("SINR",fontsize=18)
+        yt=range(1,scene_params.numofLTEUE+1)
+
+        plt.yticks(yt,fontsize=14)
+        # plt.xticks(mids,labels=lab,fontsize=14)
         plt.show()
 
-    def PlotHistSNR(self,SNR):
+    def PlotHistSNR(self,SNR,scene_params):
 
         maxind=0
         minind=0
         maxSNR=max(SNR)
         minSNR=min(SNR)
+        
+        avg=maxSNR/5
+        xt=[]
+        here=minSNR
+        for i in range(0,5):
+            xt.append(here)
+            here+=avg
+        xt.append(maxSNR)
+        
+        print("========")
+        print(xt)
+
         print("SNR:MIN = {}, MAX = {}".format(minSNR,maxSNR))
         # for i in range(1,len(SINR)):
         #     if(SINR[i]>maxSINR):
@@ -402,9 +436,13 @@ class GraphService:
         #     minind = i
 
         plt.hist(SNR,label="SNR of Wi-Fi Users", bins=5, edgecolor="black")
-        plt.title("SNR of Wi-Fi Users")
-        plt.ylabel("No. of Wi-Fi Users")
-        plt.xlabel("SNR")
+        plt.title("SNR of Wi-Fi Users",fontsize=18)
+        plt.ylabel("No. of Wi-Fi Users",fontsize=18)
+        plt.xlabel("SNR",fontsize=18)
+        yt=range(1,scene_params.numofWifiUE+1)
+        plt.yticks(yt,fontsize=14)
+        plt.yticks(xt,fontsize=14)
+
         plt.show()
 
 
