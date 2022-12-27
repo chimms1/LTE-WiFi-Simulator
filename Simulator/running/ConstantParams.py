@@ -3,12 +3,16 @@ import math
 class PARAMS:
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 15
-    numofWifiUE = 15
-    const=10
+    numofLTEUE = 2
+    numofWifiUE = 2
+    const=90
+    subframe=1000 #1ms = 1000us 
+    wifiuserslot=9 #9us==1slot(used by us) in wifi 
+    wifislotsreq=90 #Wifi slots(9us) required per user
+    LTEslotsreq=0.5 #LTE slots(0.5ms) required per user
     length = 100
     breadth = 100
-    prob = 0.2
+    prob = 0.5
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
     # temp_noise = -90    # Unit: dBm/Hz
@@ -34,4 +38,3 @@ class PARAMS:
         return val_mWatt/1000
 
     # noise = get_dBm_from_Watt((get_Watt_from_dBm(PARAMS().temp_noise)*20*(10**6)))#convert to dbm from watt (get watt from dbm(temp_noise) *20*10^6)
-
