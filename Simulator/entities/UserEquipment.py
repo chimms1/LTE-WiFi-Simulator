@@ -26,37 +26,59 @@ class LTEUserEquipment:
         return prcvd
 
 
-    # Measure Power Recieved from all Base Stations, Assign max BS to self UE and return index of max BS
-    def measurePowerRcvd(self,bs_list):
+    # Measure SINR from all Base Stations, Assign max BS to self UE and return index of max BS
+    def measureSINRandConnect(self,lbss,wbss):
 
-        maxpwr = -99999999
+        maxsinr = -99999999
         maxind = 0
         ind = 0
+        #================================================================
+        sinr_list = []
 
-        for b in bs_list:
-            prcvd = self.getPowerRcvd(b)
+        wifi_power_sum = 0
+        for w in wbss:
+            wifi_power_recv = self.getPowerRcvd(w)
+            wifi_power_sum = wifi_power_sum + PARAMS().get_Watt_from_dB(wifi_power_recv)
+        
+        wifi_part = wifi_power_sum + PARAMS().get_mWatt_from_dBm(PARAMS().noise)
+        
 
-            if maxpwr <= prcvd:
-                maxpwr = prcvd
+        for b in lbss:
+
+
+            lte_power_rcvd = self.getPowerRcvd(b)
+            sinr_temp = lte_power_rcvd-(PARAMS().get_dB_from_Watt(wifi_part))
+            sinr_list.append(sinr_temp)
+
+            if maxsinr <= sinr_temp:
+                maxsinr = sinr_temp
                 maxind = ind
 
-            #Add to the list
-            self.powerRcvd_list = np.append(self.powerRcvd_list,prcvd)
             ind+=1
+
+        self.bs = lbss[maxind]
+        print(sinr_list)
         
-        #ind = np.argmax(self.powerRcvd_list)
-        self.bs = bs_list[maxind]
+
+        #================================================================
+        # for b in bs_list:
+        #     prcvd = self.getPowerRcvd(b)
+
+        #     if maxpwr <= prcvd:
+        #         maxpwr = prcvd
+        #         maxind = ind
+
+        #     #Add to the list
+        #     self.powerRcvd_list = np.append(self.powerRcvd_list,prcvd)
+        #     ind+=1
+        
+        # #ind = np.argmax(self.powerRcvd_list)
+        # self.bs = bs_list[maxind]
 
         return maxind
 
     # User must be connected to a Base Station to use this function
     def measureSINR(self,wbss):
-
-        if(self.bs==None):
-            print("User Not Connected to a BS to get SINR")
-            return
-
-        prcvd = self.getPowerRcvd(self.bs)
 
         wifi_power_sum = 0
         lte_power_rcvd = self.getPowerRcvd(self.bs)
@@ -95,36 +117,55 @@ class WifiUserEquipment:
 
         return prcvd
 
-    # Measure Power Recieved from all Base Stations, Assign max BS to self UE and return index of max BS
-    def measurePowerRcvd(self,bs_list):
+    # Measure SNR from all Base Stations, Assign max BS to self UE and return index of max BS
+    def measureSNRandConnect(self,lbss,wbss):
 
-        maxpwr = -99999999
+        maxsnr = -99999999
         maxind = 0
         ind = 0
+        #================================================================
+        snr_list = []
 
-        for b in bs_list:
+        for w in wbss:
 
-            prcvd = self.getPowerRcvd(b)
+            wifi_power_rcvd = self.getPowerRcvd(w)
 
-            if maxpwr <= prcvd:
-                maxpwr = prcvd
+            snr_temp = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))
+
+            snr_list.append(snr_temp)
+
+            if maxsnr <= snr_temp:
+                maxsnr = snr_temp
                 maxind = ind
 
-            #Add to the list
-            self.powerRcvd_list = np.append(self.powerRcvd_list,prcvd)
             ind+=1
+
+        self.bs = wbss[maxind]
+
+        print(snr_list)
+
         
-        #ind = np.argmax(self.powerRcvd_list)
-        self.bs = bs_list[maxind]
+
+        #================================================================
+        # for b in bs_list:
+        #     prcvd = self.getPowerRcvd(b)
+
+        #     if maxpwr <= prcvd:
+        #         maxpwr = prcvd
+        #         maxind = ind
+
+        #     #Add to the list
+        #     self.powerRcvd_list = np.append(self.powerRcvd_list,prcvd)
+        #     ind+=1
+        
+        # #ind = np.argmax(self.powerRcvd_list)
+        # self.bs = bs_list[maxind]
 
         return maxind
 
     # User must be connected to a Base Station to use this function
     def measureSNR(self):
 
-        if(self.bs==None):
-            print("User Not Connected to a BS to get SNR")
-            return
-
         wifi_power_rcvd = self.getPowerRcvd(self.bs)
-        self.SNR = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))        
+
+        self.SNR = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))

@@ -131,6 +131,10 @@ class ServiceClass:
                 bss = np.append(bss,b)
 
             return bss
+        
+        else:
+            print("Please choose scene specified in documentation")
+            exit()
 
     # Returns List of Base Stations of size PARAMS.numofWifiBS
     # each BS with a sequential ID and random location in (length,breadth)
@@ -242,6 +246,9 @@ class ServiceClass:
 
             return bss
 
+        else:
+            print("Please choose scene specified in documentation")
+            exit()
 
     # Returns List of User Equipments of size PARAMS.numofLTEUE
     # each UE with a sequential ID and random location in (length,breadth)

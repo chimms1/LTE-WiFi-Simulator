@@ -10,67 +10,21 @@ from collections import Counter
 if __name__ == "__main__":
     print("Hello World!")
 
-    # userscenes =   [[1,1],
-    #                 [1,2],
-    #                 [1,3],
-    #                 [1,4],  
-    #                 [1,6],   
-    #                 [1,8],     
-    #                 [1,16],    
-    #                 [1,24],    
-    #                 [1,32],
-    #                 [2,1],
-    #                 [2,2], 
-    #                 [2,3], 
-    #                 [2,4], 
-    #                 [2,6], 
-    #                 [2,8], 
-    #                 [2,16],
-    #                 [2,24],
-    #                 [2,32],
-    #                 [3,1], 
-    #                 [3,2], 
-    #                 [3,3], 
-    #                 [3,4], 
-    #                 [3,6], 
-    #                 [3,8], 
-    #                 [3,16],
-    #                 [3,24],
-    #                 [3,32],
-    #                 [4,1], 
-    #                 [4,2], 
-    #                 [4,3], 
-    #                 [4,4], 
-    #                 [4,6],
-    #                 [4,8], 
-    #                 [4,16],
-    #                 [4,24],
-    #                 [4,32],
-    #                 [6,1], 
-    #                 [6,2], 
-    #                 [6,3], 
-    #                 [6,4], 
-    #                 [6,6], 
-    #                 [6,8], 
-    #                 [6,16],
-    #                 [6,24],
-    #                 [6,32],
-    #                 [8,1],
-    #                 [8,2],
-    #                 [8,3],
-    #                 [8,4],
-    #                 [8,6],
-    #                 [8,8],
-    #                 [8,16],
-    #                 [8,24],
-    #                 [8,32]]
+    # Scene1: 1 LTE & 1 Wi-Fi (colocated)
+    # Scene2: 1 LTE & 1 Wi-Fi (apart)
+    # Scene3: 3 LTE & 3  Wi-Fi
+    # Scene4: 1 LTE & 3 Wi-Fi
+    # Scene5: 3 LTE & 1 Wi-Fi
 
-    # csvlist = []
-    # csvlist.append(("x","y","fairness","format"))
+    # Else choose scene 0 for random allocation of numbers specified in params
 
-    # thisparams0 = PARAMS()
+    scene = 1
+    description = "Random-Generic"
 
-    
+    print("Scene chosen: ",scene)
+
+    if scene != 0:
+        print("Caution: Choosing scene other than 0 will override values set (no. of BS, UE) in PARAMS")
 
     # for num in userscenes:
     thisparams = PARAMS()
@@ -82,16 +36,6 @@ if __name__ == "__main__":
     SINR=[]
     SNR=[]
 
-    scene = 1
-    description = "Co-Located"
-
-    # Scene1: 1 LTE & 1 Wi-Fi (colocated)
-    # Scene2: 1 LTE & 1 Wi-Fi (apart)
-    # Scene3: 3 LTE & 3  Wi-Fi
-    # Scene4: 1 LTE & 3 Wi-Fi
-    # Scene5: 3 LTE & 1 Wi-Fi
-
-
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(thisparams,scene)
     wbss = service.createWifiBaseStations(thisparams,scene)
@@ -102,15 +46,14 @@ if __name__ == "__main__":
 
     # Connecting all the LTE UE with a LTE BS
     for u in luss:
-        ind = u.measurePowerRcvd(lbss)
+        ind = u.measureSINRandConnect(lbss,wbss)
 
         # Add this UE to user_list
         lbss[ind].user_list = np.append(lbss[ind].user_list, u)
 
     # Connecting all the Wifi UE with a Wifi BS
     for u in wuss:
-        ind = u.measurePowerRcvd(wbss)
-        print("\nINDEX:", ind)
+        ind = u.measureSNRandConnect(lbss,wbss)
 
         # Add this UE to user_list
         wbss[ind].user_list = np.append(wbss[ind].user_list, u)
@@ -134,23 +77,21 @@ if __name__ == "__main__":
 
 
     # Printing
-    print("x\ty of LTE Base Stations")
-    for b in lbss:
-        print("{}\t{}\t SINR = {}".format(b.x, b.y, b.SINR))
+    # print("x\ty of LTE Base Stations")
+    # for b in lbss:
+    #     print("{}\t{}\t SINR = {}".format(b.x, b.y, b.SINR))
 
-    print("x\ty of Wifi Base Stations")
-    for b in wbss:
-        print("{}\t{}\t SNR = {}".format(b.x, b.y, b.SNR))
+    # print("x\ty of Wifi Base Stations")
+    # for b in wbss:
+    #     print("{}\t{}\t SNR = {}".format(b.x, b.y, b.SNR))
 
-    print("\n\n")
-
-    print("\n\n\nx\ty of LTE User Equipments\n")
+    print("\nx  y of LTE User Equipments")
     for u in luss:
-        print("{}\t{}\tLTE-bs: {} SINR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SINR))
+        print("{}  {}\tLTE-bs: {} SINR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SINR))
 
-    print("\n\n\nx\ty of Wifi User Equipments\n")
+    print("\nx  y of Wifi User Equipments")
     for u in wuss:
-        print("{}\t{}\t Wifi-bs: {} SNR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SNR))
+        print("{}  {}\t Wifi-bs: {} SNR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SNR))
 
     graphservice.PlotHistSINR(SINR,thisparams)
 
@@ -362,3 +303,65 @@ if __name__ == "__main__":
     # plt.xticks(xt,xlabels,fontsize=14)
     # plt.yticks(fontsize=14)
     # plt.show()
+
+
+
+        # userscenes =   [[1,1],
+    #                 [1,2],
+    #                 [1,3],
+    #                 [1,4],  
+    #                 [1,6],   
+    #                 [1,8],     
+    #                 [1,16],    
+    #                 [1,24],    
+    #                 [1,32],
+    #                 [2,1],
+    #                 [2,2], 
+    #                 [2,3], 
+    #                 [2,4], 
+    #                 [2,6], 
+    #                 [2,8], 
+    #                 [2,16],
+    #                 [2,24],
+    #                 [2,32],
+    #                 [3,1], 
+    #                 [3,2], 
+    #                 [3,3], 
+    #                 [3,4], 
+    #                 [3,6], 
+    #                 [3,8], 
+    #                 [3,16],
+    #                 [3,24],
+    #                 [3,32],
+    #                 [4,1], 
+    #                 [4,2], 
+    #                 [4,3], 
+    #                 [4,4], 
+    #                 [4,6],
+    #                 [4,8], 
+    #                 [4,16],
+    #                 [4,24],
+    #                 [4,32],
+    #                 [6,1], 
+    #                 [6,2], 
+    #                 [6,3], 
+    #                 [6,4], 
+    #                 [6,6], 
+    #                 [6,8], 
+    #                 [6,16],
+    #                 [6,24],
+    #                 [6,32],
+    #                 [8,1],
+    #                 [8,2],
+    #                 [8,3],
+    #                 [8,4],
+    #                 [8,6],
+    #                 [8,8],
+    #                 [8,16],
+    #                 [8,24],
+    #                 [8,32]]
+
+    # csvlist = []
+    # csvlist.append(("x","y","fairness","format"))
+
+    # thisparams0 = PARAMS()
