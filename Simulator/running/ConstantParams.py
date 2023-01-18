@@ -1,7 +1,7 @@
 import math
 
 class PARAMS:
-    numofLTEBS = 1
+    numofLTEBS = 3
     numofWifiBS = 1
     numofLTEUE = 1
     numofWifiUE = 1

@@ -18,13 +18,20 @@ if __name__ == "__main__":
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
-    scene = 1
+    scene = 0
     description = "Random-Generic"
 
     print("Scene chosen: ",scene)
 
     if scene != 0:
         print("Caution: Choosing scene other than 0 will override values set (no. of BS, UE) in PARAMS")
+
+    check = input("Continue? [Y/n]: ")
+
+    if check == 'N' or check == 'n':
+        exit()
+
+
 
     # for num in userscenes:
     thisparams = PARAMS()
@@ -129,7 +136,7 @@ if __name__ == "__main__":
 
         user_formats = [int(x) for x in user_formats]
 
-        print(user_formats)
+        print("Formats chosen ",user_formats)
 
         if len(user_formats) != formats_required:
             print("Expected {} formats... but {} were given".format(formats_required,len(user_formats)))
@@ -146,18 +153,28 @@ if __name__ == "__main__":
             continue
         else:
             break
-    
-    chosen_formats = [format[x] for x in user_formats]
-
-    print("Chosen formats:\n")
-    for i in range(0,len(user_formats)):
-        print(chosen_formats[i])
 
     print("========================================")
 
+    combos = list(service.my_combinations_with_replacement(user_formats,thisparams.numofLTEBS))
+
+    print("Generated index Combinations: ")
+    for combo in combos:
+        print(combo)
+
+
+    print("\nStoring frame structure combinations:")
+    chosen_formats = []
+    for combo in combos:
+        temp_list = []
+        for index in combo:
+            temp_list.append(format[index])
+        chosen_formats.append(temp_list)
     
+    for x in chosen_formats:
+        print(x)
 
-
+    print("========================================")
 
     ground=dict()
 

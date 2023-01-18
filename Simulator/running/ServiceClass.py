@@ -249,6 +249,24 @@ class ServiceClass:
         else:
             print("Please choose scene specified in documentation")
             exit()
+    
+    # from itertools import combinations_with_replacement
+    def my_combinations_with_replacement(self,iterable, r):
+        # combinations_with_replacement('ABC', 2) --> AA AB AC BB BC CC
+        pool = iterable
+        n = len(pool)
+        if not n and r:
+            return
+        indices = [0] * r
+        yield [pool[i] for i in indices]
+        while True:
+            for i in reversed(range(r)):
+                if indices[i] != n - 1:
+                    break
+            else:
+                return
+            indices[i:] = [indices[i] + 1] * (r - i)
+            yield [pool[i] for i in indices]
 
     # Returns List of User Equipments of size PARAMS.numofLTEUE
     # each UE with a sequential ID and random location in (length,breadth)
