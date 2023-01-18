@@ -1,8 +1,8 @@
 import math
 
 class PARAMS:
-    numofLTEBS = 3
-    numofWifiBS = 3
+    numofLTEBS = 1
+    numofWifiBS = 1
     numofLTEUE = 1
     numofWifiUE = 1
     const=90
