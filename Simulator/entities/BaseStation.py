@@ -7,8 +7,16 @@ class LTEBaseStation:
     y: int  # y-coordinate
     pTx: int    # Transmission Power in watt
     #user_list: list[UserEquipment]  # List of users associated with this BaseStation
-    user_list = np.array([])  # List of users associated with this BaseStation. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR=None
+
+    user_list = np.array([])  # List of users associated with this BaseStation. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
+    t_user_list = np.array([])
+    lusscount = None
+    format = None
+    has_zero = None
+    
+
+
     
 
 
@@ -28,7 +36,11 @@ class WifiBaseStation:
     pTx: int    # Transmission Power in watt
     #user_list: list[UserEquipment]  # List of users associated with this BaseStation
     user_list = np.array([])  # List of users associated with this BaseStation. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
+    t_user_list = np.array([])
+    wusscount = None
     SNR=None
+    format = None
+    
 
     # def measureSNR(self):
 

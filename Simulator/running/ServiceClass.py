@@ -12,15 +12,23 @@ from entities.UserEquipment import WifiUserEquipment
 
 class ServiceClass:
     
-    def countWifiUsersWhoTransmit(self,wuss):
+    def countWifiUsersWhoTransmit(self,wbss):
         WifiUsersWhoTransmit=0
-        userind=[] #Index of users whose prob < given prob
-        i=0
-        for u in wuss:
-            if u.probability<PARAMS.prob:
-                userind.append(i)
-                WifiUsersWhoTransmit += 1
-            i+=1
+        bs_index = 0
+
+        userind = []
+        for b in wbss:
+            tempind = []
+            i = 0
+            for u in b.t_user_list:
+                if u.probability<PARAMS.prob:
+                    tempind.append(i)
+                    WifiUsersWhoTransmit += 1
+                i+=1
+                
+            userind.append(tempind)
+            bs_index+=1
+        
         return WifiUsersWhoTransmit,userind
 
 
@@ -310,10 +318,11 @@ class ServiceClass:
         return uss
     
 
-    # Assigning random number to each user
-    def assignProb(self,wuss):
-        for u in wuss:
-            u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
+    # Assigning random number to each user in each Wifi BS
+    def assignProb(self,wbss):
+        for b in wbss:
+            for u in b.t_user_list:
+                u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
 
     # Creates CSVs of locations of BSs and Users
     def createLocationCSV(self, wbss, lbss, luss, wuss):

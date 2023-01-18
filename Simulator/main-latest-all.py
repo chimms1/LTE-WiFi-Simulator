@@ -6,6 +6,13 @@ from running.ServiceClass import GraphService
 from running.ConstantParams import PARAMS
 from collections import Counter
 
+def count_users(bs_array):
+    usercount = 0
+    for b in bs_array:
+        usercount += len(b.t_user_list)
+    
+    return usercount
+
 
 if __name__ == "__main__":
     print("Hello World!")
@@ -18,8 +25,8 @@ if __name__ == "__main__":
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
-    scene = 0
-    description = "Random-Generic"
+    scene = 1
+    description = "Not Random-Generic"
 
     print("Scene chosen: ",scene)
 
@@ -58,6 +65,17 @@ if __name__ == "__main__":
         # Add this UE to user_list
         lbss[ind].user_list = np.append(lbss[ind].user_list, u)
 
+    # keeping a copy of LTE transmitting users
+    for b in lbss:
+        # b.t_user_list = np.copy(b.user_list)
+        # np.copyto(b.t_user_list,b.user_list)
+        # b.t_user_list = b.t_user_list.reshape(b.user_list.shape)
+        # b.t_user_list[:] = b.user_list[:]
+        for element in b.user_list:
+            b.t_user_list = np.append(b.t_user_list,element)
+
+        b.lusscount = len(b.t_user_list)
+    
     # Connecting all the Wifi UE with a Wifi BS
     for u in wuss:
         ind = u.measureSNRandConnect(lbss,wbss)
@@ -65,6 +83,13 @@ if __name__ == "__main__":
         # Add this UE to user_list
         wbss[ind].user_list = np.append(wbss[ind].user_list, u)
 
+    # keeping a copy of Wifi transmitting users
+    for b in wbss:
+        # np.copyto(b.t_user_list,b.user_list)
+        for element in b.user_list:
+            b.t_user_list = np.append(b.t_user_list,element)
+
+        b.wusscount = len(b.t_user_list)
 
     # Measuring SINR for LTE Users
     for u in luss:
@@ -174,256 +199,170 @@ if __name__ == "__main__":
     for x in chosen_formats:
         print(x)
 
-    print("========================================")
-
-    ground=dict()
-
-    for k in range(0,len(format)):
-        d_count = Counter(format[k])
-        temp_y2= d_count[0]*4 #y2
-        temp_y1= d_count[1]*111*thisparams.prob #y1 
-        ground[k]=[temp_y1,temp_y2]
-        
-        # print(ground[k][0],ground[k][1])
-    # print(ground)
-
+    print("=============================================================================")
     Fairness = []
-    print("\n\n")
-    for i in range(0,len(format)):
-        print("Format",i,"\n")
+
+    print("LTE users: {} Wifi users: {}".format(count_users(lbss),count_users(wbss)))
+
+    # np.copyto(copy_lbss,lbss)
+    # np.copyto(copy_wbss,wbss)
+    copy_lbss = np.array([])
+    copy_wbss = np.array([])
+
+    for element in lbss:
+            copy_lbss = np.append(copy_lbss,element)
+    for element in wbss:
+            copy_wbss = np.append(copy_wbss,element)
+
+    print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
+
+    #Simulation starts
+    for simulation_iterator in range(0,len(chosen_formats)):
+        # np.copy(lbss,copy_lbss)
+        # np.copy(wbss,copy_wbss)
+        lbss = np.array([])
+        wbss = np.array([])
+        for element in copy_lbss:
+            lbss = np.append(lbss,element)
+        for element in copy_wbss:
+            wbss = np.append(wbss,element)
+        print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
+
+        print(" iter: {} LTE users: {} Wifi users: {}".format(simulation_iterator,count_users(lbss),count_users(wbss)))
+
+        # Select combination
+        assigner = 0
+        for b in lbss:
+            b.format = chosen_formats[simulation_iterator][assigner]
+            assigner+=1
         
-        chbusy=0
-        # i=6 #Which format to use
-        j=0 #Choosesubframe within a format
-        curtime=0.0
-
-        service.assignProb(wuss)
-
+        # Do work
         LTECountS=0
         LTECountU=0
 
         WifiCountS=0
         WifiCountU=0
 
-        remwuss=wuss
-        
-    
-        lusscount=thisparams.numofLTEUE
+        for slot_iterator in range(0,10):
 
-        while curtime<10000.00:
-            if(format[i][j]==0): #LTE will transmit
+            single_zero = 0
+            multiple_zero = 0
+            all_one = 0
+
+            zero_counter = 0
+            one_counter = 0
+
+            lbs_single_zero = None
+
+            for b in lbss:
+                if b.format[slot_iterator] == 0:
+                    zero_counter += 1
+
+                elif b.format[slot_iterator] == 1:
+                    one_counter += 1
+
+            if zero_counter > 1:
+                multiple_zero=1
+
+            elif zero_counter == 1:
+                single_zero=1
+                lbs_single_transmission_ind = 0
+                for b in lbss:
+                    if b.format[slot_iterator]==0:
+                        break
+                    lbs_single_transmission_ind+=1
+
+                
+
+            elif one_counter == thisparams.numofLTEBS:
+                all_one=1
+
+            # "Simulation for one slot in a frame" ==============================
+            
+    
+            # More than one LTE BS has zero
+            if multiple_zero == 1:
+                LTECountU+=4
+                continue
+                
+            elif single_zero == 1:
                 for k in range(0,4):
-                    if(lusscount>0):
-                        chbusy=1
-                        curtime += thisparams.subframe/4 
+                    if(lbss[lbs_single_transmission_ind].lusscount>0):
                         LTECountS += 0.5 #0.5 is count not time
-                        lusscount -= 1
-                        chbusy=0
+                        print("Hiiiiiiiii")
+                        lbss[lbs_single_transmission_ind].lusscount -= 1
                     else:
-                        curtime += thisparams.subframe/4 
                         LTECountU += 1
 
-            if(format[i][j]==1): #LTE will transmit
-                Wifisensecount=0
-                while Wifisensecount < 111:  
-                    if(chbusy==0):
-                        #Check all prob and count 
-                        Wifiuserscount,userind = service.countWifiUsersWhoTransmit(remwuss)
+            elif all_one == 1:
+                service.assignProb(wbss)
 
-                        if Wifiuserscount == 1:
-                            remwuss[userind[0]].wifislotsreq-=1
-                            if remwuss[userind[0]].wifislotsreq==0:
-                                remwuss = np.delete(remwuss,userind[0])
-                            chbusy=1                
-                            WifiCountS += 1
-                            curtime += thisparams.wifiuserslot
-                            Wifisensecount += 1 
-                            chbusy=0                
+                Wifisensecount = 0
+                while Wifisensecount < 111:
 
-                        else:
-                            curtime += thisparams.wifiuserslot
-                            WifiCountU += 1
-                            Wifisensecount += 1
-
-                    service.assignProb(remwuss)
+                    #Check all prob and count
+                    Wifiuserscount,userind = service.countWifiUsersWhoTransmit(wbss)
+                    wbs_single_transmission = None
+                    wus_single_transmission_ind = None
                     
-                curtime += 1
-            j += 1
-            # print("Current time after ",j,"th iteration",curtime)
-        print("\nLTE slots used ",LTECountS," LTE slots unused ",LTECountU,"remaining LTE users",lusscount)
-        print("\nWifi slots used ",WifiCountS," Wifi slots unused ",WifiCountU," remaining wifi users ",remwuss.shape[0])
-
-
-        x1=wifirequested=thisparams.wifislotsreq*thisparams.numofWifiUE #x1
-        x2=LTErequested=thisparams.LTEslotsreq*thisparams.numofLTEUE #x2
-
-
-        y1=ground[i][0]
-        y2=ground[i][1]
-
-        print("\nx1",x1,"\nx2",x2,"\ny1",y1,"\ny2",y2,"\n")
-
-        # Fairness index calculation
-
-        f1=LTECountS/(thisparams.LTEslotsreq*thisparams.numofLTEUE)
-        # f2=WifiCountS/(thisparams.prob*thisparams.numofWifiUE/thisparams.const)
-        f2=WifiCountS/(thisparams.numofWifiUE*thisparams.const)
-        Fairness.append((f1+f2)**2/(2*((f1)**2+(f2)**2)))
-        print("Fairness",Fairness[i])
-        # print("Fairness",Fairness)
-        print("-------------------------------------------------------")
-    # End of for loop
-
-
-    for i in range(0,len(format)):
-        print("Frame: ",i,"Fairness: ",Fairness[i])
-
-    # 11-12-22
-    # minimize x1 x2 y1 and y2
-
-    loss=[]
-    for i in range(0,len(format)):
-
-        loss.append(WifiCountS/x1-LTECountS/x2)
-        
-    # csvlist.append((thisparams.numofWifiUE,thisparams.numofLTEUE,max(Fairness),Fairness.index(max(Fairness))))
-
-# csvframe = pd.DataFrame(csvlist)
-# csvframe.to_csv("csvframe.csv", index=False)
-
-    # Plot Fairness vs Frame Format graph
-    import matplotlib.pyplot as plt
-    # plt.bar([p for p in range(0,7)], Fairness)
-    # plt.title('Fairness vs Frame Format for {} LTEUE {} WIFI UE'.format(thisparams.numofLTEUE,thisparams.numofWifiUE), fontsize=18)
-    # plt.xlabel('Frame Format', fontsize=18)
-    # plt.ylabel('Fairness', fontsize=18)
-    # plt.ylim([0.5,0.6])
-    # plt.xticks(fontsize=12)
-    # plt.yticks(fontsize=12)
-    # # plt.yticks(ticks=True)
-    # plt.show()
-
-    # 2,2; 4,4; 6,6
-    # 2,6; 6,2; 10,10
-
-    # xlabels = ["2,2","4,4","6,6","2,6","6,2","10,10"]
-    # xt = [0,1,2,3,4,5]
-
-    
-    # plt.plot([1.0,0.9392346461720907,0.6414923207159269,0.6587471270511519,1.0,0.5111097395383285])
-    # plt.title("Fairness vs No. of Users for Format 0",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
-
-    # plt.plot([0.9210720913531615,0.8482732115879031,0.6274873524451938,0.6133209677637724,0.9196927325110418,0.5044443566546833])
-    # plt.title("Fairness vs No. of Users for Format 1",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
-
-    # plt.plot([0.9853458382180539,0.7999999999999999,0.5754907409617398,0.5553846153846154,0.9909664180971924,0.5066663703835385])
-    # plt.title("Fairness vs No. of Users for Format 2",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
-
-    # plt.plot([0.9900990099009901,0.7444450865381836,0.5663716814159292,0.5791278893436339,0.9858500017680132,0.5044443566546833])
-    # plt.title("Fairness vs No. of Users for Format 3",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
-
-    # plt.plot([0.9987867736794495,0.6923076923076923,0.559051889113675,0.5351416798819021,0.9981132075471698,0.5044443566546833])
-    # plt.title("Fairness vs No. of Users for Format 4",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
-
-    # plt.plot([0.9520222045995241,0.638879433589761,0.5332963374028857,0.5480367871463958,0.9392346461720907,0.5022222112483394])
-    # plt.title("Fairness vs No. of Users for Format 5",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
-
-    # plt.plot([0.8736005507217872,0.9234017529447226,0.6484292246014401,0.6327590097295989,0.8849482659459822,0.5077773072986944])
-    # plt.title("Fairness vs No. of Users for Format 6",fontsize=17)
-    # plt.xlabel("(LTE,Wifi) Users",fontsize=17)
-    # plt.ylabel("Fairness",fontsize=17)
-    # plt.xticks(xt,xlabels,fontsize=14)
-    # plt.yticks(fontsize=14)
-    # plt.show()
+                    if Wifiuserscount == 1:
+                        
+                        # Get the only User who is transmitting and its BS
+                        bsind = 0
+                        for ulist in userind:
+                            if len(ulist) == 1:
+                                wus_single_transmission_ind = ulist[0]
+                                break
+                            bsind+=1
 
 
 
-        # userscenes =   [[1,1],
-    #                 [1,2],
-    #                 [1,3],
-    #                 [1,4],  
-    #                 [1,6],   
-    #                 [1,8],     
-    #                 [1,16],    
-    #                 [1,24],    
-    #                 [1,32],
-    #                 [2,1],
-    #                 [2,2], 
-    #                 [2,3], 
-    #                 [2,4], 
-    #                 [2,6], 
-    #                 [2,8], 
-    #                 [2,16],
-    #                 [2,24],
-    #                 [2,32],
-    #                 [3,1], 
-    #                 [3,2], 
-    #                 [3,3], 
-    #                 [3,4], 
-    #                 [3,6], 
-    #                 [3,8], 
-    #                 [3,16],
-    #                 [3,24],
-    #                 [3,32],
-    #                 [4,1], 
-    #                 [4,2], 
-    #                 [4,3], 
-    #                 [4,4], 
-    #                 [4,6],
-    #                 [4,8], 
-    #                 [4,16],
-    #                 [4,24],
-    #                 [4,32],
-    #                 [6,1], 
-    #                 [6,2], 
-    #                 [6,3], 
-    #                 [6,4], 
-    #                 [6,6], 
-    #                 [6,8], 
-    #                 [6,16],
-    #                 [6,24],
-    #                 [6,32],
-    #                 [8,1],
-    #                 [8,2],
-    #                 [8,3],
-    #                 [8,4],
-    #                 [8,6],
-    #                 [8,8],
-    #                 [8,16],
-    #                 [8,24],
-    #                 [8,32]]
+                        wbss[bsind].t_user_list[wus_single_transmission_ind].wifislotsreq-=1
+                        if wbss[bsind].t_user_list[wus_single_transmission_ind].wifislotsreq == 0:
+                            #remwuss = np.delete(remwuss,userind[0])
+                            wbss[bsind].t_user_list = np.delete(wbss[bsind].t_user_list,wus_single_transmission_ind)
+                        
+                        WifiCountS += 1
+                        Wifisensecount += 1
+                                     
+                    else:
+                        WifiCountU += 1
+                        Wifisensecount += 1
 
-    # csvlist = []
-    # csvlist.append(("x","y","fairness","format"))
+                    service.assignProb(wbss) # assing prob at every "Wifi slot"
+                # End of Wifi transmission slot
+        # End of slot iteration loop
+        # print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
+        print("LTE slots used ",LTECountS," LTE slots unused ",LTECountU)
+        print("Wifi slots used ",WifiCountS," Wifi slots unused ",WifiCountU)
 
-    # thisparams0 = PARAMS()
+
+        # x1=wifirequested=thisparams.wifislotsreq*thisparams.numofWifiUE #x1
+        # x2=LTErequested=thisparams.LTEslotsreq*thisparams.numofLTEUE #x2
+
+        # print("\nx1",x1,"\nx2",x2,"\ny1",y1,"\ny2",y2,"\n")
+
+        # # Fairness index calculation
+
+        # f1=LTECountS/(thisparams.LTEslotsreq*thisparams.numofLTEUE)
+        # # f2=WifiCountS/(thisparams.prob*thisparams.numofWifiUE/thisparams.const)
+        # f2=WifiCountS/(thisparams.numofWifiUE*thisparams.const)
+        # Fairness.append((f1+f2)**2/(2*((f1)**2+(f2)**2)))
+        # print("Fairness",Fairness[i])
+        # # print("Fairness",Fairness)
+        # print("-------------------------------------------------------")
+
+
+
+
+
+
+
+
+    # ground=dict()
+
+    # for k in range(0,len(format)):
+    #     d_count = Counter(format[k])
+    #     temp_y2= d_count[0]*4 #y2
+    #     temp_y1= d_count[1]*111*thisparams.prob #y1 
+    #     ground[k]=[temp_y1,temp_y2]

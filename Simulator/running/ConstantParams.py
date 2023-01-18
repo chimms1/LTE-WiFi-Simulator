@@ -1,10 +1,10 @@
 import math
 
 class PARAMS:
-    numofLTEBS = 3
+    numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 1
-    numofWifiUE = 1
+    numofLTEUE = 4
+    numofWifiUE = 2
     const=90
     subframe=1000 #1ms = 1000us 
     wifiuserslot=9 #9us==1slot(used by us) in wifi 
