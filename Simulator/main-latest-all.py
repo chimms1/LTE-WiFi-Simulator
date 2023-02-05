@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
-    scene = 1
+    scene = 0
     description = "Not Random-Generic"
 
     print("Scene chosen: ",scene)
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             b.t_user_list = np.append(b.t_user_list,element)
 
         b.lusscount = len(b.t_user_list)
-    
+        b.lusscount2=b.lusscount
     # Connecting all the Wifi UE with a Wifi BS
     for u in wuss:
         ind = u.measureSNRandConnect(lbss,wbss)
@@ -206,26 +206,37 @@ if __name__ == "__main__":
 
     # np.copyto(copy_lbss,lbss)
     # np.copyto(copy_wbss,wbss)
-    copy_lbss = np.array([])
-    copy_wbss = np.array([])
+    # copy_lbss = np.array([])
+    # copy_wbss = np.array([])
 
-    for element in lbss:
-            copy_lbss = np.append(copy_lbss,element)
-    for element in wbss:
-            copy_wbss = np.append(copy_wbss,element)
+    # for element in lbss:
+    #         copy_lbss = np.append(copy_lbss,element)
+    # for element in wbss:
+    #         copy_wbss = np.append(copy_wbss,element)
 
-    print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
+    # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
 
     #Simulation starts
     for simulation_iterator in range(0,len(chosen_formats)):
         # np.copy(lbss,copy_lbss)
         # np.copy(wbss,copy_wbss)
-        lbss = np.array([])
-        wbss = np.array([])
-        for element in copy_lbss:
-            lbss = np.append(lbss,element)
-        for element in copy_wbss:
-            wbss = np.append(wbss,element)
+        # lbss = np.array([])
+        # wbss = np.array([])
+        # for element in copy_lbss:
+        #     lbss = np.append(lbss,element)
+        # for element in copy_wbss:
+        #     wbss = np.append(wbss,element)
+        for b in lbss:
+            b.lusscount=b.lusscount2
+        
+        for b in wbss:
+            for u in b.user_list:
+                u.wifislotsreq = thisparams.wifislotsreq
+
+
+        for b in wbss:
+            b.t_user_list = b.user_list
+
         print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
 
         print(" iter: {} LTE users: {} Wifi users: {}".format(simulation_iterator,count_users(lbss),count_users(wbss)))
@@ -289,7 +300,7 @@ if __name__ == "__main__":
                 for k in range(0,4):
                     if(lbss[lbs_single_transmission_ind].lusscount>0):
                         LTECountS += 0.5 #0.5 is count not time
-                        print("Hiiiiiiiii")
+                        # print("Hiiiiiiiii")
                         lbss[lbs_single_transmission_ind].lusscount -= 1
                     else:
                         LTECountU += 1

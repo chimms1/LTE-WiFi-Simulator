@@ -12,6 +12,7 @@ class LTEBaseStation:
     user_list = np.array([])  # List of users associated with this BaseStation. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     t_user_list = np.array([])
     lusscount = None
+    lusscount2 = None
     format = None
     has_zero = None
     
