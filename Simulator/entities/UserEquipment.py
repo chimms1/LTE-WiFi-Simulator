@@ -9,7 +9,9 @@ class LTEUserEquipment:
     powerRcvd_list = np.array([])  # List of Powers of BaseStations associated with this user
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
-    LTEslotsreq=PARAMS().LTEslotsreq
+    LTEslotsreq = None
+    req_data_rate=None
+
 
 
     def getPowerRcvd(self,b):
@@ -45,7 +47,6 @@ class LTEUserEquipment:
 
         for b in lbss:
 
-
             lte_power_rcvd = self.getPowerRcvd(b)
             sinr_temp = lte_power_rcvd-(PARAMS().get_dB_from_Watt(wifi_part))
             sinr_list.append(sinr_temp)
@@ -75,6 +76,12 @@ class LTEUserEquipment:
         # #ind = np.argmax(self.powerRcvd_list)
         # self.bs = bs_list[maxind]
 
+        given_sinr = list(PARAMS().LTE_MCS.keys())
+
+        if maxsinr < given_sinr[0]:
+            print("Deleting user with SINR: ",maxsinr)
+            return -1
+
         return maxind
 
     # User must be connected to a Base Station to use this function
@@ -92,6 +99,7 @@ class LTEUserEquipment:
         self.SINR = lte_power_rcvd-(PARAMS().get_dB_from_Watt(wifi_power_sum))
 
 
+
 class WifiUserEquipment:
     ueID: int
     x: int  # x-coordinate
@@ -100,7 +108,8 @@ class WifiUserEquipment:
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
     probability = None
-    wifislotsreq=PARAMS().wifislotsreq
+    wifislotsreq = None
+    req_data_rate = None
 
 
     def getPowerRcvd(self,b):
@@ -160,6 +169,12 @@ class WifiUserEquipment:
         
         # #ind = np.argmax(self.powerRcvd_list)
         # self.bs = bs_list[maxind]
+
+        # given_snr = list(PARAMS().wifi_MCS.keys())
+
+        # if maxsnr < given_snr[0]:
+        #     print("Deleting user with SNR: ",maxsnr)
+        #     return -1
 
         return maxind
 

@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
-    scene = 0
+    scene = 1
     description = "Not Random-Generic"
 
     print("Scene chosen: ",scene)
@@ -58,31 +58,45 @@ if __name__ == "__main__":
     wuss = service.createWifiUsers(thisparams)
 
 
+
+    
     # Connecting all the LTE UE with a LTE BS
+    i = 0
     for u in luss:
         ind = u.measureSINRandConnect(lbss,wbss)
 
+        if ind == -1:
+            luss = np.delete(luss,i)
+            continue
+
         # Add this UE to user_list
         lbss[ind].user_list = np.append(lbss[ind].user_list, u)
+        i+=1
 
+    # PRB things LTE
+
+    
     # keeping a copy of LTE transmitting users
     for b in lbss:
-        # b.t_user_list = np.copy(b.user_list)
-        # np.copyto(b.t_user_list,b.user_list)
-        # b.t_user_list = b.t_user_list.reshape(b.user_list.shape)
-        # b.t_user_list[:] = b.user_list[:]
         for element in b.user_list:
             b.t_user_list = np.append(b.t_user_list,element)
 
         b.lusscount = len(b.t_user_list)
         b.lusscount2=b.lusscount
+
     # Connecting all the Wifi UE with a Wifi BS
+    i = 0
     for u in wuss:
         ind = u.measureSNRandConnect(lbss,wbss)
+        
+        if ind == -1:
+            wuss = np.delete(wuss,i)
+            continue
 
         # Add this UE to user_list
         wbss[ind].user_list = np.append(wbss[ind].user_list, u)
-
+        i+=1
+        
     # keeping a copy of Wifi transmitting users
     for b in wbss:
         # np.copyto(b.t_user_list,b.user_list)
@@ -91,10 +105,34 @@ if __name__ == "__main__":
 
         b.wusscount = len(b.t_user_list)
 
+    # Users decide their data transfer rate
+    service.calculate_profile_prob(thisparams)
+    print(thisparams.LTE_profile_c_prob)
+    print(thisparams.wifi_profile_c_prob)
+
+    service.assign_data_rate_to_users(thisparams, luss, wuss)
+    print("LTE data rates")
+    for u in luss:        
+        print(u.req_data_rate)
+
+    print("wifi data rates")
+    for u in wuss:        
+        print(u.req_data_rate)
+    # exit()
+    
     # Measuring SINR for LTE Users
     for u in luss:
         u.measureSINR(wbss)
         SINR.append(u.SINR)
+    
+    service.decide_LTE_bits_per_symbol(lbss,thisparams)
+
+    for b in lbss:
+        for u in b.user_list:
+            print("SINR: ",u.SINR)
+            print(b.bits_per_symbol_of_user[u])
+
+    exit()
 
     # Measuring SNR for Wifi Users
     for u in wuss:
@@ -110,8 +148,9 @@ if __name__ == "__main__":
 
     # Printing
     # print("x\ty of LTE Base Stations")
-    # for b in lbss:
+    # for b in luss:
     #     print("{}\t{}\t SINR = {}".format(b.x, b.y, b.SINR))
+    print(SINR)
 
     # print("x\ty of Wifi Base Stations")
     # for b in wbss:
@@ -348,20 +387,21 @@ if __name__ == "__main__":
         print("Wifi slots used ",WifiCountS," Wifi slots unused ",WifiCountU)
 
 
-        # x1=wifirequested=thisparams.wifislotsreq*thisparams.numofWifiUE #x1
-        # x2=LTErequested=thisparams.LTEslotsreq*thisparams.numofLTEUE #x2
+        x1=wifirequested=thisparams.wifislotsreq*thisparams.numofWifiUE #x1
+        x2=LTErequested=thisparams.LTEslotsreq*thisparams.numofLTEUE #x2
 
         # print("\nx1",x1,"\nx2",x2,"\ny1",y1,"\ny2",y2,"\n")
 
         # # Fairness index calculation
 
-        # f1=LTECountS/(thisparams.LTEslotsreq*thisparams.numofLTEUE)
+        f1=LTECountS/(thisparams.LTEslotsreq*thisparams.numofLTEUE)
         # # f2=WifiCountS/(thisparams.prob*thisparams.numofWifiUE/thisparams.const)
-        # f2=WifiCountS/(thisparams.numofWifiUE*thisparams.const)
-        # Fairness.append((f1+f2)**2/(2*((f1)**2+(f2)**2)))
-        # print("Fairness",Fairness[i])
+        f2=WifiCountS/(thisparams.wifislotsreq*thisparams.numofWifiUE)
+        fair = (f1+f2)**2/(2*((f1)**2+(f2)**2))
+        Fairness.append(fair)
+        print("Fairness: ",fair)
         # # print("Fairness",Fairness)
-        # print("-------------------------------------------------------")
+        print("-------------------------------------------------------")
 
 
 

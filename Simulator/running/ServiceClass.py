@@ -11,7 +11,20 @@ from entities.UserEquipment import LTEUserEquipment
 from entities.UserEquipment import WifiUserEquipment
 
 class ServiceClass:
-    
+
+    # def delete_low_signal_users(self,luss,lbss):
+    #     for u in luss:
+    #         if u.SINR < list(PARAMS().LTE_MCS.keys())[0]:
+    #             tempbs = u.bs
+    #             tempu = u
+    #             print("Deleting user with SINR: "+u.SINR)
+    #             luss.remove(u)
+
+    #             for i in range(0,len(lbss)):
+    #                 if tempbs.bsID == lbss[i].bsID:
+    #                     lbss[i].user_list = np.delete(lbss[i].user_list,np.where(lbss[i].user_list == tempu))
+
+
     def countWifiUsersWhoTransmit(self,wbss):
         WifiUsersWhoTransmit=0
         bs_index = 0
@@ -317,12 +330,72 @@ class ServiceClass:
         
         return uss
     
+    def assign_data_rate_to_users(self,scene_params,luss,wuss):
+        # LTE
+        for u in luss:
+            temp_prob=round(random.random(),2)
+            k=0
+            for i in scene_params.LTE_profile_c_prob:
+                if(temp_prob<=i):
+                    u.req_data_rate= scene_params.profiles[k]
+                    break
+                k+=1
+        
+        # Wifi users
+        for u in wuss:
+            temp_prob=round(random.random(),2)
+            k=0
+            for i in scene_params.wifi_profile_c_prob:
+                if(temp_prob<=i):
+                    u.req_data_rate=scene_params.profiles[k]
+                    break
+                k+=1
+
+    def get_LTE_bits_per_symbol(self,sinr,scene_params):
+
+        given_sinr = list(scene_params.LTE_MCS.keys())
+
+        i = 0
+        for x in given_sinr:
+            if sinr<=x:
+                if i==0:
+                    return scene_params.LTE_MCS[given_sinr[0]]
+                else:
+                    return scene_params.LTE_MCS[given_sinr[i-1]]
+            i+=1
+
+
+    def decide_LTE_bits_per_symbol(self,lbss,scene_params):
+        
+        for b in lbss:
+            for u in b.user_list:
+                bos = self.get_LTE_bits_per_symbol(u.SINR,scene_params)
+                b.bits_per_symbol_of_user[u] = bos
+
+
 
     # Assigning random number to each user in each Wifi BS
     def assignProb(self,wbss):
         for b in wbss:
             for u in b.t_user_list:
                 u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
+
+    def calculate_profile_prob(self,scene_params):
+        total_sum=sum(scene_params.LTE_ratios)
+        for i in scene_params.LTE_ratios:
+            scene_params.LTE_profile_prob.append(i/total_sum)
+        
+        scene_params.LTE_profile_c_prob.append(scene_params.LTE_profile_prob[0])
+        for i in range(1,len(scene_params.LTE_ratios)):
+            scene_params.LTE_profile_c_prob.append(round((scene_params.LTE_profile_prob[i]+scene_params.LTE_profile_c_prob[i-1]),1))
+
+        total_sum=sum(scene_params.wifi_ratios)
+        for i in scene_params.wifi_ratios:
+            scene_params.wifi_profile_prob.append(i/total_sum)
+        
+        scene_params.wifi_profile_c_prob.append(scene_params.wifi_profile_prob[0])
+        for i in range(1,len(scene_params.wifi_ratios)):
+            scene_params.wifi_profile_c_prob.append(round((scene_params.wifi_profile_prob[i]+scene_params.wifi_profile_c_prob[i-1]),1))
 
     # Creates CSVs of locations of BSs and Users
     def createLocationCSV(self, wbss, lbss, luss, wuss):

@@ -15,20 +15,10 @@ class LTEBaseStation:
     lusscount2 = None
     format = None
     has_zero = None
+
+    bits_per_symbol_of_user = dict()   # stores users and the corresponding bit value used in the symbols of PRB
+
     
-
-
-    
-
-
-    # def measureSINR(self,wbss):
-
-    #     wifi_power_sum = 0
-    #     for w in wbss:
-    #         wifi_power_recv = w.pTx/((self.x - w.x)**2 + (self.y - w.y)**2)**0.5
-    #         wifi_power_sum = wifi_power_sum + wifi_power_recv
-        
-    #     self.SINR = (self.pTx)/(PARAMS().noise + wifi_power_sum)
 
 class WifiBaseStation:
     bsID: int
@@ -42,7 +32,3 @@ class WifiBaseStation:
     SNR=None
     format = None
     
-
-    # def measureSNR(self):
-
-    #     self.SNR = (self.pTx)/(PARAMS().noise)
