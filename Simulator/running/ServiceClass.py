@@ -12,19 +12,6 @@ from entities.UserEquipment import WifiUserEquipment
 
 class ServiceClass:
 
-    # def delete_low_signal_users(self,luss,lbss):
-    #     for u in luss:
-    #         if u.SINR < list(PARAMS().LTE_MCS.keys())[0]:
-    #             tempbs = u.bs
-    #             tempu = u
-    #             print("Deleting user with SINR: "+u.SINR)
-    #             luss.remove(u)
-
-    #             for i in range(0,len(lbss)):
-    #                 if tempbs.bsID == lbss[i].bsID:
-    #                     lbss[i].user_list = np.delete(lbss[i].user_list,np.where(lbss[i].user_list == tempu))
-
-
     def countWifiUsersWhoTransmit(self,wbss):
         WifiUsersWhoTransmit=0
         bs_index = 0
@@ -329,11 +316,54 @@ class ServiceClass:
             uss = np.append(uss,u)
         
         return uss
+
+    # Assigning random number to each user in each Wifi BS
+    def assignProb(self,wbss):
+        for b in wbss:
+            for u in b.t_user_list:
+                u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
+
+    # Calling this function will fill the values of Cumulative Probablities of Profiles in lists of LTE_profile_c_prob and Wifi_profile_c_prob in Constant Params
+    def calculate_profile_prob(self,scene_params):
+
+        # Manually calculating Cumulative Probabilities
+
+        # STEP 1
+        # Get sum of numbers
+        total_sum=sum(scene_params.LTE_ratios)
+
+        # ratio/sumofratios will give probability for that ratio
+        for i in scene_params.LTE_ratios:
+            scene_params.LTE_profile_prob.append(i/total_sum)   
+        
+        # -- Cumulative Prob --
+
+        # First CumProb  = First Prob
+        scene_params.LTE_profile_c_prob.append(scene_params.LTE_profile_prob[0])
+        # Add further CumProb
+        for i in range(1,len(scene_params.LTE_ratios)):
+            scene_params.LTE_profile_c_prob.append(round((scene_params.LTE_profile_prob[i]+scene_params.LTE_profile_c_prob[i-1]),1))
+        # Now we will get the CumProb in LTE_profile_c_prob in constant params
+
+        # Repeat from STEP 1 for wifi
+        total_sum=sum(scene_params.wifi_ratios)
+        for i in scene_params.wifi_ratios:
+            scene_params.wifi_profile_prob.append(i/total_sum)
+        
+        scene_params.wifi_profile_c_prob.append(scene_params.wifi_profile_prob[0])
+        for i in range(1,len(scene_params.wifi_ratios)):
+            scene_params.wifi_profile_c_prob.append(round((scene_params.wifi_profile_prob[i]+scene_params.wifi_profile_c_prob[i-1]),1))
     
+    # 1. Assign Data Rate (Profile) to users based on probabilities and ratios
+    # 2. This function will set the value 'req_data_rate' in LTE and Wifi UE
+    # 3. 'service.calculate_profile_prob' must be called before this function
     def assign_data_rate_to_users(self,scene_params,luss,wuss):
-        # LTE
+        # LTE users
         for u in luss:
+            # get a probability value between 0-1
             temp_prob=round(random.random(),2)
+            
+            # Based on temp_prob, assign datarate
             k=0
             for i in scene_params.LTE_profile_c_prob:
                 if(temp_prob<=i):
@@ -343,14 +373,19 @@ class ServiceClass:
         
         # Wifi users
         for u in wuss:
+            # get a probability value between 0-1
             temp_prob=round(random.random(),2)
+
+            # Based on temp_prob, assign datarate
             k=0
             for i in scene_params.wifi_profile_c_prob:
                 if(temp_prob<=i):
                     u.req_data_rate=scene_params.profiles[k]
                     break
                 k+=1
-
+    
+    # This function returns the value 'bits per symbol' for corresponding SINR value
+    # from the LTE_MCS dictionary in constant_params
     def get_LTE_bits_per_symbol(self,sinr,scene_params):
 
         given_sinr = list(scene_params.LTE_MCS.keys())
@@ -358,44 +393,27 @@ class ServiceClass:
         i = 0
         for x in given_sinr:
             if sinr<=x:
+                # if SINR is equal to first value in MCS
                 if i==0:
                     return scene_params.LTE_MCS[given_sinr[0]]
                 else:
                     return scene_params.LTE_MCS[given_sinr[i-1]]
             i+=1
 
-
+    # This function fills the 'BS.bits_per_symbol_of_user'
+    # 'BS.bits_per_symbol_of_user' 
     def decide_LTE_bits_per_symbol(self,lbss,scene_params):
         
+        # For each LTE Base Station
         for b in lbss:
+            # For every user connected to BS b
             for u in b.user_list:
+                # get the bits per symbol
                 bos = self.get_LTE_bits_per_symbol(u.SINR,scene_params)
+                # store bits per symbol in 'BS.bits_per_symbol_of_user'
+                # with user as key and value as its bits per symbol
                 b.bits_per_symbol_of_user[u] = bos
 
-
-
-    # Assigning random number to each user in each Wifi BS
-    def assignProb(self,wbss):
-        for b in wbss:
-            for u in b.t_user_list:
-                u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
-
-    def calculate_profile_prob(self,scene_params):
-        total_sum=sum(scene_params.LTE_ratios)
-        for i in scene_params.LTE_ratios:
-            scene_params.LTE_profile_prob.append(i/total_sum)
-        
-        scene_params.LTE_profile_c_prob.append(scene_params.LTE_profile_prob[0])
-        for i in range(1,len(scene_params.LTE_ratios)):
-            scene_params.LTE_profile_c_prob.append(round((scene_params.LTE_profile_prob[i]+scene_params.LTE_profile_c_prob[i-1]),1))
-
-        total_sum=sum(scene_params.wifi_ratios)
-        for i in scene_params.wifi_ratios:
-            scene_params.wifi_profile_prob.append(i/total_sum)
-        
-        scene_params.wifi_profile_c_prob.append(scene_params.wifi_profile_prob[0])
-        for i in range(1,len(scene_params.wifi_ratios)):
-            scene_params.wifi_profile_c_prob.append(round((scene_params.wifi_profile_prob[i]+scene_params.wifi_profile_c_prob[i-1]),1))
 
     # Creates CSVs of locations of BSs and Users
     def createLocationCSV(self, wbss, lbss, luss, wuss):

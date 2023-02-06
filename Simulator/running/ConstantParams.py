@@ -1,15 +1,17 @@
 import math
 
 class PARAMS:
+
+    scene = 0
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 5
+    numofLTEUE = 10
     numofWifiUE = 10
     const=90
-    subframe=1000 #1ms = 1000us 
-    wifiuserslot=9 #9us==1slot(used by us) in wifi 
-    wifislotsreq=90 #Wifi slots(9us) required per user
-    LTEslotsreq=0.5 #LTE slots(0.5ms) required per user
+    subframe=1000 # 1ms = 1000us 
+    wifiuserslot=9 # 9us==1slot(used by us) in wifi 
+    wifislotsreq=90 # Wifi slots(9us) required per user
+    LTEslotsreq=0.5 # (Will be deprecated soon) LTE slots(0.5ms) required per user
     length = 100
     breadth = 100
     prob = 0.5

@@ -9,8 +9,8 @@ class LTEUserEquipment:
     powerRcvd_list = np.array([])  # List of Powers of BaseStations associated with this user
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
-    LTEslotsreq = None
-    req_data_rate=None
+    LTEslotsreq = None # (bits per symbol) * (symbols per resource block)
+    req_data_rate = None # data rate in Kbps
 
 
 

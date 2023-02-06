@@ -17,6 +17,12 @@ def count_users(bs_array):
 if __name__ == "__main__":
     print("Hello World!")
 
+    # for num in userscenes:
+    thisparams = PARAMS()   # this is object of constant params to be used in main
+
+    service = ServiceClass()
+    graphservice = GraphService()
+
     # Scene1: 1 LTE & 1 Wi-Fi (colocated)
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
     # Scene3: 3 LTE & 3  Wi-Fi
@@ -25,7 +31,7 @@ if __name__ == "__main__":
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
-    scene = 1
+    scene = thisparams.scene
     description = "Not Random-Generic"
 
     print("Scene chosen: ",scene)
@@ -38,18 +44,6 @@ if __name__ == "__main__":
     if check == 'N' or check == 'n':
         exit()
 
-
-
-    # for num in userscenes:
-    thisparams = PARAMS()
-    # thisparams.numofWifiUE = num[0]
-    # thisparams.numofLTEUE = num[1]
-
-    service = ServiceClass()
-    graphservice = GraphService()
-    SINR=[]
-    SNR=[]
-
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(thisparams,scene)
     wbss = service.createWifiBaseStations(thisparams,scene)
@@ -58,13 +52,12 @@ if __name__ == "__main__":
     wuss = service.createWifiUsers(thisparams)
 
 
-
-    
     # Connecting all the LTE UE with a LTE BS
     i = 0
     for u in luss:
         ind = u.measureSINRandConnect(lbss,wbss)
 
+        # if ind is -1 then that user is out of range of any BS
         if ind == -1:
             luss = np.delete(luss,i)
             continue
@@ -73,10 +66,8 @@ if __name__ == "__main__":
         lbss[ind].user_list = np.append(lbss[ind].user_list, u)
         i+=1
 
-    # PRB things LTE
-
     
-    # keeping a copy of LTE transmitting users
+    # Keeping a copy of LTE transmitting users
     for b in lbss:
         for element in b.user_list:
             b.t_user_list = np.append(b.t_user_list,element)
@@ -88,7 +79,7 @@ if __name__ == "__main__":
     i = 0
     for u in wuss:
         ind = u.measureSNRandConnect(lbss,wbss)
-        
+        # if ind is -1 then that user is out of range of any BS
         if ind == -1:
             wuss = np.delete(wuss,i)
             continue
@@ -97,9 +88,8 @@ if __name__ == "__main__":
         wbss[ind].user_list = np.append(wbss[ind].user_list, u)
         i+=1
         
-    # keeping a copy of Wifi transmitting users
+    # Keeping a copy of Wifi transmitting users
     for b in wbss:
-        # np.copyto(b.t_user_list,b.user_list)
         for element in b.user_list:
             b.t_user_list = np.append(b.t_user_list,element)
 
@@ -120,6 +110,9 @@ if __name__ == "__main__":
         print(u.req_data_rate)
     # exit()
     
+    SINR=[]
+    SNR=[]
+
     # Measuring SINR for LTE Users
     for u in luss:
         u.measureSINR(wbss)
@@ -150,6 +143,7 @@ if __name__ == "__main__":
     # print("x\ty of LTE Base Stations")
     # for b in luss:
     #     print("{}\t{}\t SINR = {}".format(b.x, b.y, b.SINR))
+    print("SINR")
     print(SINR)
 
     # print("x\ty of Wifi Base Stations")
