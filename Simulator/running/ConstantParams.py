@@ -28,7 +28,7 @@ class PARAMS:
     PRB_bandwidth = 180 # KHz
 
     profiles = [64,128,256,1000]
-    LTE_ratios = [4,3,2,1]
+    LTE_ratios = [4,4,0,11]
     wifi_ratios = [2,3,4,1]
     LTE_profile_prob = []
     wifi_profile_prob = []

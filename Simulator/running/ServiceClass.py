@@ -334,7 +334,7 @@ class ServiceClass:
 
         # ratio/sumofratios will give probability for that ratio
         for i in scene_params.LTE_ratios:
-            scene_params.LTE_profile_prob.append(i/total_sum)   
+            scene_params.LTE_profile_prob.append(round((i/total_sum),1) ) 
         
         # -- Cumulative Prob --
 
@@ -348,7 +348,7 @@ class ServiceClass:
         # Repeat from STEP 1 for wifi
         total_sum=sum(scene_params.wifi_ratios)
         for i in scene_params.wifi_ratios:
-            scene_params.wifi_profile_prob.append(i/total_sum)
+            scene_params.wifi_profile_prob.append(round((i/total_sum),1))
         
         scene_params.wifi_profile_c_prob.append(scene_params.wifi_profile_prob[0])
         for i in range(1,len(scene_params.wifi_ratios)):

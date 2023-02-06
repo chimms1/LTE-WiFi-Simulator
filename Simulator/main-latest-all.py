@@ -3,7 +3,8 @@ import pandas as pd
 from running.ConstantParams import PARAMS
 from running.ServiceClass import ServiceClass
 from running.ServiceClass import GraphService
-from running.ConstantParams import PARAMS
+from running.Print import Verbose
+
 from collections import Counter
 
 def count_users(bs_array):
@@ -22,6 +23,7 @@ if __name__ == "__main__":
 
     service = ServiceClass()
     graphservice = GraphService()
+    verbose = Verbose()
 
     # Scene1: 1 LTE & 1 Wi-Fi (colocated)
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
@@ -95,11 +97,23 @@ if __name__ == "__main__":
 
         b.wusscount = len(b.t_user_list)
 
+    
+
     # Users decide their data transfer rate
     service.calculate_profile_prob(thisparams)
-    print(thisparams.LTE_profile_c_prob)
-    print(thisparams.wifi_profile_c_prob)
 
+    if verbose.profile_and_probability == 1:
+        print("\n=== Profile and Probability Info ===")
+        print("DataRate Profiles: ",thisparams.profiles)
+        print("LTE user ratio:    ",thisparams.LTE_ratios)
+        print("Wifi user ratio:   ",thisparams.wifi_ratios)
+        print("\nLTE Prob: ",thisparams.LTE_profile_prob)
+        print("LTE Cumulative Prob: ",thisparams.LTE_profile_c_prob)
+        print("\nWifi Prob: ",thisparams.wifi_profile_prob)
+        print("Wifi Cumulative Prob: ",thisparams.wifi_profile_c_prob)
+        print("======\n")
+
+    # Based on ratios decided by the user, assign data rates to UE
     service.assign_data_rate_to_users(thisparams, luss, wuss)
     print("LTE data rates")
     for u in luss:        
