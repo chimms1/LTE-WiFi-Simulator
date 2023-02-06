@@ -2,11 +2,11 @@ import math
 
 class PARAMS:
 
-    scene = 0
+    scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 10
-    numofWifiUE = 10
+    numofLTEUE = 5
+    numofWifiUE = 0
     const=90
     subframe=1000 # 1ms = 1000us 
     wifiuserslot=9 # 9us==1slot(used by us) in wifi 
@@ -36,8 +36,24 @@ class PARAMS:
     wifi_profile_c_prob = []
 
     LTE_MCS = {-6.936:0.1523,-5.147:0.2344,-3.18:0.377,-1.253:0.6016,0.761:0.877,2.699:1.1758,4.694:1.4766,6.525:1.9141,8.573:2.4063,10.366:2.7305,12.289:3.3223,14.173:3.9023,15.888:4.5234,17.814:5.1152,19.829:5.5547}
-    # wifi_MCS = {}
+    wifi_MCS = {2:7.2, 5:14.4, 9:21.7, 11:28.9, 15:43.3, 18:57.8, 20:65.0, 25:72.2, 29:86.7}
 
+    def get_bits_per_slot_from_Kbps(self,value_Kbps):
+        # Ex: 128 Kbps to bits per slot (bits/0.5 ms)
+        # 128 * 10^3 bits/ 10^3 ms
+        # 128 * 10^3 bits/ 10^3 * 2 (half-ms)
+        # 128 / 2000 (bits per 0.5 ms)
+
+        return (value_Kbps/2000)
+    
+    def get_bits_per_wifi_slot_from_Kbps(self,value_Kbps):
+
+        # Ex: 128 Mbps to bits per wifi slot (bits/9 us)
+        # 128 * 10^3 bits/ 10^6 us
+        # 128 bits/ 10^3 * 9 (nine-us)
+        # 128 / 9000 (bits per 9 us)
+
+        return (value_Kbps/9000)
 
     def get_dB_from_dBm(self,value_dBm):
         return (value_dBm-30)

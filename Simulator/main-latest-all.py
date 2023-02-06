@@ -96,7 +96,6 @@ if __name__ == "__main__":
             b.t_user_list = np.append(b.t_user_list,element)
 
         b.wusscount = len(b.t_user_list)
-
     
 
     # Users decide their data transfer rate
@@ -111,47 +110,77 @@ if __name__ == "__main__":
         print("LTE Cumulative Prob: ",thisparams.LTE_profile_c_prob)
         print("\nWifi Prob: ",thisparams.wifi_profile_prob)
         print("Wifi Cumulative Prob: ",thisparams.wifi_profile_c_prob)
-        print("======\n")
+        print("======")
 
     # Based on ratios decided by the user, assign data rates to UE
     service.assign_data_rate_to_users(thisparams, luss, wuss)
-    print("LTE data rates")
-    for u in luss:        
-        print(u.req_data_rate)
 
-    print("wifi data rates")
-    for u in wuss:        
-        print(u.req_data_rate)
+    if verbose.LTE_user_data_rates == 1:
+        print("\n=== LTE user required data rates ===")
+        for u in luss:        
+            print("LTE userid {}: {} Kbps".format(u.ueID,u.req_data_rate))
+        print("======")
+        
+
+    if verbose.Wifi_user_data_rates == 1:
+        print("\n=== Wifi user required data rates ===")
+        for u in luss:        
+            print("Wifi userid {}: {} Kbps".format(u.ueID,u.req_data_rate))
+        print("======")
     # exit()
     
     SINR=[]
     SNR=[]
-
+    
+    #
     # Measuring SINR for LTE Users
     for u in luss:
         u.measureSINR(wbss)
         SINR.append(u.SINR)
-    
+
     service.decide_LTE_bits_per_symbol(lbss,thisparams)
 
-    for b in lbss:
-        for u in b.user_list:
-            print("SINR: ",u.SINR)
-            print(b.bits_per_symbol_of_user[u])
+    service.calculate_LTE_user_PRB(thisparams, luss)
 
-    exit()
+    if verbose.LTE_user_SINR_MCS_value == 1:
+        print("\n=== LTE user SINR and MCS value ===")
+        for b in lbss:
+            for u in b.user_list:
+                print("LTE userid {}: {:.4f} @> {} bits per symbol".format(u.ueID,u.SINR,b.bits_per_symbol_of_user[u]))
+                if verbose.LTE_user_req_PRB == 1:
+                    print("Required PRBs: {}".format(u.req_no_PRB))
+        print("======")
 
+    #
     # Measuring SNR for Wifi Users
     for u in wuss:
         u.measureSNR()
         SNR.append(u.SNR)
+
+    service.decide_wifi_bits_per_symbol(wbss, thisparams)
+
+    service.calculate_wifi_user_slots(thisparams, wuss)
+
+    if verbose.Wifi_user_SNR_MCS_value == 1:
+        print("\n=== Wifi user SNR and MCS value ===")
+        for b in wbss:
+            for u in b.user_list:
+                print("Wifi userid {}: {:.4f} @> {} Mbps".format(u.ueID,u.SNR,b.bits_per_symbol_of_user[u]))
+                if verbose.Wifi_user_req_slots == 1:
+                    print("Required wifi slots: {}".format(u.req_no_wifi_slot))
+        print("======")
+
+    exit()
+    
+
+    
 
     # Creating CSVs
     service.createLocationCSV(wbss, lbss, luss, wuss)
 
     # Plotting Graphs for scenes
     graphservice.PlotScene(scene, description)
-
+    
 
     # Printing
     # print("x\ty of LTE Base Stations")

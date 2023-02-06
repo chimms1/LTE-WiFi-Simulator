@@ -10,10 +10,15 @@ class LTEUserEquipment:
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SINR = None
 
+    req_data_rate = None # required data rate in Kbps
     req_bits_per_slot = None
-    req_PRB = None
+
+    req_no_PRB = None   # total PRB required by user = (required bits per slot)
+            #                           /(bits per symbol)*(total symbols in PRB)
+    
+
     # LTEslotsreq = None # (bits per symbol) * (symbols per resource block)
-    req_data_rate = None # data rate in Kbps
+
 
 
 
@@ -61,7 +66,7 @@ class LTEUserEquipment:
             ind+=1
 
         self.bs = lbss[maxind]
-        print(sinr_list)
+        # print(sinr_list)
         
 
         #================================================================
@@ -110,9 +115,14 @@ class WifiUserEquipment:
     powerRcvd_list = np.array([])  # List of users associated with this BaseStation
     bs = None # the BS to which this UE is connected. Exploiting Python's feature to assign objects to variables, thus avoiding Circular Dependency between BS and UE
     SNR = None
-    probability = None
-    wifislotsreq = None
-    req_data_rate = None
+    probability = None  # Probability with which the user transmits
+    # wifislotsreq = None
+    
+    req_data_rate = None # required data rate in Kbps
+    req_bits_per_slot = None
+    
+    req_no_wifi_slot = None   # total wifi slots required by user = (required bits per wifi slot)
+    #                                                               / (bits per wifi slot)
 
 
     def getPowerRcvd(self,b):
@@ -154,7 +164,7 @@ class WifiUserEquipment:
 
         self.bs = wbss[maxind]
 
-        print(snr_list)
+        # print(snr_list)
 
         
 

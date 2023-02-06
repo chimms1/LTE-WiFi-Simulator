@@ -413,8 +413,60 @@ class ServiceClass:
                 # store bits per symbol in 'BS.bits_per_symbol_of_user'
                 # with user as key and value as its bits per symbol
                 b.bits_per_symbol_of_user[u] = bos
+    
+    # This function calculates total no of PRB required by each user
+    #  and stores it in 'UE.req_no_PRB'
+    def calculate_LTE_user_PRB(self,scene_params,luss):
+
+        for u in luss:
+            # total PRB required by user = (required bits per slot)
+            #                           /(bits per symbol)*(total symbols in PRB)
+            u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols
+            u.req_no_PRB = math.ceil(u.req_no_PRB)
+
+    # This function returns the value 'bits per symbol' for corresponding SNR value
+    # from the wifi_MCS dictionary in constant_params
+    def get_wifi_bits_per_symbol(self,snr,scene_params):
+
+        given_snr = list(scene_params.wifi_MCS.keys())
+
+        i = 0
+        for x in given_snr:
+            if snr<=x:
+                # if SNR is equal to first value in MCS
+                if i==0:
+                    return scene_params.wifi_MCS[given_snr[0]]
+                else:
+                    return scene_params.wifi_MCS[given_snr[i-1]]
+            i+=1
+
+    # This function fills the 'BS.bits_per_symbol_of_user'
+    # 'BS.bits_per_symbol_of_user' 
+    def decide_wifi_bits_per_symbol(self,wbss,scene_params):
+        
+        # For each Wifi Base Station
+        for b in wbss:
+            # For every user connected to BS b
+            for u in b.user_list:
+                # get the bits per symbol
+                bos = self.get_wifi_bits_per_symbol(u.SNR,scene_params)
+                # store bits per symbol in 'BS.bits_per_symbol_of_user'
+                # with user as key and value as its bits per symbol
+                b.bits_per_symbol_of_user[u] = bos
+
+    # This function calculates total no of wifi slots required by each user
+    #  and stores it in 'UE.req_no_wifi_slot'
+    def calculate_wifi_user_slots(self,scene_params,wuss):
+
+        for u in wuss:
+            # total wifi slots required by user = (required bits per wifi slot)
+    #                                                               / (bits per wifi slot)
+            u.req_no_wifi_slot = scene_params.get_bits_per_wifi_slot_from_Kbps(u.req_data_rate)/ scene_params.get_bits_per_wifi_slot_from_Kbps(u.bs.bits_per_symbol_of_user[u]/1000)
+            u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
 
 
+
+    #==========================================================================================================================================================
     # Creates CSVs of locations of BSs and Users
     def createLocationCSV(self, wbss, lbss, luss, wuss):
         wbssl = []
