@@ -359,6 +359,7 @@ class ServiceClass:
     # 3. 'service.calculate_profile_prob' must be called before this function
     def assign_data_rate_to_users(self,scene_params,luss,wuss):
         # LTE users
+        random.seed(scene_params.seed_valueLTE)
         for u in luss:
             # get a probability value between 0-1
             temp_prob=round(random.random(),2)
@@ -372,14 +373,15 @@ class ServiceClass:
                 k+=1
         
         # Wifi users
+        random.seed(scene_params.seed_valueWifi)
         for u in wuss:
             # get a probability value between 0-1
-            temp_prob=round(random.random(),2)
+            temp_prob2=round(random.random(),2)
 
             # Based on temp_prob, assign datarate
             k=0
             for i in scene_params.wifi_profile_c_prob:
-                if(temp_prob<=i):
+                if(temp_prob2<=i):
                     u.req_data_rate=scene_params.profiles[k]
                     break
                 k+=1
@@ -421,7 +423,7 @@ class ServiceClass:
         for u in luss:
             # total PRB required by user = (required bits per slot)
             #                           /(bits per symbol)*(total symbols in PRB)
-            u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols
+            u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
             u.req_no_PRB = math.ceil(u.req_no_PRB)
 
     # This function returns the value 'bits per symbol' for corresponding SNR value
@@ -459,9 +461,9 @@ class ServiceClass:
     def calculate_wifi_user_slots(self,scene_params,wuss):
 
         for u in wuss:
-            # total wifi slots required by user = (required bits per wifi slot)
-    #                                                               / (bits per wifi slot)
-            u.req_no_wifi_slot = scene_params.get_bits_per_wifi_slot_from_Kbps(u.req_data_rate)/ scene_params.get_bits_per_wifi_slot_from_Kbps(u.bs.bits_per_symbol_of_user[u]/1000)
+            # total wifi slots required by user = (required datarate)
+    #                                                               / (available datarate)
+            u.req_no_wifi_slot = (u.req_data_rate*9)/(u.bs.bits_per_symbol_of_user[u])
             u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
 
 

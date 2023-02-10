@@ -4,7 +4,6 @@ from running.ConstantParams import PARAMS
 from running.ServiceClass import ServiceClass
 from running.ServiceClass import GraphService
 from running.Print import Verbose
-
 from collections import Counter
 
 def count_users(bs_array):
@@ -124,7 +123,7 @@ if __name__ == "__main__":
 
     if verbose.Wifi_user_data_rates == 1:
         print("\n=== Wifi user required data rates ===")
-        for u in luss:        
+        for u in wuss:        
             print("Wifi userid {}: {} Kbps".format(u.ueID,u.req_data_rate))
         print("======")
     # exit()
@@ -170,43 +169,31 @@ if __name__ == "__main__":
                     print("Required wifi slots: {}".format(u.req_no_wifi_slot))
         print("======")
 
-    exit()
     
 
     
+    if verbose.plot_Scene == 1:
+        # Creating CSVs
+        service.createLocationCSV(wbss, lbss, luss, wuss)
 
-    # Creating CSVs
-    service.createLocationCSV(wbss, lbss, luss, wuss)
+        # Plotting Graphs for scenes
+        graphservice.PlotScene(scene, description)
 
-    # Plotting Graphs for scenes
-    graphservice.PlotScene(scene, description)
-    
+    # print("\nx  y of LTE User Equipments")
+    # for u in luss:
+    #     print("{}  {}\tLTE-bs: {} SINR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SINR))
 
-    # Printing
-    # print("x\ty of LTE Base Stations")
-    # for b in luss:
-    #     print("{}\t{}\t SINR = {}".format(b.x, b.y, b.SINR))
-    print("SINR")
-    print(SINR)
+    # print("\nx  y of Wifi User Equipments")
+    # for u in wuss:
+    #     print("{}  {}\t Wifi-bs: {} SNR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SNR))
 
-    # print("x\ty of Wifi Base Stations")
-    # for b in wbss:
-    #     print("{}\t{}\t SNR = {}".format(b.x, b.y, b.SNR))
-
-    print("\nx  y of LTE User Equipments")
-    for u in luss:
-        print("{}  {}\tLTE-bs: {} SINR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SINR))
-
-    print("\nx  y of Wifi User Equipments")
-    for u in wuss:
-        print("{}  {}\t Wifi-bs: {} SNR: {:.4f}".format(u.x, u.y, u.bs.bsID, u.SNR))
-
-    graphservice.PlotHistSINR(SINR,thisparams)
-
-    graphservice.PlotHistSNR(SNR,thisparams)
+    if verbose.plot_SINR_Count == 1:
+        graphservice.PlotHistSINR(SINR,thisparams)
+    if verbose.plot_SNR_Count == 1:
+        graphservice.PlotHistSNR(SNR,thisparams)
 
     # ====================== Simulation starts here ===============================
-    
+    exit()
 
     # frames=[1,0,1,0,1,0,0,0,1,1,0,1,0,1,0,1,1,1]
     # 1  -->Uplink / s / wifi
