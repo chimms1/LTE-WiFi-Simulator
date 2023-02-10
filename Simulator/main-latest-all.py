@@ -279,16 +279,11 @@ if __name__ == "__main__":
 
     # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
 
+
     #Simulation starts
     for simulation_iterator in range(0,len(chosen_formats)):
-        # np.copy(lbss,copy_lbss)
-        # np.copy(wbss,copy_wbss)
-        # lbss = np.array([])
-        # wbss = np.array([])
-        # for element in copy_lbss:
-        #     lbss = np.append(lbss,element)
-        # for element in copy_wbss:
-        #     wbss = np.append(wbss,element)
+
+
         for b in lbss:
             b.lusscount=b.lusscount2
         
@@ -316,6 +311,8 @@ if __name__ == "__main__":
 
         WifiCountS=0
         WifiCountU=0
+
+        channel_busy = 0
 
         for slot_iterator in range(0,10):
 
@@ -351,8 +348,25 @@ if __name__ == "__main__":
             elif one_counter == thisparams.numofLTEBS:
                 all_one=1
 
-            # "Simulation for one slot in a frame" ==============================
-            
+            # More than one LTE BS has zero
+            if multiple_zero == 1 or single_zero == 1:
+                channel_busy = 1
+
+            # "Simulation for one sub-frame (0/1) in a frame" ==============================
+            service.assignProb(wbss)
+
+            Wifisensecount = 0
+            while Wifisensecount < 111:
+                # channel sense
+
+                
+
+                # if channel_busy == 1:
+                #     # start random backoff
+                #     pass
+
+
+
     
             # More than one LTE BS has zero
             if multiple_zero == 1:
