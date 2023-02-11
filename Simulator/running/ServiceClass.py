@@ -30,6 +30,25 @@ class ServiceClass:
             bs_index+=1
         
         return WifiUsersWhoTransmit,userind
+    
+    def countWifiUsersWhoTransmit2(self,wuss):
+        WifiUsersWhoTransmit=0
+
+        # ~Changed~
+        # userlist contains list of lists
+        # every row indicates the index of wifi BS
+        # and each row has a list of users connected to that BS willing to transmit
+        # ~~~~~~~~~~~~~~~~~~~~
+        # List of users who want to trasmit
+        userlist = []
+
+        for u in wuss:
+            if u.probability<PARAMS.prob:
+                # temp.append(u)
+                userlist.append(u)
+                WifiUsersWhoTransmit += 1
+        
+        return WifiUsersWhoTransmit,userlist
 
 
     # Returns List of Base Stations of size PARAMS.numofLTEBS
@@ -322,6 +341,11 @@ class ServiceClass:
         for b in wbss:
             for u in b.t_user_list:
                 u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
+
+    # Assigning random number to each user in user list
+    def assignProb2(self,wuss):
+        for u in wuss:
+            u.probability=round(random.uniform(0,1),4) #Assigning random number to each user 
 
     # Calling this function will fill the values of Cumulative Probablities of Profiles in lists of LTE_profile_c_prob and Wifi_profile_c_prob in Constant Params
     def calculate_profile_prob(self,scene_params):

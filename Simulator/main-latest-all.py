@@ -5,6 +5,8 @@ from running.ServiceClass import ServiceClass
 from running.ServiceClass import GraphService
 from running.Print import Verbose
 from collections import Counter
+from entities.UserEquipment import WifiUserEquipment
+import copy
 
 def count_users(bs_array):
     usercount = 0
@@ -193,8 +195,6 @@ if __name__ == "__main__":
         graphservice.PlotHistSNR(SNR,thisparams)
 
     # ====================== Simulation starts here ===============================
-    exit()
-
     # frames=[1,0,1,0,1,0,0,0,1,1,0,1,0,1,0,1,1,1]
     # 1  -->Uplink / s / wifi
     # 0  -->Downlink / LTE
@@ -287,13 +287,35 @@ if __name__ == "__main__":
         for b in lbss:
             b.lusscount=b.lusscount2
         
-        for b in wbss:
-            for u in b.user_list:
-                u.wifislotsreq = thisparams.wifislotsreq
+        # for b in wbss:
+        #     for u in b.user_list:
+        #         u.wifislotsreq = thisparams.wifislotsreq
 
 
         for b in wbss:
             b.t_user_list = b.user_list
+        
+        allwuss = []
+
+        for u in wuss:
+            # tempu = WifiUserEquipment()
+            tempu = copy.copy(u)
+
+            allwuss.append(tempu)
+        # for u in wuss:
+        #     twuss.append(u)
+        # # twuss = wuss
+
+        # service.calculate_wifi_user_slots(thisparams, wuss)
+
+        # twuss[0].random_backoff_slots = 69
+
+        # print(twuss[0].random_backoff_slots)
+        # print(wuss[0].random_backoff_slots)
+
+        
+
+        exit()
 
         print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
 
@@ -343,27 +365,79 @@ if __name__ == "__main__":
                         break
                     lbs_single_transmission_ind+=1
 
-                
-
+            
             elif one_counter == thisparams.numofLTEBS:
                 all_one=1
 
             # More than one LTE BS has zero
             if multiple_zero == 1 or single_zero == 1:
                 channel_busy = 1
+            elif all_one == 1:
+                channel_busy = 0
 
             # "Simulation for one sub-frame (0/1) in a frame" ==============================
-            service.assignProb(wbss)
+            service.assignProb2(allwuss)
 
             Wifisensecount = 0
+            rem_wifi_slots=111
+            CTS = 0
+            tuserlist = []
             while Wifisensecount < 111:
-                # channel sense
+                # step1:
+            # set rem_wifi_slots=111
+            # if CTS!=0
+                # if(CTS > rem_wifi_slots)
+                    # And current wifi user's remaining slots!=0
+                        # Wifi failed
+                        # make CTS=0 (????????)
+                    # And current wifi user's remaining slots==0
+                        # Wifi success
+                # else
+                    # Allocate slots to wifi user
+                    # and decrement CTS
+                    # and decrement rem_wifi_slots
 
-                
+            #else if CTS==0
+                if CTS == 0:
+                    
+                    # For all users in the list(list of users with prob<threshold)
+                    Wifiuserscount,a = service.countWifiUsersWhoTransmit2(allwuss)
+                    
+                    for u in a:
+                        allwuss.remove(u)
+                        tuserlist.append(u)
+
+                    # if channel is busy
+                    if channel_busy == 1:
+                        for u in a:
+                            u.setRandomBackoff()
+                        
+                    # if channel is free
+                    elif channel_busy == 0:
+                        pass
+
+                    # sense channel
 
                 # if channel_busy == 1:
-                #     # start random backoff
-                #     pass
+                    # start random backoff algorithm and start countdown
+                # else
+                    # start DIFS
+                        # untill DIFS==0
+                            # sense channel  
+                                # if busy 
+                                    # dont decrement
+                                # else 
+                                    # decrement
+                                        # and DIFS==0 
+                                            # send RTS to wifi
+                                                # if wifi has multiple RTS
+                                                    # choose a user and broadcast CTS
+                                                # else
+                                                    # choose the only user present 
+                                                # wifi broadcasts CTS to list of wifi users
+                                                # untill CTS ends no one sends request
+                                                # CTS ends goto step1
+
 
 
 
@@ -402,8 +476,6 @@ if __name__ == "__main__":
                                 wus_single_transmission_ind = ulist[0]
                                 break
                             bsind+=1
-
-
 
                         wbss[bsind].t_user_list[wus_single_transmission_ind].wifislotsreq-=1
                         if wbss[bsind].t_user_list[wus_single_transmission_ind].wifislotsreq == 0:

@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import random
 from running.ConstantParams import PARAMS
 
 class LTEUserEquipment:
@@ -123,7 +124,8 @@ class WifiUserEquipment:
     
     req_no_wifi_slot = None   # total wifi slots required by user = (required bits per wifi slot)
     #                                                               / (bits per wifi slot)
-
+    random_backoff_slots = 0
+    # busy_count = 0
 
     def getPowerRcvd(self,b):
         dist = float()
@@ -197,3 +199,7 @@ class WifiUserEquipment:
         wifi_power_rcvd = self.getPowerRcvd(self.bs)
 
         self.SNR = wifi_power_rcvd-(PARAMS().get_dB_from_dBm(PARAMS().noise))
+    
+    # sets a random backoff value in terms of number of slots
+    def setRandomBackoff(self):
+        self.random_backoff_slots = random.randint(PARAMS().backoff_lower, PARAMS().backoff_upper)
