@@ -201,7 +201,7 @@ if __name__ == "__main__":
             # '0'/'1' --> SLOT 
 
     # [0,1,1,1,1,0,1,1,1,1]              wifi:LTE   y2:x2       y1:x1
-    format=[[0,1,1,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
+    format=[[1,1,1,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
             [0,1,1,1,0,0,1,1,1,0], # 6:4  7:16      333:01      16:90
             [0,1,1,0,0,0,1,1,0,0], # 4:6  4:24      222:01      24:90
             [0,1,1,1,1,0,0,0,0,0], # 4:6  4:24      222:01      24:90
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     #         copy_wbss = np.append(copy_wbss,element)
 
     # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
-
+    # exit()
 
     #Simulation starts
     for simulation_iterator in range(0,len(chosen_formats)):
@@ -315,7 +315,7 @@ if __name__ == "__main__":
 
         
 
-        exit()
+        
 
         print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
 
@@ -335,6 +335,10 @@ if __name__ == "__main__":
         WifiCountU=0
 
         channel_busy = 0
+
+        CTS = 0
+        tuserlist = []
+        RTSuserlist = []
 
         for slot_iterator in range(0,10):
 
@@ -376,13 +380,20 @@ if __name__ == "__main__":
                 channel_busy = 0
 
             # "Simulation for one sub-frame (0/1) in a frame" ==============================
-            service.assignProb2(allwuss)
+            # service.assignProb2(allwuss)
 
             Wifisensecount = 0
             rem_wifi_slots=111
-            CTS = 0
-            tuserlist = []
+            
             while Wifisensecount < 111:
+
+                if len(allwuss) == 0 and len(tuserlist)!=0 and channel_busy==1:
+                    print("All the remaining {} Wifi users are waiting".format(len(tuserlist)))
+                    # do not break
+                if len(allwuss)==0 and len(tuserlist)==0 and RTSuserlist ==0:
+                    print("All wifi users have finished transmitting and are not programmed to do it again in this simulation")
+                    break   # break here
+
                 # step1:
             # set rem_wifi_slots=111
             # if CTS!=0
@@ -396,25 +407,75 @@ if __name__ == "__main__":
                     # Allocate slots to wifi user
                     # and decrement CTS
                     # and decrement rem_wifi_slots
+                if CTS!=0:
+                    selected_user.req_no_wifi_slot-=1
+                    WifiCountS+=1
+                    print("Success")
+
+                    CTS-=1
 
             #else if CTS==0
                 if CTS == 0:
-                    
+                    service.assignProb2(allwuss)
+
                     # For all users in the list(list of users with prob<threshold)
                     Wifiuserscount,a = service.countWifiUsersWhoTransmit2(allwuss)
-                    
-                    for u in a:
-                        allwuss.remove(u)
-                        tuserlist.append(u)
-
+                    print("Users who want to transmit: ",[x.ueID for x in a])
                     # if channel is busy
                     if channel_busy == 1:
                         for u in a:
-                            u.setRandomBackoff()
+                            
+                            if u.random_backoff_flag == 0:
+                                u.random_backoff_flag = 1
+                                u.setRandomBackoff()
+                           
+                        for user in tuserlist:
+                            if u.random_backoff_flag == 1:
+                                user.random_backoff_slots-=1
+                    
+                    for u in a:
+                        tuserlist.append(u)
+                        allwuss.remove(u)
                         
+
                     # if channel is free
-                    elif channel_busy == 0:
-                        pass
+                    if channel_busy == 0:
+
+                        for u in tuserlist:
+                            if u.random_backoff_flag == 1 and u.random_backoff_slots != 0:
+                                u.random_backoff_slots-=1
+
+                            # if random
+                            if u.random_backoff_slots == 0 and u.DIFS_flag == 0:
+                                u.random_backoff_flag = 0
+                                u.DIFS_flag = 1
+                                u.DIFS_slots = thisparams.DIFS_slots
+
+                            elif u.random_backoff_flag == 0 and u.DIFS_flag == 1:
+                                if u.DIFS_slots > 0:
+                                    u.DIFS_slots -=1
+                                
+                                if u.DIFS_slots == 0:
+                                    u.DIFS_flag = 0
+                                    u.DIFS_slots = thisparams.DIFS_slots
+                                    # send RTS
+                                    RTSuserlist.append(u)
+                        
+                        if len(RTSuserlist)>0:
+                            selected_user = service.sendRTS(thisparams,RTSuserlist)
+                            RTSuserlist.remove(selected_user)
+                            tuserlist.remove(selected_user)
+                            print("Selected userid: {} ".format(selected_user.ueID))
+                            CTS = selected_user.req_no_wifi_slot
+
+                            if CTS>rem_wifi_slots:
+                                WifiCountU = CTS-rem_wifi_slots
+                    #<- <check for empty slot here>
+                print(Wifisensecount)
+                Wifisensecount+=1
+                rem_wifi_slots-=1
+
+
 
                     # sense channel
 
@@ -456,74 +517,25 @@ if __name__ == "__main__":
                     else:
                         LTECountU += 1
 
-            elif all_one == 1:
-                service.assignProb(wbss)
-
-                Wifisensecount = 0
-                while Wifisensecount < 111:
-
-                    #Check all prob and count
-                    Wifiuserscount,userind = service.countWifiUsersWhoTransmit(wbss)
-                    wbs_single_transmission = None
-                    wus_single_transmission_ind = None
-                    
-                    if Wifiuserscount == 1:
-                        
-                        # Get the only User who is transmitting and its BS
-                        bsind = 0
-                        for ulist in userind:
-                            if len(ulist) == 1:
-                                wus_single_transmission_ind = ulist[0]
-                                break
-                            bsind+=1
-
-                        wbss[bsind].t_user_list[wus_single_transmission_ind].wifislotsreq-=1
-                        if wbss[bsind].t_user_list[wus_single_transmission_ind].wifislotsreq == 0:
-                            #remwuss = np.delete(remwuss,userind[0])
-                            wbss[bsind].t_user_list = np.delete(wbss[bsind].t_user_list,wus_single_transmission_ind)
-                        
-                        WifiCountS += 1
-                        Wifisensecount += 1
-                                     
-                    else:
-                        WifiCountU += 1
-                        Wifisensecount += 1
-
-                    service.assignProb(wbss) # assing prob at every "Wifi slot"
-                # End of Wifi transmission slot
+            exit()
         # End of slot iteration loop
         # print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
-        print("LTE slots used ",LTECountS," LTE slots unused ",LTECountU)
-        print("Wifi slots used ",WifiCountS," Wifi slots unused ",WifiCountU)
+        # print("LTE slots used ",LTECountS," LTE slots unused ",LTECountU)
+        # print("Wifi slots used ",WifiCountS," Wifi slots unused ",WifiCountU)
 
 
-        x1=wifirequested=thisparams.wifislotsreq*thisparams.numofWifiUE #x1
-        x2=LTErequested=thisparams.LTEslotsreq*thisparams.numofLTEUE #x2
+        # x1=wifirequested=thisparams.wifislotsreq*thisparams.numofWifiUE #x1
+        # x2=LTErequested=thisparams.LTEslotsreq*thisparams.numofLTEUE #x2
 
-        # print("\nx1",x1,"\nx2",x2,"\ny1",y1,"\ny2",y2,"\n")
+        # # print("\nx1",x1,"\nx2",x2,"\ny1",y1,"\ny2",y2,"\n")
 
-        # # Fairness index calculation
+        # # # Fairness index calculation
 
-        f1=LTECountS/(thisparams.LTEslotsreq*thisparams.numofLTEUE)
-        # # f2=WifiCountS/(thisparams.prob*thisparams.numofWifiUE/thisparams.const)
-        f2=WifiCountS/(thisparams.wifislotsreq*thisparams.numofWifiUE)
-        fair = (f1+f2)**2/(2*((f1)**2+(f2)**2))
-        Fairness.append(fair)
-        print("Fairness: ",fair)
-        # # print("Fairness",Fairness)
+        # f1=LTECountS/(thisparams.LTEslotsreq*thisparams.numofLTEUE)
+        # f2=WifiCountS/(thisparams.wifislotsreq*thisparams.numofWifiUE)
+        # fair = (f1+f2)**2/(2*((f1)**2+(f2)**2))
+        # Fairness.append(fair)
+        # print("Fairness: ",fair)
+
         print("-------------------------------------------------------")
-
-
-
-
-
-
-
-
-    # ground=dict()
-
-    # for k in range(0,len(format)):
-    #     d_count = Counter(format[k])
-    #     temp_y2= d_count[0]*4 #y2
-    #     temp_y1= d_count[1]*111*thisparams.prob #y1 
-    #     ground[k]=[temp_y1,temp_y2]
+            

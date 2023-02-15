@@ -5,8 +5,8 @@ class PARAMS:
     scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 10
-    numofWifiUE = 10
+    numofLTEUE = 5
+    numofWifiUE = 5
     const=90
     subframe=1000 # 1ms = 1000us 
     wifiuserslot=9 # 9us==1slot(used by us) in wifi 
@@ -42,6 +42,9 @@ class PARAMS:
 
     backoff_lower = 5
     backoff_upper = 20
+
+    SIFS = 1    # Slots
+    DIFS_slots = 2 + SIFS    # Slots
 
     def get_bits_per_slot_from_Kbps(self,value_Kbps):
 

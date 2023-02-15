@@ -125,7 +125,13 @@ class WifiUserEquipment:
     req_no_wifi_slot = None   # total wifi slots required by user = (required bits per wifi slot)
     #                                                               / (bits per wifi slot)
     random_backoff_slots = 0
+    random_backoff_flag = 0
     # busy_count = 0
+
+    DIFS_flag = 0
+    DIFS_slots = PARAMS().DIFS_slots
+
+    RTS_flag=0
 
     def getPowerRcvd(self,b):
         dist = float()

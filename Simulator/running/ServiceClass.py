@@ -490,6 +490,11 @@ class ServiceClass:
             u.req_no_wifi_slot = (u.req_data_rate*9)/(u.bs.bits_per_symbol_of_user[u])
             u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
 
+    def sendRTS(self,scene_params,RTSuserlist):
+        selecteduser=random.choice(RTSuserlist)
+        selecteduser.RTS_flag=1
+        return selecteduser
+
 
 
     #==========================================================================================================================================================
