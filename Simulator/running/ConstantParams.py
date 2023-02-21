@@ -6,7 +6,7 @@ class PARAMS:
     numofLTEBS = 1
     numofWifiBS = 1
     numofLTEUE = 5
-    numofWifiUE = 5
+    numofWifiUE = 6
     const=90
     subframe=1000 # 1ms = 1000us 
     wifiuserslot=9 # 9us==1slot(used by us) in wifi 
@@ -27,7 +27,7 @@ class PARAMS:
     PRB_subcarrier_bandwidth = 15 # KHz
     PRB_bandwidth = 180 # KHz
 
-    profiles = [64,128,256,1000]
+    profiles = [64,64,64,64]
     LTE_ratios = [4,3,2,1]
     wifi_ratios = [2,3,1,4]
     LTE_profile_prob = []
