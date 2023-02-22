@@ -338,7 +338,7 @@ if __name__ == "__main__":
         tuserlist = []
         RTSuserlist = []
 
-        for slot_iterator in range(0,1):
+        for slot_iterator in range(0,2):
 
             single_zero = 0
             multiple_zero = 0
@@ -406,15 +406,18 @@ if __name__ == "__main__":
                     # and decrement CTS
                     # and decrement rem_wifi_slots
                 if CTS!=0:
-                    print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
+                    print("tuserlist ",[(u.ueID) for u in tuserlist])
+                    print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
+                    print("current status of DIFS ", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
 
-                    if channel_busy == 1:
-                        for u in tuserlist:
+                    for u in tuserlist:
                             if u.random_backoff_flag == 1 and u.random_backoff_slots > 0:
-                                user.random_backoff_slots-=1
+                                u.random_backoff_slots-=1
                                 # Random backoff of this user become zero and now channel is busy so set randombackoff again
                             if u.random_backoff_flag == 1 and u.random_backoff_slots == 0:
-                                user.setRandomBackoff()
+                                u.setRandomBackoff()
+
+                    if channel_busy == 1:
 
                         print("current status of tuserlist ", [(u.ueID,u.DIFS_slots) for u in tuserlist])
                         print("\n")
@@ -453,7 +456,8 @@ if __name__ == "__main__":
 
             #else if CTS==0
                 if CTS == 0:
-                    print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
+                    print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
+                    print("current status of DIFS", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
 
                     service.assignProb2(allwuss)
 
@@ -463,15 +467,18 @@ if __name__ == "__main__":
                     # if channel is busy
                     if channel_busy == 1:
                         # print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
-
+                        WifiCountU +=1
                         for u in a:
                             if u.random_backoff_flag == 0 and u.random_backoff_slots == 0:
                                 u.random_backoff_flag = 1
                                 u.setRandomBackoff()
                            
-                        for user in tuserlist:
+                        for u in tuserlist:
                             if u.random_backoff_flag == 1 and u.random_backoff_slots > 0:
-                                user.random_backoff_slots-=1
+                                u.random_backoff_slots-=1
+                            if u.random_backoff_flag == 1 and u.random_backoff_slots == 0:
+                                u.random_backoff_flag = 1
+                                u.setRandomBackoff()
                             if u.random_backoff_flag == 0 and u.random_backoff_slots == 0:
                                 u.random_backoff_flag = 1
                                 u.setRandomBackoff()
@@ -514,7 +521,8 @@ if __name__ == "__main__":
                             print("Selected userid: {} ".format(selected_user.ueID))
                             CTS = selected_user.req_no_wifi_slot
                             t_req_no_wifi_slot=selected_user.req_no_wifi_slot
-
+                        else:
+                            WifiCountU+=1
 
                             # if CTS>rem_wifi_slots:
                             #     WifiCountU = CTS-rem_wifi_slots
@@ -523,7 +531,8 @@ if __name__ == "__main__":
                 # print(Wifisensecount)
                 Wifisensecount+=1
                 rem_wifi_slots-=1
-
+            # End of while 111
+            print("\nWifi Successful: ",WifiCountS," Wifi Unused: ",WifiCountU,"\n")
 
 
                     # sense channel
