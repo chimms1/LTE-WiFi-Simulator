@@ -495,6 +495,32 @@ class ServiceClass:
         selecteduser.RTS_flag=1
         return selecteduser
 
+    def calculate_LTE_proportions(self,scene_params,luss):
+        LTE_proportions = []
+
+        total = 0
+
+        for u in luss:
+            total += u.req_no_PRB
+
+        total2 = 0
+
+        for u in luss:
+            k = math.ceil((u.req_no_PRB/total)*scene_params.PRB_total_prbs)
+            if total2 + k > 100:
+                LTE_proportions.append(0)
+                
+            
+            else:
+                LTE_proportions.append(k)
+                total2 += k
+        
+        # print(LTE_proportions)
+        # print(LTE_proportions[0:len(LTE_proportions)-1])
+        if LTE_proportions[-1]!=0:
+            LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[0:len(LTE_proportions)-1])
+
+        return LTE_proportions
 
 
     #==========================================================================================================================================================

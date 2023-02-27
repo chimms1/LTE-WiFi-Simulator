@@ -201,7 +201,7 @@ if __name__ == "__main__":
             # '0'/'1' --> SLOT 
 
     # [0,1,1,1,1,0,1,1,1,1]              wifi:LTE   y2:x2       y1:x1
-    format=[[0,1,0,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
+    format=[[0,0,0,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
             [0,1,1,1,0,0,1,1,1,0], # 6:4  7:16      333:01      16:90
             [0,1,1,0,0,0,1,1,0,0], # 4:6  4:24      222:01      24:90
             [0,1,1,1,1,0,0,0,0,0], # 4:6  4:24      222:01      24:90
@@ -565,15 +565,35 @@ if __name__ == "__main__":
             if multiple_zero == 1:
                 LTECountU+=4
                 continue
-                
+            
+            
             elif single_zero == 1:
-                for k in range(0,4):
-                    if(lbss[lbs_single_transmission_ind].lusscount>0):
-                        LTECountS += 0.5 #0.5 is count not time
-                        # print("Hiiiiiiiii")
-                        lbss[lbs_single_transmission_ind].lusscount -= 1
+
+                LTE_proportions = []
+                selected_bs = lbss[lbs_single_transmission_ind]
+
+                LTE_proportions = service.calculate_LTE_proportions(thisparams,selected_bs.t_user_list)
+                print(LTE_proportions)
+
+                p = 0
+                for u in selected_bs.t_user_list:
+                    print(u.req_no_PRB,LTE_proportions[p])
+
+                    if u.req_no_PRB <= LTE_proportions[p]:
+                        temp = u.req_no_PRB
+                        u.req_no_PRB = 0
+                        u.req_no_PRB = temp
+
+                        LTECountS+=u.req_no_PRB
+
                     else:
-                        LTECountU += 1
+                        u.req_no_PRB -= LTE_proportions[p]
+
+                        LTECountS+=LTE_proportions[p]
+
+                    p+=1
+
+                print("Successful RB allocation: ",LTECountS)
 
             # exit()
         # End of slot iteration loop
