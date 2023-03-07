@@ -429,6 +429,7 @@ if __name__ == "__main__":
                     if channel_busy == 0:
                         selected_user.req_no_wifi_slot-=1
                         WifiCountS+=1
+                        selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[selected_user])
                         # print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
                         print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
 
@@ -584,10 +585,13 @@ if __name__ == "__main__":
                         u.req_no_PRB = 0
                         u.req_no_PRB = temp
 
+                        u.bits_sent += temp*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
+
                         LTECountS+=u.req_no_PRB
 
                     else:
                         u.req_no_PRB -= LTE_proportions[p]
+                        u.bits_sent += LTE_proportions[p] * thisparams.PRB_total_symbols * u.bs.bits_per_symbol_of_user[u]
 
                         LTECountS+=LTE_proportions[p]
 

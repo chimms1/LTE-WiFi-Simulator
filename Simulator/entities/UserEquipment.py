@@ -17,7 +17,7 @@ class LTEUserEquipment:
     req_no_PRB = None   # total PRB required by user = (required bits per slot)
             #                           /(bits per symbol)*(total symbols in PRB)
     
-
+    bits_sent = 0
     # LTEslotsreq = None # (bits per symbol) * (symbols per resource block)
 
 
@@ -132,6 +132,8 @@ class WifiUserEquipment:
     DIFS_slots = PARAMS().DIFS_slots
 
     RTS_flag=0
+
+    bits_sent = 0
 
     def getPowerRcvd(self,b):
         dist = float()

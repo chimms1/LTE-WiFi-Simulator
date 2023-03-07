@@ -504,22 +504,28 @@ class ServiceClass:
             total += u.req_no_PRB
 
         total2 = 0
-
+        
+        i = 0
         for u in luss:
             k = math.ceil((u.req_no_PRB/total)*scene_params.PRB_total_prbs)
+            print(k," k")
+            
             if total2 + k > 100:
                 LTE_proportions.append(0)
+                LTE_proportions[-1] = min(u.req_no_PRB,scene_params.PRB_total_prbs - sum(LTE_proportions[:-1]))
                 
-            
-            else:
-                LTE_proportions.append(k)
-                total2 += k
-        
-        # print(LTE_proportions)
-        # print(LTE_proportions[0:len(LTE_proportions)-1])
-        if LTE_proportions[-1]!=0:
-            LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[0:len(LTE_proportions)-1])
+                for j in range(len(luss)-i-1):
+                    LTE_proportions.append(0)
 
+                break
+
+            else:
+                LTE_proportions.append(min(k,u.req_no_PRB))
+                total2 += k
+            
+            i+=1
+
+        # LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[:-1])
         return LTE_proportions
 
 

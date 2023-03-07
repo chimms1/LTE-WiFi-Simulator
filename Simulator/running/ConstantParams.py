@@ -52,14 +52,15 @@ class PARAMS:
 
         return (value_Kbps/2)
     
-    def get_bits_per_wifi_slot_from_Kbps(self,value_Kbps):
+    # def get_bits_per_slot_from_
+    
+    def get_bits_per_wifi_slot_from_Mbps(self,value_Mbps):
 
         # Ex: 128 Mbps to bits per wifi slot (bits/9 us)
-        # 128 * 10^3 bits/ 10^6 us
-        # 128  * 9 bits/ 10^3 (nine-us)
-        # 128 * 9 / 1000 (bits per 9 us)
+        # 128 * 10^6 bits 10^-6 us
+        # 128  * 9 (bits/nine-us)
 
-        return (value_Kbps*9/1000)
+        return (value_Mbps*9)
 
     def get_dB_from_dBm(self,value_dBm):
         return (value_dBm-30)
