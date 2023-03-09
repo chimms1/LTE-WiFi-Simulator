@@ -418,6 +418,7 @@ class ServiceClass:
 
         i = 0
         for x in given_sinr:
+
             if sinr<=x:
                 # if SINR is equal to first value in MCS
                 if i==0:
@@ -425,6 +426,10 @@ class ServiceClass:
                 else:
                     return scene_params.LTE_MCS[given_sinr[i-1]]
             i+=1
+        
+        if sinr >= scene_params.LTE_MCS[given_sinr[i-1]]:
+            return scene_params.LTE_MCS[given_sinr[i-1]]
+
 
     # This function fills the 'BS.bits_per_symbol_of_user'
     # 'BS.bits_per_symbol_of_user' 
@@ -433,7 +438,7 @@ class ServiceClass:
         # For each LTE Base Station
         for b in lbss:
             # For every user connected to BS b
-            for u in b.user_list:
+            for u in b.t_user_list:
                 # get the bits per symbol
                 bos = self.get_LTE_bits_per_symbol(u.SINR,scene_params)
                 # store bits per symbol in 'BS.bits_per_symbol_of_user'
@@ -445,6 +450,16 @@ class ServiceClass:
     def calculate_LTE_user_PRB(self,scene_params,luss):
 
         for u in luss:
+            
+            # temp = u
+            # print(type(temp))
+            # tempbs = temp.bs
+            # print(type(tempbs))
+            # tempdict = tempbs.bits_per_symbol_of_user
+            # print(type(tempdict))
+            # tempvalue = tempdict[temp]
+            # print(type(tempvalue))
+
             # total PRB required by user = (required bits per slot)
             #                           /(bits per symbol)*(total symbols in PRB)
             u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
@@ -465,6 +480,9 @@ class ServiceClass:
                 else:
                     return scene_params.wifi_MCS[given_snr[i-1]]
             i+=1
+        
+        if snr >= scene_params.wifi_MCS[given_snr[i-1]]:
+            return scene_params.wifi_MCS[given_snr[i-1]]
 
     # This function fills the 'BS.bits_per_symbol_of_user'
     # 'BS.bits_per_symbol_of_user' 

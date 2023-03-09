@@ -2,9 +2,9 @@ import math
 
 class PARAMS:
 
-    scene = 1
-    numofLTEBS = 1
-    numofWifiBS = 1
+    scene = 0
+    numofLTEBS = 2
+    numofWifiBS = 2
     numofLTEUE = 15
     numofWifiUE = 5
     const=90

@@ -90,7 +90,9 @@ if __name__ == "__main__":
         # Add this UE to user_list
         wbss[ind].user_list = np.append(wbss[ind].user_list, u)
         i+=1
-        
+
+    
+    
     # Keeping a copy of Wifi transmitting users
     for b in wbss:
         for element in b.user_list:
@@ -98,6 +100,17 @@ if __name__ == "__main__":
 
         b.wusscount = len(b.t_user_list)
     
+    if verbose.LTE_BS_info == 1:
+        print("\n=== LTE BS ===")
+        for b in lbss:
+            print("LTE BSid {}: User ids Connected: {}".format(b.bsID,[u.ueID for u in b.t_user_list]))
+        print("======")
+
+    if verbose.Wifi_BS_info == 1:
+        print("\n=== Wifi BS ===")
+        for b in wbss:
+            print("Wifi BSid {}: User ids Connected: {}".format(b.bsID,[u.ueID for u in b.t_user_list]))
+        print("======")
 
     # Users decide their data transfer rate
     service.calculate_profile_prob(thisparams)
@@ -140,6 +153,23 @@ if __name__ == "__main__":
         SINR.append(u.SINR)
 
     service.decide_LTE_bits_per_symbol(lbss,thisparams)
+
+    # for u in luss:
+
+    #     print("LTE userid {}: {:.4f}".format(u.ueID,u.SINR))
+
+
+    if verbose.LTE_BS_Req_by_user == 1:
+        print("\n=== LTE BS Dictionary of User req bits ===")
+        for b in lbss:
+            
+            users = b.bits_per_symbol_of_user.keys()
+            print("LTE BSid {}".format(b.bsID))
+            for u in users:
+
+                print(" @> {}:{}".format(u.ueID,b.bits_per_symbol_of_user[u]))
+
+        print("======")
 
     service.calculate_LTE_user_PRB(thisparams, luss)
 
@@ -338,7 +368,7 @@ if __name__ == "__main__":
         tuserlist = []
         RTSuserlist = []
 
-        for slot_iterator in range(0,2):
+        for slot_iterator in range(0,10):
 
             single_zero = 0
             multiple_zero = 0
@@ -429,7 +459,7 @@ if __name__ == "__main__":
                     if channel_busy == 0:
                         selected_user.req_no_wifi_slot-=1
                         WifiCountS+=1
-                        selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[selected_user])
+                        # selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[selected_user])
                         # print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
                         print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
 
@@ -599,8 +629,11 @@ if __name__ == "__main__":
 
                 print("Successful RB allocation: ",LTECountS)
 
-            # exit()
+            
+            print("Successful RB allocation: ",LTECountS)
         # End of slot iteration loop
+        
+        
         # print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
         # print("LTE slots used ",LTECountS," LTE slots unused ",LTECountU)
         # print("Wifi slots used ",WifiCountS," Wifi slots unused ",WifiCountU)
