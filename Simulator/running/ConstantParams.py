@@ -3,7 +3,7 @@ import math
 class PARAMS:
 
     scene = 0
-    numofLTEBS = 2
+    numofLTEBS = 1
     numofWifiBS = 2
     numofLTEUE = 15
     numofWifiUE = 5

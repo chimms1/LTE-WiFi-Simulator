@@ -599,35 +599,38 @@ if __name__ == "__main__":
             
             
             elif single_zero == 1:
+                half_ms = 2
+                while half_ms:
+                    LTE_proportions = []
+                    selected_bs = lbss[lbs_single_transmission_ind]
 
-                LTE_proportions = []
-                selected_bs = lbss[lbs_single_transmission_ind]
+                    LTE_proportions = service.calculate_LTE_proportions(thisparams,selected_bs.t_user_list)
+                    print(LTE_proportions)
 
-                LTE_proportions = service.calculate_LTE_proportions(thisparams,selected_bs.t_user_list)
-                print(LTE_proportions)
+                    p = 0
+                    for u in selected_bs.t_user_list:
+                        print(u.req_no_PRB,LTE_proportions[p])
 
-                p = 0
-                for u in selected_bs.t_user_list:
-                    print(u.req_no_PRB,LTE_proportions[p])
+                        if u.req_no_PRB <= LTE_proportions[p]:
+                            givenPRB = u.req_no_PRB
+                            u.req_no_PRB = 0
+                            u.req_no_PRB = givenPRB
 
-                    if u.req_no_PRB <= LTE_proportions[p]:
-                        temp = u.req_no_PRB
-                        u.req_no_PRB = 0
-                        u.req_no_PRB = temp
+                            u.bits_sent += givenPRB*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
 
-                        u.bits_sent += temp*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
+                            LTECountS+=u.req_no_PRB
 
-                        LTECountS+=u.req_no_PRB
+                        else:
+                            u.req_no_PRB -= LTE_proportions[p]
+                            u.bits_sent += LTE_proportions[p] * thisparams.PRB_total_symbols * u.bs.bits_per_symbol_of_user[u]
 
-                    else:
-                        u.req_no_PRB -= LTE_proportions[p]
-                        u.bits_sent += LTE_proportions[p] * thisparams.PRB_total_symbols * u.bs.bits_per_symbol_of_user[u]
+                            LTECountS+=LTE_proportions[p]
 
-                        LTECountS+=LTE_proportions[p]
+                        p+=1
 
-                    p+=1
+                    half_ms -= 1
+                    print("Successful RB allocation: ",LTECountS)
 
-                print("Successful RB allocation: ",LTECountS)
 
             
             print("Successful RB allocation: ",LTECountS)
