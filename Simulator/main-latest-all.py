@@ -15,6 +15,12 @@ def count_users(bs_array):
     
     return usercount
 
+# Get original user from copy of user
+def bringRealUser(selected_user,wuss):
+
+    for u in wuss:
+        if u.ueID == selected_user.ueID:
+            return u
 
 if __name__ == "__main__":
     print("Hello World!")
@@ -171,6 +177,7 @@ if __name__ == "__main__":
 
         print("======")
 
+
     service.calculate_LTE_user_PRB(thisparams, luss)
 
     if verbose.LTE_user_SINR_MCS_value == 1:
@@ -191,6 +198,18 @@ if __name__ == "__main__":
     service.decide_wifi_bits_per_symbol(wbss, thisparams)
 
     service.calculate_wifi_user_slots(thisparams, wuss)
+
+    if verbose.Wifi_BS_Req_by_user == 1:
+        print("\n=== Wifi BS Dictionary of User req bits ===")
+        for b in wbss:
+            
+            users = b.bits_per_symbol_of_user.keys()
+            print("Wifi BSid {}".format(b.bsID))
+            for u in users:
+
+                print(" @> {}:{}".format(u.ueID,b.bits_per_symbol_of_user[u]))
+
+        print("======")
 
     if verbose.Wifi_user_SNR_MCS_value == 1:
         print("\n=== Wifi user SNR and MCS value ===")
@@ -231,7 +250,7 @@ if __name__ == "__main__":
             # '0'/'1' --> SLOT 
 
     # [0,1,1,1,1,0,1,1,1,1]              wifi:LTE   y2:x2       y1:x1
-    format=[[0,0,0,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
+    format=[[1,0,0,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
             [0,1,1,1,0,0,1,1,1,0], # 6:4  7:16      333:01      16:90
             [0,1,1,0,0,0,1,1,0,0], # 4:6  4:24      222:01      24:90
             [0,1,1,1,1,0,0,0,0,0], # 4:6  4:24      222:01      24:90
@@ -332,6 +351,7 @@ if __name__ == "__main__":
             tempu = copy.copy(u)
 
             allwuss.append(tempu)
+
         # for u in wuss:
         #     twuss.append(u)
         # # twuss = wuss
@@ -368,7 +388,7 @@ if __name__ == "__main__":
         tuserlist = []
         RTSuserlist = []
 
-        for slot_iterator in range(0,10):
+        for slot_iterator in range(0,1):
 
             single_zero = 0
             multiple_zero = 0
@@ -422,19 +442,7 @@ if __name__ == "__main__":
                     print("All wifi users have finished transmitting and are not programmed to do it again in this simulation")
                     break   # break here
 
-                # step1:
-            # set rem_wifi_slots=111
-            # if CTS!=0
-                # if(CTS > rem_wifi_slots)
-                    # And current wifi user's remaining slots!=0
-                        # Wifi failed
-                        # make CTS=0 (????????)
-                    # And current wifi user's remaining slots==0
-                        # Wifi success
-                # else
-                    # Allocate slots to wifi user
-                    # and decrement CTS
-                    # and decrement rem_wifi_slots
+
                 if CTS!=0:
                     print("tuserlist ",[(u.ueID) for u in tuserlist])
                     print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
@@ -459,7 +467,10 @@ if __name__ == "__main__":
                     if channel_busy == 0:
                         selected_user.req_no_wifi_slot-=1
                         WifiCountS+=1
-                        # selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[selected_user])
+                        # print(getUserFromUser(selected_user,wuss))
+                        # print(selected_user.bs.bits_per_symbol_of_user)
+                        # print(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
+                        selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
                         # print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
                         print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
 
@@ -485,7 +496,7 @@ if __name__ == "__main__":
                             allwuss.append(selected_user)
 
 
-            #else if CTS==0
+            # else if CTS==0
                 if CTS == 0:
                     print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
                     print("current status of DIFS", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
@@ -564,33 +575,6 @@ if __name__ == "__main__":
                 rem_wifi_slots-=1
             # End of while 111
             print("\nWifi Successful: ",WifiCountS," Wifi Unused: ",WifiCountU,"\n")
-
-
-                    # sense channel
-
-                # if channel_busy == 1:
-                    # start random backoff algorithm and start countdown
-                # else
-                    # start DIFS
-                        # untill DIFS==0
-                            # sense channel  
-                                # if busy 
-                                    # dont decrement
-                                # else 
-                                    # decrement
-                                        # and DIFS==0 
-                                            # send RTS to wifi
-                                                # if wifi has multiple RTS
-                                                    # choose a user and broadcast CTS
-                                                # else
-                                                    # choose the only user present 
-                                                # wifi broadcasts CTS to list of wifi users
-                                                # untill CTS ends no one sends request
-                                                # CTS ends goto step1
-
-
-
-
     
             # More than one LTE BS has zero
             if multiple_zero == 1:

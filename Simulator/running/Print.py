@@ -13,7 +13,8 @@ class Verbose:
     LTE_user_req_PRB = 1 # use with printing 
     Wifi_user_req_slots = 1 # use with printing SNR MCS
 
-    LTE_BS_Req_by_user = 0
+    LTE_BS_Req_by_user = 1
+    Wifi_BS_Req_by_user = 1
 
     plot_Scene = 1 # plotting graph of positioning of BS and UE in the scene
     plot_SINR_Count = 0 # plot number of LTE users vs SINR
