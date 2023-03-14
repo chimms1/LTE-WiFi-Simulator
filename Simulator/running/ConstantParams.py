@@ -4,20 +4,26 @@ class PARAMS:
 
     scene = 1
     numofLTEBS = 1
-    numofWifiBS = 2
-    numofLTEUE = 15
-    numofWifiUE = 5
-    const=90
-    subframe=1000 # 1ms = 1000us 
-    wifiuserslot=9 # 9us==1slot(used by us) in wifi 
-    wifislotsreq=90 # Wifi slots(9us) required per user
-    LTEslotsreq=0.5 # (Will be deprecated soon) LTE slots(0.5ms) required per user
+    numofWifiBS = 1
+    numofLTEUE = 50
+    numofWifiUE = 50
+    
     length = 100
     breadth = 100
+    
     prob = 0.5
+
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
     noise=-96
+
+    duration_frame = 10 # 10 ms
+    duration_subframe = 1   # 1 ms
+    duration_slot = 0.5 # 0.5 ms
+
+    duration_wifislot = 9   # 9 us
+
+    wifi_slots_per_subframe = math.floor((duration_subframe*1000)/duration_wifislot)
 
     PRB_symbols = 7 # this is 7 symbols per resource block
     PRB_subcarriers = 12 # this is 12 subcarriers per resource block (derived value)
@@ -51,8 +57,6 @@ class PARAMS:
     def get_bits_per_slot_from_Kbps(self,value_Kbps):
 
         return (value_Kbps/2)
-    
-    # def get_bits_per_slot_from_
     
     def get_bits_per_wifi_slot_from_Mbps(self,value_Mbps):
 

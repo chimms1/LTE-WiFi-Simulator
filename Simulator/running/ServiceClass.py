@@ -427,7 +427,7 @@ class ServiceClass:
                     return scene_params.LTE_MCS[given_sinr[i-1]]
             i+=1
         
-        if sinr >= scene_params.LTE_MCS[given_sinr[i-1]]:
+        if sinr >= given_sinr[i-1]:
             return scene_params.LTE_MCS[given_sinr[i-1]]
 
 
@@ -481,8 +481,8 @@ class ServiceClass:
                     return scene_params.wifi_MCS[given_snr[i-1]]
             i+=1
         
-        if snr >= scene_params.wifi_MCS[given_snr[i-1]]:
-            return scene_params.wifi_MCS[given_snr[i-1]]
+        if snr >= given_snr[-1]:
+            return scene_params.wifi_MCS[given_snr[-1]]
 
     # This function fills the 'BS.bits_per_symbol_of_user'
     # 'BS.bits_per_symbol_of_user' 
