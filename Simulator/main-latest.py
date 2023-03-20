@@ -155,6 +155,7 @@ if __name__ == "__main__":
                         chbusy=1
                         curtime += thisparams.subframe/4 
                         LTECountS += 0.5 #0.5 is count not time
+                        print("Hiiiiiii")                       
                         lusscount -= 1
                         chbusy=0
                     else:
