@@ -5,9 +5,11 @@ class PARAMS:
     scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 50
-    numofWifiUE = 50
+    numofLTEUE = 10
+    numofWifiUE = 10
     
+    times_frames = 20    # Simulate for this value x 10ms
+
     length = 100
     breadth = 100
     
