@@ -389,7 +389,7 @@ if __name__ == "__main__":
             total_LTE_bits_sent = 0 # Holds bits sent by LTE users
             total_Wifi_bits_sent = 0 # Holds bits sent by Wifi users
             
-            if 0:
+            if verbose.CSMA_CA_Logs == 1:
                 print("------------------------------------------------------------------------------------------- {}".format(tf))
             
             
@@ -440,22 +440,22 @@ if __name__ == "__main__":
                 
                 while Wifisensecount < thisparams.wifi_slots_per_subframe:
 
-                    if 0:
+                    if verbose.CSMA_CA_Logs == 1:
                         print("current wifi slot ", Wifisensecount)
                     if len(allwuss) == 0 and len(tuserlist)!=0 and channel_busy==1:
                         
-                        if 0:
+                        if verbose.CSMA_CA_Logs == 1:
                             print("All the remaining {} Wifi users are waiting".format(len(tuserlist)))
                         # pass
                         # do not break
                     if len(allwuss)==0 and len(tuserlist)==0 and RTSuserlist ==0:
-                        if 0:
+                        if verbose.CSMA_CA_Logs == 1:
                             print("All wifi users have finished transmitting and are not programmed to do it again in this simulation")
                         break   # break here
 
 
                     if CTS!=0:
-                        if 0:
+                        if verbose.CSMA_CA_Logs == 1:
                             print("tuserlist ",[(u.ueID) for u in tuserlist])
                             print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
                             print("current status of DIFS ", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
@@ -469,7 +469,7 @@ if __name__ == "__main__":
                                     u.setRandomBackoff()
 
                         if channel_busy == 1:
-                            if 0:
+                            if verbose.CSMA_CA_Logs == 1:
                         
                                 print("current status of tuserlist ", [(u.ueID,u.DIFS_slots) for u in tuserlist])
                                 print("\n")
@@ -485,7 +485,7 @@ if __name__ == "__main__":
                             selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
                             total_Wifi_bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
                             
-                            if 0:
+                            if verbose.CSMA_CA_Logs == 1:
                                 print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
                                 print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
 
@@ -493,7 +493,7 @@ if __name__ == "__main__":
                         # When CTS becomes zero during LTE transmission sub frame
                         if CTS==0 and channel_busy==1:
                             
-                            if 0:
+                            if verbose.CSMA_CA_Logs == 1:
                                 print("User ",selected_user.ueID, "was till now sending during period 0 and is added back to allwuss")
                                 print("\n")
                             
@@ -502,7 +502,7 @@ if __name__ == "__main__":
 
                             allwuss.append(selected_user)
 
-                            if 0:
+                            if verbose.CSMA_CA_Logs == 1:
                         
                                 print("current status of allwuss ",[u.ueID for u in allwuss])
                             
@@ -510,7 +510,7 @@ if __name__ == "__main__":
                         # When CTS becomes zero during Wifi transmission sub frame
                         if CTS==0 and channel_busy==0:
                             if selected_user.req_no_wifi_slot == 0:
-                                if 0:
+                                if verbose.CSMA_CA_Logs == 1:
                         
                                     print("User ",selected_user.ueID, "has completed his transmission compleetly and is added back to allwuss")
                                 
@@ -521,7 +521,7 @@ if __name__ == "__main__":
 
                                 allwuss.append(selected_user)
 
-                                if 0:
+                                if verbose.CSMA_CA_Logs == 1:
                                     print("current status of allwuss ",[u.ueID for u in allwuss])
 
                             elif selected_user.req_no_wifi_slot > 0:
@@ -531,7 +531,7 @@ if __name__ == "__main__":
 
                 # else if CTS==0
                     if CTS == 0:
-                        if 0:
+                        if verbose.CSMA_CA_Logs == 1:
                             print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
                             print("current status of DIFS", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
 
@@ -540,12 +540,12 @@ if __name__ == "__main__":
 
                         # For all users in the list(list of users with prob<threshold)
                         Wifiuserscount,a = service.countWifiUsersWhoTransmit2(allwuss)
-                        if 0:
+                        if verbose.CSMA_CA_Logs == 1:
                             print("New Users who want to transmit: ",[x.ueID for x in a])
 
                         # if channel is busy
                         if channel_busy == 1:
-                            if 0:
+                            if verbose.CSMA_CA_Logs == 1:
                                 print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
                             WifiCountU +=1
                             for u in a:
@@ -571,7 +571,7 @@ if __name__ == "__main__":
 
                         # if channel is free
                         if channel_busy == 0:
-                            if 0:
+                            if verbose.CSMA_CA_Logs == 1:
                                 print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
 
                             remove_from_tuserlist_RTS = []
@@ -606,7 +606,7 @@ if __name__ == "__main__":
                                 RTSuserlist.remove(selected_user)
                                 # tuserlist.remove(selected_user)
 
-                                if 0:
+                                if verbose.CSMA_CA_Logs == 1:
                                     print("Selected userid: {} ".format(selected_user.ueID))
                                 
                                 CTS = selected_user.req_no_wifi_slot
@@ -620,7 +620,7 @@ if __name__ == "__main__":
 
                     total_Wifi_slots += 1
                 # End of while 111
-                if 0:
+                if verbose.CSMA_CA_Logs == 1:
                     print("\nWifi Successful: ",WifiCountS," Wifi Unused: ",WifiCountU,"\n")
         
                 # More than one LTE BS has zero
@@ -694,7 +694,7 @@ if __name__ == "__main__":
             frame_T_Wifi = (total_Wifi_bits_sent * 10**3)/thisparams.duration_frame
             Wifi_Throughput.append(frame_T_Wifi)
             
-            if 0:
+            if verbose.CSMA_CA_Logs == 1:
                 print("current status of allwuss ",[u.ueID for u in allwuss])
                 print("current status of DIFS ", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
                 # print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
