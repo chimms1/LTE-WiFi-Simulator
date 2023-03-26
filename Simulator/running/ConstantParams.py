@@ -8,7 +8,7 @@ class PARAMS:
     numofLTEUE = 10
     numofWifiUE = 10
     
-    times_frames = 20    # Simulate for this value x 10ms
+    times_frames = 1000    # Simulate for this value x 10ms
 
     length = 100
     breadth = 100

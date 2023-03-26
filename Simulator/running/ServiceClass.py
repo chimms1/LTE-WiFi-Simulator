@@ -509,8 +509,9 @@ class ServiceClass:
             u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
 
     def sendRTS(self,scene_params,RTSuserlist):
+
         selecteduser=random.choice(RTSuserlist)
-        selecteduser.RTS_flag=1
+
         return selecteduser
 
     def calculate_LTE_proportions(self,scene_params,luss):

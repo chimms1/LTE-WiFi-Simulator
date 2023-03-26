@@ -318,16 +318,6 @@ if __name__ == "__main__":
 
     print("LTE users: {} Wifi users: {}".format(count_users(lbss),count_users(wbss)))
 
-    # np.copyto(copy_lbss,lbss)
-    # np.copyto(copy_wbss,wbss)
-    # copy_lbss = np.array([])
-    # copy_wbss = np.array([])
-
-    # for element in lbss:
-    #         copy_lbss = np.append(copy_lbss,element)
-    # for element in wbss:
-    #         copy_wbss = np.append(copy_wbss,element)
-
     # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
     # exit()
 
@@ -340,10 +330,6 @@ if __name__ == "__main__":
 
         for b in lbss:
             b.lusscount=b.lusscount2
-        
-        # for b in wbss:
-        #     for u in b.user_list:
-        #         u.wifislotsreq = thisparams.wifislotsreq
 
 
         for b in wbss:
@@ -357,16 +343,8 @@ if __name__ == "__main__":
 
             allwuss.append(tempu)
 
-        # for u in wuss:
-        #     twuss.append(u)
-        # # twuss = wuss
 
-        # service.calculate_wifi_user_slots(thisparams, wuss)
-
-        # twuss[0].random_backoff_slots = 69
-
-        # print(twuss[0].random_backoff_slots)
-        # print(wuss[0].random_backoff_slots)
+        frame_fairness = 0.5
 
         
 
@@ -409,7 +387,11 @@ if __name__ == "__main__":
 
             total_LTE_bits_sent = 0 # Holds bits sent by LTE users
             total_Wifi_bits_sent = 0 # Holds bits sent by Wifi users
-
+            
+            if 0:
+                print("------------------------------------------------------------------------------------------- {}".format(tf))
+            
+            
             for subframe_iterator in range(0,10):
 
                 single_zero = 0
@@ -456,33 +438,41 @@ if __name__ == "__main__":
                 rem_wifi_slots = thisparams.wifi_slots_per_subframe
                 
                 while Wifisensecount < thisparams.wifi_slots_per_subframe:
-                    # print("current wifi slot ", Wifisensecount)
+
+                    if 0:
+                        print("current wifi slot ", Wifisensecount)
                     if len(allwuss) == 0 and len(tuserlist)!=0 and channel_busy==1:
-                        # print("All the remaining {} Wifi users are waiting".format(len(tuserlist)))
-                        pass
+                        
+                        if 0:
+                            print("All the remaining {} Wifi users are waiting".format(len(tuserlist)))
+                        # pass
                         # do not break
                     if len(allwuss)==0 and len(tuserlist)==0 and RTSuserlist ==0:
-                        # print("All wifi users have finished transmitting and are not programmed to do it again in this simulation")
+                        if 0:
+                            print("All wifi users have finished transmitting and are not programmed to do it again in this simulation")
                         break   # break here
 
 
                     if CTS!=0:
-                        # print("tuserlist ",[(u.ueID) for u in tuserlist])
-                        # print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
-                        # print("current status of DIFS ", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
+                        if 0:
+                            print("tuserlist ",[(u.ueID) for u in tuserlist])
+                            print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
+                            print("current status of DIFS ", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
 
                         for u in tuserlist:
-                                if u.random_backoff_flag == 1 and u.random_backoff_slots > 0:
+                                if u.random_backoff_flag == 1 and u.random_backoff_slots > 0 and u.DIFS_flag == 0:
                                     u.random_backoff_slots-=1
-                                    # Random backoff of this user become zero and now channel is busy so set randombackoff again
-                                if u.random_backoff_flag == 1 and u.random_backoff_slots == 0:
+                                
+                                # Random backoff of this user become zero and now channel is busy so set randombackoff again
+                                if u.random_backoff_flag == 1 and u.random_backoff_slots == 0 and u.DIFS_flag == 0:
                                     u.setRandomBackoff()
 
                         if channel_busy == 1:
-
-                            # print("current status of tuserlist ", [(u.ueID,u.DIFS_slots) for u in tuserlist])
-                            # print("\n")
-                            # print(" Wifi user ",selected_user.ueID," used 1 slot during LTE's period")
+                            if 0:
+                        
+                                print("current status of tuserlist ", [(u.ueID,u.DIFS_slots) for u in tuserlist])
+                                print("\n")
+                                print(" Wifi user ",selected_user.ueID," used 1 slot during LTE's period")
 
                             WifiCountU+=1
 
@@ -493,22 +483,35 @@ if __name__ == "__main__":
 
                             selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
                             total_Wifi_bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
-                            # print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
-                            # print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
+                            
+                            if 0:
+                                print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
+                                print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
 
                         CTS-=1
-                        # When CTS becomes zero
+                        # When CTS becomes zero during LTE transmission sub frame
                         if CTS==0 and channel_busy==1:
-                            # print("User ",selected_user.ueID, "was till now sending during period 0 and is added back to allwuss")
-                            # print("\n")
+                            
+                            if 0:
+                                print("User ",selected_user.ueID, "was till now sending during period 0 and is added back to allwuss")
+                                print("\n")
+                            
+                            # selected_user.req_no_wifi_slot = (selected_user.req_data_rate*9)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)])
+                            # selected_user.req_no_wifi_slot = math.ceil(selected_user.req_no_wifi_slot)
+
                             allwuss.append(selected_user)
 
-                            # print("current status of allwuss ",[u.ueID for u in allwuss])
-                            
+                            if 0:
                         
+                                print("current status of allwuss ",[u.ueID for u in allwuss])
+                            
+                            continue
+                        # When CTS becomes zero during Wifi transmission sub frame
                         if CTS==0 and channel_busy==0:
                             if selected_user.req_no_wifi_slot == 0:
-                                # print("User ",selected_user.ueID, "has completed his transmission compleetly and is added back to allwuss")
+                                if 0:
+                        
+                                    print("User ",selected_user.ueID, "has completed his transmission compleetly and is added back to allwuss")
                                 
                                 # selected_user.req_no_wifi_slot=t_req_no_wifi_slot
                                 # service.calculate_wifi_user_slots(thisparams, [selected_user])
@@ -516,38 +519,47 @@ if __name__ == "__main__":
                                 selected_user.req_no_wifi_slot = math.ceil(selected_user.req_no_wifi_slot)
 
                                 allwuss.append(selected_user)
-                                # print("current status of allwuss ",[u.ueID for u in allwuss])
+
+                                if 0:
+                                    print("current status of allwuss ",[u.ueID for u in allwuss])
 
                             elif selected_user.req_no_wifi_slot > 0:
                                 allwuss.append(selected_user)
 
+                            continue
 
                 # else if CTS==0
                     if CTS == 0:
-                        # print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
-                        # print("current status of DIFS", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
+                        if 0:
+                            print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
+                            print("current status of DIFS", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
 
+                        # if len(allwuss)>0:    
                         service.assignProb2(allwuss)
 
                         # For all users in the list(list of users with prob<threshold)
                         Wifiuserscount,a = service.countWifiUsersWhoTransmit2(allwuss)
-                        # print("New Users who want to transmit: ",[x.ueID for x in a])
+                        if 0:
+                            print("New Users who want to transmit: ",[x.ueID for x in a])
+
                         # if channel is busy
                         if channel_busy == 1:
-                            # print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
+                            if 0:
+                                print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
                             WifiCountU +=1
                             for u in a:
-                                if u.random_backoff_flag == 0 and u.random_backoff_slots == 0:
+                                if u.random_backoff_flag == 0 and u.random_backoff_slots == 0 and u.DIFS_flag == 0:
                                     u.random_backoff_flag = 1
                                     u.setRandomBackoff()
                             
                             for u in tuserlist:
-                                if u.random_backoff_flag == 1 and u.random_backoff_slots > 0:
+                                if u.random_backoff_flag == 1 and u.random_backoff_slots > 0 and u.DIFS_flag == 0:
                                     u.random_backoff_slots-=1
-                                if u.random_backoff_flag == 1 and u.random_backoff_slots == 0:
+                                if u.random_backoff_flag == 1 and u.random_backoff_slots == 0 and u.DIFS_flag == 0:
                                     u.random_backoff_flag = 1
                                     u.setRandomBackoff()
-                                if u.random_backoff_flag == 0 and u.random_backoff_slots == 0:
+                                
+                                if u.random_backoff_flag == 0 and u.random_backoff_slots == 0 and u.DIFS_flag == 0:
                                     u.random_backoff_flag = 1
                                     u.setRandomBackoff()
                 
@@ -558,15 +570,16 @@ if __name__ == "__main__":
 
                         # if channel is free
                         if channel_busy == 0:
-                            # print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
+                            if 0:
+                                print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
 
-
+                            remove_from_tuserlist_RTS = []
                             for u in tuserlist:
-                                if u.random_backoff_flag == 1 and u.random_backoff_slots > 0:
+                                if u.random_backoff_flag == 1 and u.random_backoff_slots > 0 and u.DIFS_flag == 0:
                                     u.random_backoff_slots-=1
 
                                 # if random
-                                if u.random_backoff_slots == 0 and u.DIFS_flag == 0:
+                                elif u.random_backoff_flag == 1 and u.random_backoff_slots == 0 and u.DIFS_flag == 0:
                                     u.random_backoff_flag = 0
                                     u.DIFS_flag = 1
                                     u.DIFS_slots = thisparams.DIFS_slots
@@ -580,12 +593,21 @@ if __name__ == "__main__":
                                         u.DIFS_slots = thisparams.DIFS_slots
                                         # send RTS
                                         RTSuserlist.append(u)
+                                        remove_from_tuserlist_RTS.append(u)
+
+                            for u in remove_from_tuserlist_RTS:
+                                tuserlist.remove(u)
                             
                             if len(RTSuserlist)>0:
                                 selected_user = service.sendRTS(thisparams,RTSuserlist)
+                                selected_user.RTS_flag=1
+
                                 RTSuserlist.remove(selected_user)
-                                tuserlist.remove(selected_user)
-                                # print("Selected userid: {} ".format(selected_user.ueID))
+                                # tuserlist.remove(selected_user)
+
+                                if 0:
+                                    print("Selected userid: {} ".format(selected_user.ueID))
+                                
                                 CTS = selected_user.req_no_wifi_slot
                                 t_req_no_wifi_slot=selected_user.req_no_wifi_slot
                             else:
@@ -597,7 +619,8 @@ if __name__ == "__main__":
 
                     total_Wifi_slots += 1
                 # End of while 111
-                print("\nWifi Successful: ",WifiCountS," Wifi Unused: ",WifiCountU,"\n")
+                if 0:
+                    print("\nWifi Successful: ",WifiCountS," Wifi Unused: ",WifiCountU,"\n")
         
                 # More than one LTE BS has zero
                 if multiple_zero == 1:
@@ -656,6 +679,9 @@ if __name__ == "__main__":
             frame_fairness = ((U_LTE+U_Wifi)**2)/(2*((U_LTE**2)+(U_Wifi**2)))
             
             # print(frame_fairness)
+            # if len(Fairness)>0:
+            #     if Fairness[-1] == 0.5:
+            #         break
 
             Fairness.append(frame_fairness)
 
@@ -666,13 +692,13 @@ if __name__ == "__main__":
 
             frame_T_Wifi = (total_Wifi_bits_sent * 10**3)/thisparams.duration_frame
             Wifi_Throughput.append(frame_T_Wifi)
-            print("current status of allwuss ",[u.ueID for u in allwuss])
-            print("current status of tuserlist ",[u.ueID for u in tuserlist])
-            # print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
-            print("current status of random backoff", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
-            print("current status of RTSuserlist ",[u.ueID for u in RTSuserlist])
-
-
+            
+            if 0:
+                print("current status of allwuss ",[u.ueID for u in allwuss])
+                print("current status of DIFS ", [(u.ueID,u.DIFS_slots) for u in tuserlist if u.DIFS_flag==1])
+                # print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist])
+                print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
+                print("current status of RTSuserlist ",[u.ueID for u in RTSuserlist])
 
         #
         # End of times_frame loop
