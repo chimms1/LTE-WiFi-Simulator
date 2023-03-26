@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+from tqdm import tqdm
 from running.ConstantParams import PARAMS
 from running.ServiceClass import ServiceClass
 from running.ServiceClass import GraphService
@@ -374,7 +375,7 @@ if __name__ == "__main__":
         # total_PRBs = 0
         # total_Wifi_slots = 0
 
-        for tf in range(0,thisparams.times_frames):
+        for tf in tqdm(range(0,thisparams.times_frames)):
             
             LTECountS=0
             LTECountU=0
@@ -725,21 +726,30 @@ if __name__ == "__main__":
     
     print("-------------------------------------------------------")
     
-    print("Fairness  LT  WT")
+    if verbose.Table_Fairness_LTH_WTH==1:
+        print("Fairness  LT  WT")
 
-    for i in range(0,thisparams.times_frames):
-        print("{}      {}  {}".format(Fairness[i],LTE_Throughput[i],Wifi_Throughput[i]))
+        for i in range(0,thisparams.times_frames):
+            print("{}      {}  {}".format(Fairness[i],LTE_Throughput[i],Wifi_Throughput[i]))
 
     
-    print("-------------------------------------------------------",end="\n\n")
+        print("-------------------------------------------------------",end="\n\n")
 
-    for f in Fairness:
-        print(f)
+    if verbose.List_line_Fairness==1:
+        print("-------------------------------------------------------")
+        for f in Fairness:
+            print(f)
+        print("-------------------------------------------------------")
 
-    print("-------------------------------------------------------")
-    for f in LTE_Throughput:
-        print(f)
+    if verbose.List_line_LTE_throughput==1:
+        print("-------------------------------------------------------")
+        for f in LTE_Throughput:
+            print(f)
+        print("-------------------------------------------------------")
 
-    print("-------------------------------------------------------")
-    for f in Wifi_Throughput:
-        print(f)
+    if verbose.List_line_Wifi_throughput==1:
+        print("-------------------------------------------------------")
+        for f in Wifi_Throughput:
+            print(f)
+        print("-------------------------------------------------------")
+        
