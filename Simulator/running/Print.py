@@ -16,6 +16,13 @@ class Verbose:
     LTE_BS_Req_by_user = 1
     Wifi_BS_Req_by_user = 1
 
-    plot_Scene = 1 # plotting graph of positioning of BS and UE in the scene
+    plot_Scene = 0 # plotting graph of positioning of BS and UE in the scene
     plot_SINR_Count = 0 # plot number of LTE users vs SINR
     plot_SNR_Count = 0 # plot number of Wifi users vs SNR
+
+    # end
+    Table_Fairness_LTH_WTH = 1
+    List_line_Fairness = 0  # prints long list of fairness values of each iteration
+    List_line_LTE_throughput = 0  # prints long list of LTE throughput values of each iteration
+    List_line_Wifi_throughput = 0  # prints long list of LTE throughput values of each iteration
+
