@@ -462,7 +462,8 @@ class ServiceClass:
 
             # total PRB required by user = (required bits per slot)
             #                           /(bits per symbol)*(total symbols in PRB)
-            u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
+            # u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
+            u.req_no_PRB = (u.req_data_rate*(10**3)*10*(10**-3))/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
             u.req_no_PRB = math.ceil(u.req_no_PRB)
 
     # This function returns the value 'bits per symbol' for corresponding SNR value
@@ -505,7 +506,7 @@ class ServiceClass:
         for u in wuss:
             # total wifi slots required by user = (required datarate)
     #                                                               / (available datarate)
-            u.req_no_wifi_slot = (u.req_data_rate*9)/(u.bs.bits_per_symbol_of_user[u])
+            u.req_no_wifi_slot = (u.req_data_rate*10)/(u.bs.bits_per_symbol_of_user[u]*9)
             u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
 
     def sendRTS(self,scene_params,RTSuserlist):
@@ -546,7 +547,6 @@ class ServiceClass:
 
         # LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[:-1])
         return LTE_proportions
-
 
     #==========================================================================================================================================================
     # Creates CSVs of locations of BSs and Users
