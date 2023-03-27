@@ -547,6 +547,21 @@ class ServiceClass:
 
         # LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[:-1])
         return LTE_proportions
+    
+    def Vary_Load(self,scene_params,vary_factor):
+        
+        dec = scene_params.decrease_factors
+        inc = scene_params.increase_factors
+
+        choice0 = inc
+
+        if vary_factor>1:
+
+            choice0 = random.choice([dec,inc])
+
+        factor = random.choice(choice0)
+
+        return factor
 
     #==========================================================================================================================================================
     # Creates CSVs of locations of BSs and Users
