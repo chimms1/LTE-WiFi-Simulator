@@ -885,4 +885,7 @@ if __name__ == "__main__":
         for f in Wifi_Throughput:
             print(f)
         print("-------------------------------------------------------")
-        
+    
+    if verbose.FairnessVsFrameIters == 1:
+        graphservice.PlotFairnessFrameIters(Fairness,thisparams.times_frames,thisparams)
+

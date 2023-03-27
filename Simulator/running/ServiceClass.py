@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from running.ConstantParams import PARAMS
 from entities.BaseStation import LTEBaseStation
@@ -719,7 +720,11 @@ class GraphService:
 
         plt.show()
 
+    def PlotFairnessFrameIters(self,Fairness,time_frames,scene_params):
 
-
-        
-
+        sns.lineplot(x=[i for i in range(time_frames)], y=Fairness)
+        plt.title("Fairness vs Frame Iterations (10 ms)",fontsize=18)
+        plt.xlabel("Frame Iteration (10 ms)",fontsize=15)
+        plt.ylabel("Fairness",fontsize=15)
+        plt.ylim(0.5,1)
+        plt.show()
