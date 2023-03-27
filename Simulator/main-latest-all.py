@@ -343,10 +343,6 @@ if __name__ == "__main__":
             tempu = copy.copy(u)
 
             allwuss.append(tempu)
-
-
-        frame_fairness = 0.5
-
         
 
         print("\n\n-----------------Combination {}---------------------".format(simulation_iterator))
@@ -374,6 +370,14 @@ if __name__ == "__main__":
 
         # total_PRBs = 0
         # total_Wifi_slots = 0
+
+        vary_for_every = 1
+        if thisparams.vary_load == 1:
+            
+            vary_for_every = thisparams.vary_for_every
+        
+        Wifi_vary_factor = 1 #   initially set to 1
+        LTE_vary_factor = 1
 
         for tf in tqdm(range(0,thisparams.times_frames)):
             
@@ -483,8 +487,9 @@ if __name__ == "__main__":
                             WifiCountS+=1
 
                             selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
-                            total_Wifi_bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
-                            
+                            # total_Wifi_bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
+                            total_Wifi_bits_sent += (selected_user.req_data_rate*9)/1000
+
                             if verbose.CSMA_CA_Logs == 1:
                                 print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
                                 print(" Wifi user ",selected_user.ueID," used 1 slot successfully")
@@ -507,6 +512,7 @@ if __name__ == "__main__":
                                 print("current status of allwuss ",[u.ueID for u in allwuss])
                             
                             continue
+
                         # When CTS becomes zero during Wifi transmission sub frame
                         if CTS==0 and channel_busy==0:
                             if selected_user.req_no_wifi_slot == 0:
@@ -514,10 +520,9 @@ if __name__ == "__main__":
                         
                                     print("User ",selected_user.ueID, "has completed his transmission compleetly and is added back to allwuss")
                                 
-                                # selected_user.req_no_wifi_slot=t_req_no_wifi_slot
+                                selected_user.req_no_wifi_slot = (selected_user.req_data_rate*10)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)]*9)
+                                selected_user.req_no_wifi_slot = int(Wifi_vary_factor*math.ceil(selected_user.req_no_wifi_slot))
                                 # service.calculate_wifi_user_slots(thisparams, [selected_user])
-                                selected_user.req_no_wifi_slot = (selected_user.req_data_rate*9)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)])
-                                selected_user.req_no_wifi_slot = math.ceil(selected_user.req_no_wifi_slot)
 
                                 allwuss.append(selected_user)
 
@@ -636,11 +641,15 @@ if __name__ == "__main__":
                         selected_bs = lbss[lbs_single_transmission_ind]
 
                         LTE_proportions = service.calculate_LTE_proportions(thisparams,selected_bs.t_user_list)
-                        # print(LTE_proportions)
+                        
+                        if verbose.LTE_proportions==1:
+                            print(LTE_proportions)
+
 
                         p = 0
                         for u in selected_bs.t_user_list:
-                            # print(u.req_no_PRB,LTE_proportions[p])
+                            if verbose.LTE_proportions==1:
+                                print(u.req_no_PRB,LTE_proportions[p])
 
                             if u.req_no_PRB <= LTE_proportions[p]:
                                 givenPRB = u.req_no_PRB
@@ -652,11 +661,16 @@ if __name__ == "__main__":
                                 LTECountS += givenPRB
 
                                 service.calculate_LTE_user_PRB(thisparams,[u])  # user goes back and comes back again with same requirement
+                                # u.req_no_PRB = (u.req_data_rate*(10**3)*10*(10**-3))/(u.bs.bits_per_symbol_of_user[u]*thisparams.PRB_total_symbols)
+                                # u.req_no_PRB = int(LTE_vary_factor*math.ceil(u.req_no_PRB))
+
+                                if u.req_no_PRB <=0:
+                                    u.req_no_PRB = 1
 
                             else:
                                 u.req_no_PRB -= LTE_proportions[p]
                                 u.bits_sent += LTE_proportions[p] * thisparams.PRB_total_symbols * u.bs.bits_per_symbol_of_user[u]
-                                total_LTE_bits_sent += givenPRB*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
+                                total_LTE_bits_sent += LTE_proportions[p]*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
 
                                 LTECountS += LTE_proportions[p]
 
@@ -664,7 +678,9 @@ if __name__ == "__main__":
 
                         total_PRBs += 100
                         half_ms -= 1
-                        # print("Successful RB allocation: ",LTECountS)
+                        
+                        if verbose.LTE_proportions==1:
+                            print("Successful RB allocation: ",LTECountS)
             
             #
             # End of subframe iteration loop
@@ -678,11 +694,6 @@ if __name__ == "__main__":
             U_Wifi = WifiCountS/total_Wifi_slots
 
             frame_fairness = ((U_LTE+U_Wifi)**2)/(2*((U_LTE**2)+(U_Wifi**2)))
-            
-            # print(frame_fairness)
-            # if len(Fairness)>0:
-            #     if Fairness[-1] == 0.5:
-            #         break
 
             Fairness.append(frame_fairness)
 
@@ -701,6 +712,9 @@ if __name__ == "__main__":
                 print("current status of random backoff ", [(u.ueID,u.random_backoff_slots) for u in tuserlist if u.random_backoff_flag==1])
                 print("current status of RTSuserlist ",[u.ueID for u in RTSuserlist])
 
+
+            if thisparams.vary_load == 1:
+                vary_for_every-=1
         #
         # End of times_frame loop
 
@@ -730,7 +744,7 @@ if __name__ == "__main__":
         print("Fairness  LT  WT")
 
         for i in range(0,thisparams.times_frames):
-            print("{}      {}  {}".format(Fairness[i],LTE_Throughput[i],Wifi_Throughput[i]))
+            print("{:.4f}      {:.4f}  {:.4f}".format(Fairness[i],LTE_Throughput[i],Wifi_Throughput[i]))
 
     
         print("-------------------------------------------------------",end="\n\n")
