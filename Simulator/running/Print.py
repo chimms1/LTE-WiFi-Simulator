@@ -17,6 +17,9 @@ class Verbose:
     Wifi_BS_Req_by_user = 1
 
     CSMA_CA_Logs = 0
+    LTE_proportions = 0
+
+    vary_factor = 1
 
     plot_Scene = 0 # plotting graph of positioning of BS and UE in the scene
     plot_SINR_Count = 0 # plot number of LTE users vs SINR
