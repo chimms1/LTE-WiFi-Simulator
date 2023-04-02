@@ -522,12 +522,16 @@ class ServiceClass:
         total = 0
 
         for u in luss:
-            total += u.req_no_PRB
+            if u.transmission_finished == 0:
+                total += u.req_no_PRB
 
         total2 = 0
         
         i = 0
         for u in luss:
+            if u.transmission_finished == 1:
+                continue
+
             k = math.ceil((u.req_no_PRB/total)*scene_params.PRB_total_prbs)
             # print(k," k")
             

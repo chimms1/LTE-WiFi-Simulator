@@ -54,7 +54,13 @@ if __name__ == "__main__":
 
     if check == 'N' or check == 'n':
         exit()
-
+    
+    if thisparams.vary_load == 1:
+        if len(thisparams.set_users_Wifi) == ((thisparams.times_frames/thisparams.vary_for_every)-1) and len(thisparams.set_users_LTE) == ((thisparams.times_frames/thisparams.vary_for_every)-1):
+            print("Number of users will be varied for every {}th iteration".format(thisparams.vary_for_every))
+        else:
+            print("Error: Vary for every iteration and number of user counts are mismatched")
+            exit()
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(thisparams,scene)
     wbss = service.createWifiBaseStations(thisparams,scene)
@@ -367,6 +373,8 @@ if __name__ == "__main__":
         CTS = 0
         tuserlist = []
         RTSuserlist = []
+        FinishedWifilist = []
+        # FinishedLTElist = []
 
         # total_PRBs = 0
         # total_Wifi_slots = 0
@@ -487,8 +495,8 @@ if __name__ == "__main__":
                             WifiCountS+=1
 
                             selected_user.bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
-                            # total_Wifi_bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
-                            total_Wifi_bits_sent += (selected_user.req_data_rate*9)/1000
+                            total_Wifi_bits_sent += thisparams.get_bits_per_wifi_slot_from_Mbps(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user,wuss)])
+                            # total_Wifi_bits_sent += (selected_user.req_data_rate*9)/1000
 
                             if verbose.CSMA_CA_Logs == 1:
                                 print(Wifisensecount," Success ",[(u.ueID,u.DIFS_slots) for u in tuserlist])
@@ -502,10 +510,11 @@ if __name__ == "__main__":
                                 print("User ",selected_user.ueID, "was till now sending during period 0 and is added back to allwuss")
                                 print("\n")
                             
-                            # selected_user.req_no_wifi_slot = (selected_user.req_data_rate*9)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)])
-                            # selected_user.req_no_wifi_slot = math.ceil(selected_user.req_no_wifi_slot)
+                            # selected_user.req_no_wifi_slot = (selected_user.req_data_rate*10)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)]*9)
+                            # selected_user.req_no_wifi_slot = int(math.ceil(selected_user.req_no_wifi_slot))
 
                             allwuss.append(selected_user)
+                            # FinishedWifilist.append(selected_user)
 
                             if verbose.CSMA_CA_Logs == 1:
                         
@@ -524,126 +533,8 @@ if __name__ == "__main__":
                                 selected_user.req_no_wifi_slot = int(math.ceil(selected_user.req_no_wifi_slot))
                                 # service.calculate_wifi_user_slots(thisparams, [selected_user])
 
-                                allwuss.append(selected_user)
-
-
-
-                                ###### HERE, Varying of Users starts
-                                if thisparams.vary_load == 1 and vary_for_every <=0 :
-                                    
-                                    LTE_vary_factor = service.Vary_Load(thisparams, LTE_vary_factor)
-                                    Wifi_vary_factor = service.Vary_Load(thisparams, Wifi_vary_factor)
-
-                                    # Caluclate new count of users
-                                    newLTEuserscount = math.ceil(LTE_vary_factor*thisparams.numofLTEUE)
-                                    newWifiuserscount = math.ceil(Wifi_vary_factor*thisparams.numofWifiUE)
-                                    
-                                    # Clear older lists
-                                    for lb in lbss:
-                                        lb.user_list = np.array([])
-                                        lb.t_user_list = np.array([])
-                                        lb.bits_per_symbol_of_user = dict()
-                                    
-                                    for wb in wbss:
-                                        wb.user_list = np.array([])  
-                                        wb.t_user_list = np.array([])
-                                        wb.bits_per_symbol_of_user = dict()
-
-                                    allwuss = []
-                                    tuserlist = []
-                                    RTSuserlist = []
-
-                                    # Create new users
-                                    varyparams = PARAMS()
-                                    varyparams.numofLTEUE = newLTEuserscount
-                                    varyparams.numofWifiUE = newWifiuserscount
-
-                                    luss = service.createLTEUsers(varyparams)
-                                    wuss = service.createWifiUsers(varyparams)
-
-                                    # Connecting all the LTE UE with a LTE BS
-                                    i = 0
-                                    for u in luss:
-                                        ind = u.measureSINRandConnect(lbss,wbss)
-
-                                        # if ind is -1 then that user is out of range of any BS
-                                        if ind == -1:
-                                            luss = np.delete(luss,i)
-                                            continue
-
-                                        # Add this UE to user_list
-                                        lbss[ind].user_list = np.append(lbss[ind].user_list, u)
-                                        i+=1
-
-
-                                    # Keeping a copy of LTE transmitting users
-                                    for b in lbss:
-                                        for element in b.user_list:
-                                            b.t_user_list = np.append(b.t_user_list,element)
-
-                                        b.lusscount = len(b.t_user_list)
-                                        b.lusscount2=b.lusscount
-
-                                    # Connecting all the Wifi UE with a Wifi BS
-                                    i = 0
-                                    for u in wuss:
-                                        ind = u.measureSNRandConnect(lbss,wbss)
-                                        # if ind is -1 then that user is out of range of any BS
-                                        if ind == -1:
-                                            wuss = np.delete(wuss,i)
-                                            continue
-
-                                        # Add this UE to user_list
-                                        wbss[ind].user_list = np.append(wbss[ind].user_list, u)
-                                        i+=1
-
-                                    
-                                    
-                                    # Keeping a copy of Wifi transmitting users
-                                    for b in wbss:
-                                        for element in b.user_list:
-                                            b.t_user_list = np.append(b.t_user_list,element)
-
-                                        b.wusscount = len(b.t_user_list)
-
-                                    # Based on ratios decided by the user, assign data rates to UE
-                                    service.assign_data_rate_to_users(thisparams, luss, wuss)
-
-                                    SINR=[]
-                                    SNR=[]
-
-                                    # Measuring SINR for LTE Users
-                                    for u in luss:
-                                        u.measureSINR(wbss)
-                                        SINR.append(u.SINR)
-
-                                    service.decide_LTE_bits_per_symbol(lbss,thisparams)
-                                    service.calculate_LTE_user_PRB(thisparams, luss)
-
-                                    for u in wuss:
-                                        u.measureSNR()
-                                        SNR.append(u.SNR)
-
-                                    service.decide_wifi_bits_per_symbol(wbss, thisparams)
-                                    service.calculate_wifi_user_slots(thisparams, wuss)
-
-                                    for b in wbss:
-                                        b.t_user_list = b.user_list
-                                    
-                                    allwuss = []
-
-                                    for u in wuss:
-                                        # tempu = WifiUserEquipment()
-                                        tempu = copy.copy(u)
-
-                                        allwuss.append(tempu)
-
-                                    if verbose.vary_factor == 1:
-                                        print("Factor: {} LTE users {} at iteration {}".format(LTE_vary_factor,varyparams.numofLTEUE,tf))
-                                        print("Factor: {} Wifi users {} at iteration {}".format(Wifi_vary_factor,varyparams.numofWifiUE,tf))
-
-
-                                    vary_for_every = thisparams.vary_for_every
+                                # allwuss.append(selected_user)
+                                FinishedWifilist.append(selected_user)
 
                                 if verbose.CSMA_CA_Logs == 1:
                                     print("current status of allwuss ",[u.ueID for u in allwuss])
@@ -767,12 +658,16 @@ if __name__ == "__main__":
 
                         p = 0
                         for u in selected_bs.t_user_list:
+                            if u.transmission_finished == 1:
+                                continue
+
                             if verbose.LTE_proportions==1:
                                 print(u.req_no_PRB,LTE_proportions[p])
 
-                            if u.req_no_PRB <= LTE_proportions[p]:
+                            if u.req_no_PRB <= LTE_proportions[p] :
                                 givenPRB = u.req_no_PRB
                                 u.req_no_PRB = 0
+                                u.transmission_finished = 1
                                 
                                 u.bits_sent += givenPRB*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
                                 total_LTE_bits_sent += givenPRB*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
@@ -800,7 +695,173 @@ if __name__ == "__main__":
                         
                         if verbose.LTE_proportions==1:
                             print("Successful RB allocation: ",LTECountS)
-            
+
+                # Add users back to initial state
+                if subframe_iterator == 9:
+
+                    # if thisparams.vary_load == 0:
+                    CTS = 0
+
+                    for u in FinishedWifilist:
+                        allwuss.append(u)
+
+                    for u in tuserlist:
+                        allwuss.append(u)
+
+                    for u in RTSuserlist:
+                        allwuss.append(u)
+                    
+                    is_selected_user_present = 0
+
+                    for u in allwuss:
+                        if selected_user.ueID == u.ueID:
+                            is_selected_user_present = 1
+                            break
+                    
+                    if is_selected_user_present == 1:
+                        pass
+                    else:
+                        selected_user.req_no_wifi_slot = (selected_user.req_data_rate*10)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)]*9)
+                        selected_user.req_no_wifi_slot = int(math.ceil(selected_user.req_no_wifi_slot))
+                        allwuss.append(selected_user)
+
+                    for u in allwuss:
+                        u.DIFS_flag = 0
+                        u.DIFS_slots = thisparams.DIFS_slots
+                        u.random_backoff_flag = 0
+                        u.random_backoff_slots = 0
+
+                    FinishedWifilist = []
+                    tuserlist = []
+                    RTSuserlist = []
+
+                    for b in lbss:
+                        for u in b.t_user_list:
+                            u.transmission_finished = 0
+                            service.calculate_LTE_user_PRB(thisparams,[u])
+
+                    ###### HERE, Varying of Users starts
+                    if thisparams.vary_load == 1 and vary_for_every <=0 :
+                        
+                        # LTE_vary_factor = service.Vary_Load(thisparams, LTE_vary_factor)
+                        # Wifi_vary_factor = service.Vary_Load(thisparams, Wifi_vary_factor)
+
+                        # Caluclate new count of users
+                        # newLTEuserscount = math.ceil(LTE_vary_factor*thisparams.numofLTEUE)
+                        # newWifiuserscount = math.ceil(Wifi_vary_factor*thisparams.numofWifiUE)
+                        CTS = 0
+
+                        newLTEuserscount = thisparams.set_users_LTE[thisparams.vary_iterator]
+                        newWifiuserscount = thisparams.set_users_Wifi[thisparams.vary_iterator]
+
+                        thisparams.vary_iterator += 1
+
+                        # Clear older lists
+                        for lb in lbss:
+                            lb.user_list = np.array([])
+                            lb.t_user_list = np.array([])
+                            lb.bits_per_symbol_of_user = dict()
+                        
+                        for wb in wbss:
+                            wb.user_list = np.array([])  
+                            wb.t_user_list = np.array([])
+                            wb.bits_per_symbol_of_user = dict()
+
+                        allwuss = []
+                        tuserlist = []
+                        RTSuserlist = []
+                        FinishedWifilist = []
+
+                        # Create new users
+                        varyparams = PARAMS()
+                        varyparams.numofLTEUE = newLTEuserscount
+                        varyparams.numofWifiUE = newWifiuserscount
+
+                        luss = service.createLTEUsers(varyparams)
+                        wuss = service.createWifiUsers(varyparams)
+
+                        # Connecting all the LTE UE with a LTE BS
+                        i = 0
+                        for u in luss:
+                            ind = u.measureSINRandConnect(lbss,wbss)
+
+                            # if ind is -1 then that user is out of range of any BS
+                            if ind == -1:
+                                luss = np.delete(luss,i)
+                                continue
+
+                            # Add this UE to user_list
+                            lbss[ind].user_list = np.append(lbss[ind].user_list, u)
+                            i+=1
+
+
+                        # Keeping a copy of LTE transmitting users
+                        for b in lbss:
+                            for element in b.user_list:
+                                b.t_user_list = np.append(b.t_user_list,element)
+
+                            b.lusscount = len(b.t_user_list)
+                            b.lusscount2=b.lusscount
+
+                        # Connecting all the Wifi UE with a Wifi BS
+                        i = 0
+                        for u in wuss:
+                            ind = u.measureSNRandConnect(lbss,wbss)
+                            # if ind is -1 then that user is out of range of any BS
+                            if ind == -1:
+                                wuss = np.delete(wuss,i)
+                                continue
+
+                            # Add this UE to user_list
+                            wbss[ind].user_list = np.append(wbss[ind].user_list, u)
+                            i+=1
+
+                        # Keeping a copy of Wifi transmitting users
+                        for b in wbss:
+                            for element in b.user_list:
+                                b.t_user_list = np.append(b.t_user_list,element)
+
+                            b.wusscount = len(b.t_user_list)
+
+                        # Based on ratios decided by the user, assign data rates to UE
+                        service.assign_data_rate_to_users(thisparams, luss, wuss)
+
+                        SINR=[]
+                        SNR=[]
+
+                        # Measuring SINR for LTE Users
+                        for u in luss:
+                            u.measureSINR(wbss)
+                            SINR.append(u.SINR)
+
+                        service.decide_LTE_bits_per_symbol(lbss,thisparams)
+                        service.calculate_LTE_user_PRB(thisparams, luss)
+
+                        for u in wuss:
+                            u.measureSNR()
+                            SNR.append(u.SNR)
+
+                        service.decide_wifi_bits_per_symbol(wbss, thisparams)
+                        service.calculate_wifi_user_slots(thisparams, wuss)
+
+                        for b in wbss:
+                            b.t_user_list = b.user_list
+                        
+                        allwuss = []
+
+                        for u in wuss:
+                            # tempu = WifiUserEquipment()
+                            tempu = copy.copy(u)
+
+                            allwuss.append(tempu)
+
+                        if verbose.vary_factor == 1:
+                            print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
+                            print("Wifi users {} at iteration {}".format(varyparams.numofWifiUE,tf))
+
+
+                        vary_for_every = thisparams.vary_for_every
+
             #
             # End of subframe iteration loop
 

@@ -5,16 +5,20 @@ class PARAMS:
     scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 10
-    numofWifiUE = 10
+    numofLTEUE = 5
+    numofWifiUE = 5
     
     times_frames = 1000    # Simulate for this value x 10ms
 
     vary_load = 1   # set this flag to vary the load in iterations
-    vary_for_every = 50    # Load will be changed for these many frame iterations
+    vary_for_every = 100    # Load will be changed for these many frame iterations
 
-    decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]
-    increase_factors = [1.1, 1.2, 1.3, 1.4, 1.5]
+    set_users_LTE  = [10,9,11,12,9,1,100,5,6]
+    set_users_Wifi = [6,5,100,1,9,12,11,9,10]
+
+    vary_iterator = 0   # iterates in the set user list
+    # decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]
+    # increase_factors = [1.1, 1.2, 1.3, 1.4, 1.5]
 
     length = 100
     breadth = 100
@@ -43,7 +47,7 @@ class PARAMS:
 
     PRB_total_prbs = 100
 
-    profiles = [64,128,256,1000]
+    profiles = [128,256,512,1000]
     LTE_ratios = [4,3,2,1]
     wifi_ratios = [2,3,1,4]
     LTE_profile_prob = []
