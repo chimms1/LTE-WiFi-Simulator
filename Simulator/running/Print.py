@@ -21,6 +21,12 @@ class Verbose:
 
     vary_factor = 1
 
+    frame_dictionary = 1
+
+    state_action_Qtable = 0
+    Qtable = 1
+
+
     plot_Scene = 0 # plotting graph of positioning of BS and UE in the scene
     plot_SINR_Count = 0 # plot number of LTE users vs SINR
     plot_SNR_Count = 0 # plot number of Wifi users vs SNR
