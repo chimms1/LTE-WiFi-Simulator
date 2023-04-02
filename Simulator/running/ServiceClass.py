@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from running.ConstantParams import PARAMS
 from entities.BaseStation import LTEBaseStation
@@ -462,7 +463,8 @@ class ServiceClass:
 
             # total PRB required by user = (required bits per slot)
             #                           /(bits per symbol)*(total symbols in PRB)
-            u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
+            # u.req_no_PRB = scene_params.get_bits_per_slot_from_Kbps(u.req_data_rate)/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
+            u.req_no_PRB = (u.req_data_rate*(10**3)*10*(10**-3))/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
             u.req_no_PRB = math.ceil(u.req_no_PRB)
 
     # This function returns the value 'bits per symbol' for corresponding SNR value
@@ -505,12 +507,13 @@ class ServiceClass:
         for u in wuss:
             # total wifi slots required by user = (required datarate)
     #                                                               / (available datarate)
-            u.req_no_wifi_slot = (u.req_data_rate*9)/(u.bs.bits_per_symbol_of_user[u])
+            u.req_no_wifi_slot = (u.req_data_rate*10)/(u.bs.bits_per_symbol_of_user[u]*9)
             u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
 
     def sendRTS(self,scene_params,RTSuserlist):
+
         selecteduser=random.choice(RTSuserlist)
-        selecteduser.RTS_flag=1
+
         return selecteduser
 
     def calculate_LTE_proportions(self,scene_params,luss):
@@ -519,14 +522,18 @@ class ServiceClass:
         total = 0
 
         for u in luss:
-            total += u.req_no_PRB
+            if u.transmission_finished == 0:
+                total += u.req_no_PRB
 
         total2 = 0
         
         i = 0
         for u in luss:
+            if u.transmission_finished == 1:
+                continue
+
             k = math.ceil((u.req_no_PRB/total)*scene_params.PRB_total_prbs)
-            print(k," k")
+            # print(k," k")
             
             if total2 + k > 100:
                 LTE_proportions.append(0)
@@ -545,7 +552,21 @@ class ServiceClass:
 
         # LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[:-1])
         return LTE_proportions
+    
+    def Vary_Load(self,scene_params,vary_factor):
+        
+        dec = scene_params.decrease_factors
+        inc = scene_params.increase_factors
 
+        choice0 = inc
+
+        if vary_factor>1:
+
+            choice0 = random.choice([dec,inc])
+
+        factor = random.choice(choice0)
+
+        return factor
 
     #==========================================================================================================================================================
     # Creates CSVs of locations of BSs and Users
@@ -703,7 +724,11 @@ class GraphService:
 
         plt.show()
 
+    def PlotFairnessFrameIters(self,Fairness,time_frames,scene_params):
 
-
-        
-
+        sns.lineplot(x=[i for i in range(time_frames)], y=Fairness)
+        plt.title("Fairness vs Frame Iterations (10 ms)",fontsize=18)
+        plt.xlabel("Frame Iteration (10 ms)",fontsize=15)
+        plt.ylabel("Fairness",fontsize=15)
+        plt.ylim(0.5,1)
+        plt.show()
