@@ -18,7 +18,8 @@ class LTEUserEquipment:
             #                           /(bits per symbol)*(total symbols in PRB)
     
     bits_sent = 0
-    # LTEslotsreq = None # (bits per symbol) * (symbols per resource block)
+    
+    transmission_finished = 0
 
 
 

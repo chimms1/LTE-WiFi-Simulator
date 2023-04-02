@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from running.ConstantParams import PARAMS
 from entities.BaseStation import LTEBaseStation
@@ -521,12 +522,16 @@ class ServiceClass:
         total = 0
 
         for u in luss:
-            total += u.req_no_PRB
+            if u.transmission_finished == 0:
+                total += u.req_no_PRB
 
         total2 = 0
         
         i = 0
         for u in luss:
+            if u.transmission_finished == 1:
+                continue
+
             k = math.ceil((u.req_no_PRB/total)*scene_params.PRB_total_prbs)
             # print(k," k")
             
@@ -547,6 +552,21 @@ class ServiceClass:
 
         # LTE_proportions[-1] = scene_params.PRB_total_prbs - sum(LTE_proportions[:-1])
         return LTE_proportions
+    
+    def Vary_Load(self,scene_params,vary_factor):
+        
+        dec = scene_params.decrease_factors
+        inc = scene_params.increase_factors
+
+        choice0 = inc
+
+        if vary_factor>1:
+
+            choice0 = random.choice([dec,inc])
+
+        factor = random.choice(choice0)
+
+        return factor
 
     #==========================================================================================================================================================
     # Creates CSVs of locations of BSs and Users
@@ -704,7 +724,11 @@ class GraphService:
 
         plt.show()
 
+    def PlotFairnessFrameIters(self,Fairness,time_frames,scene_params):
 
-
-        
-
+        sns.lineplot(x=[i for i in range(time_frames)], y=Fairness)
+        plt.title("Fairness vs Frame Iterations (10 ms)",fontsize=18)
+        plt.xlabel("Frame Iteration (10 ms)",fontsize=15)
+        plt.ylabel("Fairness",fontsize=15)
+        plt.ylim(0.5,1)
+        plt.show()
