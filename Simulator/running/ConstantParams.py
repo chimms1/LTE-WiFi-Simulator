@@ -8,9 +8,9 @@ class PARAMS:
     numofLTEUE = 5
     numofWifiUE = 5
     
-    times_frames = 1000    # Simulate for this value x 10ms
+    times_frames = 100    # Simulate for this value x 10ms
 
-    vary_load = 1   # set this flag to vary the load in iterations
+    vary_load = 0   # set this flag to vary the load in iterations
     vary_for_every = 100    # Load will be changed for these many frame iterations
 
     set_users_LTE  = [10,9,11,12,9,1,100,5,6]
