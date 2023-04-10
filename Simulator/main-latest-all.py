@@ -459,6 +459,7 @@ if __name__ == "__main__":
             if multiple_zero == 1 or single_zero == 1:
                 channel_busy = 1
             elif all_one == 1:
+                total_Wifi_slots += 111
                 channel_busy = 0
 
             # "Simulation for one sub-frame (0/1) in a frame" ==============================
@@ -650,7 +651,7 @@ if __name__ == "__main__":
                 Wifisensecount+=1
                 rem_wifi_slots-=1
 
-                total_Wifi_slots += 1
+                
             # End of while 111
             if verbose.CSMA_CA_Logs == 1:
                 print("\nWifi Successful: ",WifiCountS," Wifi Unused: ",WifiCountU,"\n")
