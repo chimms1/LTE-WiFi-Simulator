@@ -6,7 +6,7 @@ class PARAMS:
     numofLTEBS = 1
     numofWifiBS = 1
     numofLTEUE = 5
-    numofWifiUE = 30
+    numofWifiUE = 5
     
     times_frames = 1000    # Simulate for this value x 10ms
 
