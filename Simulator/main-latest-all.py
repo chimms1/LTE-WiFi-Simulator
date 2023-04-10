@@ -410,7 +410,7 @@ if __name__ == "__main__":
     for tf in tqdm(range(0,thisparams.times_frames)):
         
         if tf==rl.exploration and rl.do_DynaQ==0:
-            rl.Epsilon = 0.75
+            rl.Epsilon = 0.95
 
         if rl.do_DynaQ==1:
             
@@ -442,8 +442,9 @@ if __name__ == "__main__":
                 rl.UpdateQtableDyna(S_Rand, r_immediate, S_Dash)
             
             rl.do_DynaQ = 0
+            rl.Epsilon = 0.95
 
-        else:   # Q Learning
+        if rl.do_DynaQ==0:   # Q Learning
             p = rl.ChoosePtoDecideAction()
 
             rl.ChooseAction(p)
@@ -660,7 +661,7 @@ if __name__ == "__main__":
                             print("Wifi users {} at iteration {}".format(varyparams.numofWifiUE,tf))
 
 
-                        vary_for_every = thisparams.vary_for_every
+                        vary_for_every = thisparams.vary_for_every - 1
 
                         # Do Dyna Q when load is changed
                         rl.do_DynaQ = 1
@@ -1011,7 +1012,7 @@ if __name__ == "__main__":
                     print("\n")
                 print("\n")
 
-            if thisparams.vary_load == 1 and tf>=rl.exploration:
+            if thisparams.vary_load == 1 and tf>rl.exploration:
                 vary_for_every-=1
             #
             # End of times_frame loop

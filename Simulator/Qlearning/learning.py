@@ -27,8 +27,8 @@ class learning:
     LR = 0.01
     Gamma = 0.8
 
-    exploration = 7000
-    DynaQ_Iterations = 100
+    exploration = 10000
+    DynaQ_Iterations = 300
 
 
     Fairness_Threshold = 0.8

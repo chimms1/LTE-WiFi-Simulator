@@ -13,8 +13,8 @@ class PARAMS:
     vary_load = 1   # set this flag to vary the load in iterations
     vary_for_every = 1000    # Load will be changed for these many frame iterations
 
-    set_users_LTE  = [10,9,11,100,9,1,5,10]
-    set_users_Wifi = [6,5,100,11,9,12,5,10]
+    set_users_LTE  = [10,9,11,15,9,3,5,10]
+    set_users_Wifi = [6,5,15,11,9,12,5,10]
 
     vary_iterator = 0   # iterates in the set user list
     # decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]

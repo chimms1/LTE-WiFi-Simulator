@@ -21,9 +21,6 @@ class LTEUserEquipment:
     
     transmission_finished = 0
 
-
-
-
     def getPowerRcvd(self,b):
         dist = float()
         dist = ((b.x-self.x)**2 + (b.y-self.y)**2 )**0.5
