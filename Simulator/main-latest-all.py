@@ -194,6 +194,8 @@ if __name__ == "__main__":
 
     service.calculate_LTE_user_PRB(thisparams, luss)
 
+
+
     if verbose.LTE_user_SINR_MCS_value == 1:
         print("\n=== LTE user SINR and MCS value ===")
         for b in lbss:
@@ -201,6 +203,8 @@ if __name__ == "__main__":
                 print("LTE userid {}: {:.4f} @> {} bits per symbol".format(u.ueID,u.SINR,b.bits_per_symbol_of_user[u]))
                 if verbose.LTE_user_req_PRB == 1:
                     print("Required PRBs: {}".format(u.req_no_PRB))
+        
+        print("\nTotal Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
         print("======")
 
     #
@@ -235,6 +239,7 @@ if __name__ == "__main__":
                 print("Wifi userid {}: {:.4f} @> {} Mbps".format(u.ueID,u.SNR,b.bits_per_symbol_of_user[u]))
                 if verbose.Wifi_user_req_slots == 1:
                     print("Required wifi slots: {}".format(u.req_no_wifi_slot))
+        print("\nTotal Required wifi slots: {}".format(service.getTotalRequiredWifiSlot(thisparams, wuss)))
         print("======")
 
     
@@ -337,7 +342,10 @@ if __name__ == "__main__":
 
     Fairness = []   # Stores fairness for each frame combination
     LTE_Throughput = [] # Stores throughput of LTE
+    LTE_Power = []
+
     Wifi_Throughput = [] # Stores total throughput of Wifi
+
 
     #Simulation starts
     # for simulation_iterator in range(0,len(chosen_formats)):
@@ -404,13 +412,41 @@ if __name__ == "__main__":
         rl.ChooseAction(p)
         rl.PerformAction()
 
-        lbss[0].format = format[rl.current_state]
+        if verbose.each_action == 1:
+            print("Choosen Action: ",rl.current_action)
+
+        lbss[0].format = format[rl.current_frame]
+
+        if rl.current_action == 2 or rl.current_action == -2:
+            thisparams.pTxLTE = rl.original_power/rl.current_pFactor
+            
+                
+
+            lbss[0].pTx = thisparams.pTxLTE
+
+            for lb in lbss:
+                lb.bits_per_symbol_of_user = dict()
+            
+            # Measuring SINR for LTE Users
+            for u in luss:
+                u.measureSINR(wbss)
+
+            service.decide_LTE_bits_per_symbol(lbss,thisparams)
+            service.calculate_LTE_user_PRB(thisparams, luss)
+            
+            if verbose.each_action == 1:
+                print("New Power: ",thisparams.pTxLTE)
+                print("Total Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
+        
+        
         
         LTECountS=0
         LTECountU=0
 
         WifiCountS=0
         WifiCountU=0
+
+        LTEPowerS = 0.0
 
         total_PRBs = 0  # Holds total PRBs allocated for LTE in 10ms
         total_Wifi_slots = 0    # Holds total slots allocated for Wifi in 10ms
@@ -423,6 +459,174 @@ if __name__ == "__main__":
         
         
         for subframe_iterator in range(0,10):
+            
+            # Add users back to initial state
+            if subframe_iterator == 0:
+
+                # if thisparams.vary_load == 0:
+                CTS = 0
+
+                for u in FinishedWifilist:
+                    allwuss.append(u)
+
+                for u in tuserlist:
+                    allwuss.append(u)
+
+                for u in RTSuserlist:
+                    allwuss.append(u)
+                
+                is_selected_user_present = 0
+
+                if tf >0:
+                    for u in allwuss:
+                        if selected_user.ueID == u.ueID:
+                            is_selected_user_present = 1
+                            break
+                    
+                    if is_selected_user_present == 1:
+                        pass
+                    else:
+                        selected_user.req_no_wifi_slot = (selected_user.req_data_rate*10)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)]*9)
+                        selected_user.req_no_wifi_slot = int(math.ceil(selected_user.req_no_wifi_slot))
+                        allwuss.append(selected_user)
+
+                for u in allwuss:
+                    u.DIFS_flag = 0
+                    u.DIFS_slots = thisparams.DIFS_slots
+                    u.random_backoff_flag = 0
+                    u.random_backoff_slots = 0
+
+                FinishedWifilist = []
+                tuserlist = []
+                RTSuserlist = []
+
+                for b in lbss:
+                    for u in b.t_user_list:
+                        u.transmission_finished = 0
+                        service.calculate_LTE_user_PRB(thisparams,[u])
+
+                ###### HERE, Varying of Users starts
+                if thisparams.vary_load == 1 and vary_for_every <=0 :
+                        
+                        # LTE_vary_factor = service.Vary_Load(thisparams, LTE_vary_factor)
+                        # Wifi_vary_factor = service.Vary_Load(thisparams, Wifi_vary_factor)
+
+                        # Caluclate new count of users
+                        # newLTEuserscount = math.ceil(LTE_vary_factor*thisparams.numofLTEUE)
+                        # newWifiuserscount = math.ceil(Wifi_vary_factor*thisparams.numofWifiUE)
+                        CTS = 0
+
+                        newLTEuserscount = thisparams.set_users_LTE[thisparams.vary_iterator]
+                        newWifiuserscount = thisparams.set_users_Wifi[thisparams.vary_iterator]
+
+                        thisparams.vary_iterator += 1
+
+                        # Clear older lists
+                        for lb in lbss:
+                            lb.user_list = np.array([])
+                            lb.t_user_list = np.array([])
+                            lb.bits_per_symbol_of_user = dict()
+                        
+                        for wb in wbss:
+                            wb.user_list = np.array([])  
+                            wb.t_user_list = np.array([])
+                            wb.bits_per_symbol_of_user = dict()
+
+                        allwuss = []
+                        tuserlist = []
+                        RTSuserlist = []
+                        FinishedWifilist = []
+
+                        # Create new users
+                        varyparams = PARAMS()
+                        varyparams.numofLTEUE = newLTEuserscount
+                        varyparams.numofWifiUE = newWifiuserscount
+
+                        luss = service.createLTEUsers(varyparams)
+                        wuss = service.createWifiUsers(varyparams)
+
+                        # Connecting all the LTE UE with a LTE BS
+                        i = 0
+                        for u in luss:
+                            ind = u.measureSINRandConnect(lbss,wbss)
+
+                            # if ind is -1 then that user is out of range of any BS
+                            if ind == -1:
+                                luss = np.delete(luss,i)
+                                continue
+
+                            # Add this UE to user_list
+                            lbss[ind].user_list = np.append(lbss[ind].user_list, u)
+                            i+=1
+
+
+                        # Keeping a copy of LTE transmitting users
+                        for b in lbss:
+                            for element in b.user_list:
+                                b.t_user_list = np.append(b.t_user_list,element)
+
+                            b.lusscount = len(b.t_user_list)
+                            b.lusscount2=b.lusscount
+
+                        # Connecting all the Wifi UE with a Wifi BS
+                        i = 0
+                        for u in wuss:
+                            ind = u.measureSNRandConnect(lbss,wbss)
+                            # if ind is -1 then that user is out of range of any BS
+                            if ind == -1:
+                                wuss = np.delete(wuss,i)
+                                continue
+
+                            # Add this UE to user_list
+                            wbss[ind].user_list = np.append(wbss[ind].user_list, u)
+                            i+=1
+
+                        # Keeping a copy of Wifi transmitting users
+                        for b in wbss:
+                            for element in b.user_list:
+                                b.t_user_list = np.append(b.t_user_list,element)
+
+                            b.wusscount = len(b.t_user_list)
+
+                        # Based on ratios decided by the user, assign data rates to UE
+                        service.assign_data_rate_to_users(thisparams, luss, wuss)
+
+                        SINR=[]
+                        SNR=[]
+
+                        # Measuring SINR for LTE Users
+                        for u in luss:
+                            u.measureSINR(wbss)
+                            SINR.append(u.SINR)
+
+                        service.decide_LTE_bits_per_symbol(lbss,thisparams)
+                        service.calculate_LTE_user_PRB(thisparams, luss)
+
+                        for u in wuss:
+                            u.measureSNR()
+                            SNR.append(u.SNR)
+
+                        service.decide_wifi_bits_per_symbol(wbss, thisparams)
+                        service.calculate_wifi_user_slots(thisparams, wuss)
+
+                        for b in wbss:
+                            b.t_user_list = b.user_list
+                        
+                        allwuss = []
+
+                        for u in wuss:
+                            # tempu = WifiUserEquipment()
+                            tempu = copy.copy(u)
+
+                            allwuss.append(tempu)
+
+                        if verbose.vary_factor == 1:
+                            print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
+                            print("Wifi users {} at iteration {}".format(varyparams.numofWifiUE,tf))
+
+
+                        vary_for_every = thisparams.vary_for_every
+
 
             single_zero = 0
             multiple_zero = 0
@@ -663,6 +867,7 @@ if __name__ == "__main__":
             
             
             elif single_zero == 1:
+                LTEsubframeS = 0
                 half_ms = 2
                 while half_ms:
                     LTE_proportions = []
@@ -691,6 +896,7 @@ if __name__ == "__main__":
                             total_LTE_bits_sent += givenPRB*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
 
                             LTECountS += givenPRB
+                            LTEsubframeS+=givenPRB
 
                             service.calculate_LTE_user_PRB(thisparams,[u])  # user goes back and comes back again with same requirement
                             # u.req_no_PRB = (u.req_data_rate*(10**3)*10*(10**-3))/(u.bs.bits_per_symbol_of_user[u]*thisparams.PRB_total_symbols)
@@ -705,187 +911,24 @@ if __name__ == "__main__":
                             total_LTE_bits_sent += LTE_proportions[give]*thisparams.PRB_total_symbols*u.bs.bits_per_symbol_of_user[u]
 
                             LTECountS += LTE_proportions[give]
+                            LTEsubframeS += LTE_proportions[give]
 
                         give+=1
 
                     total_PRBs += 100
                     half_ms -= 1
-                    
+                
                     if verbose.LTE_proportions==1:
-                        print("Successful RB allocation: ",LTECountS)
-
-            # Add users back to initial state
-            if subframe_iterator == 9:
-
-                # if thisparams.vary_load == 0:
-                CTS = 0
-
-                for u in FinishedWifilist:
-                    allwuss.append(u)
-
-                for u in tuserlist:
-                    allwuss.append(u)
-
-                for u in RTSuserlist:
-                    allwuss.append(u)
+                        print("Successful RB allocation till now: ",LTECountS)
                 
-                is_selected_user_present = 0
+                LTEPowerS += LTEsubframeS*thisparams.pTx_one_PRB
+                if verbose.LTE_proportions == 1:
+                    print("Power consumed this subframe: ",LTEsubframeS*thisparams.pTx_one_PRB)
 
-                for u in allwuss:
-                    if selected_user.ueID == u.ueID:
-                        is_selected_user_present = 1
-                        break
-                
-                if is_selected_user_present == 1:
-                    pass
-                else:
-                    selected_user.req_no_wifi_slot = (selected_user.req_data_rate*10)/(selected_user.bs.bits_per_symbol_of_user[bringRealUser(selected_user, wuss)]*9)
-                    selected_user.req_no_wifi_slot = int(math.ceil(selected_user.req_no_wifi_slot))
-                    allwuss.append(selected_user)
-
-                for u in allwuss:
-                    u.DIFS_flag = 0
-                    u.DIFS_slots = thisparams.DIFS_slots
-                    u.random_backoff_flag = 0
-                    u.random_backoff_slots = 0
-
-                FinishedWifilist = []
-                tuserlist = []
-                RTSuserlist = []
-
-                for b in lbss:
-                    for u in b.t_user_list:
-                        u.transmission_finished = 0
-                        service.calculate_LTE_user_PRB(thisparams,[u])
-
-                ###### HERE, Varying of Users starts
-                if thisparams.vary_load == 1 and vary_for_every <=0 :
-                    
-                    # LTE_vary_factor = service.Vary_Load(thisparams, LTE_vary_factor)
-                    # Wifi_vary_factor = service.Vary_Load(thisparams, Wifi_vary_factor)
-
-                    # Caluclate new count of users
-                    # newLTEuserscount = math.ceil(LTE_vary_factor*thisparams.numofLTEUE)
-                    # newWifiuserscount = math.ceil(Wifi_vary_factor*thisparams.numofWifiUE)
-                    CTS = 0
-
-                    newLTEuserscount = thisparams.set_users_LTE[thisparams.vary_iterator]
-                    newWifiuserscount = thisparams.set_users_Wifi[thisparams.vary_iterator]
-
-                    thisparams.vary_iterator += 1
-
-                    # Clear older lists
-                    for lb in lbss:
-                        lb.user_list = np.array([])
-                        lb.t_user_list = np.array([])
-                        lb.bits_per_symbol_of_user = dict()
-                    
-                    for wb in wbss:
-                        wb.user_list = np.array([])  
-                        wb.t_user_list = np.array([])
-                        wb.bits_per_symbol_of_user = dict()
-
-                    allwuss = []
-                    tuserlist = []
-                    RTSuserlist = []
-                    FinishedWifilist = []
-
-                    # Create new users
-                    varyparams = PARAMS()
-                    varyparams.numofLTEUE = newLTEuserscount
-                    varyparams.numofWifiUE = newWifiuserscount
-
-                    luss = service.createLTEUsers(varyparams)
-                    wuss = service.createWifiUsers(varyparams)
-
-                    # Connecting all the LTE UE with a LTE BS
-                    i = 0
-                    for u in luss:
-                        ind = u.measureSINRandConnect(lbss,wbss)
-
-                        # if ind is -1 then that user is out of range of any BS
-                        if ind == -1:
-                            luss = np.delete(luss,i)
-                            continue
-
-                        # Add this UE to user_list
-                        lbss[ind].user_list = np.append(lbss[ind].user_list, u)
-                        i+=1
-
-
-                    # Keeping a copy of LTE transmitting users
-                    for b in lbss:
-                        for element in b.user_list:
-                            b.t_user_list = np.append(b.t_user_list,element)
-
-                        b.lusscount = len(b.t_user_list)
-                        b.lusscount2=b.lusscount
-
-                    # Connecting all the Wifi UE with a Wifi BS
-                    i = 0
-                    for u in wuss:
-                        ind = u.measureSNRandConnect(lbss,wbss)
-                        # if ind is -1 then that user is out of range of any BS
-                        if ind == -1:
-                            wuss = np.delete(wuss,i)
-                            continue
-
-                        # Add this UE to user_list
-                        wbss[ind].user_list = np.append(wbss[ind].user_list, u)
-                        i+=1
-
-                    # Keeping a copy of Wifi transmitting users
-                    for b in wbss:
-                        for element in b.user_list:
-                            b.t_user_list = np.append(b.t_user_list,element)
-
-                        b.wusscount = len(b.t_user_list)
-
-                    # Based on ratios decided by the user, assign data rates to UE
-                    service.assign_data_rate_to_users(thisparams, luss, wuss)
-
-                    SINR=[]
-                    SNR=[]
-
-                    # Measuring SINR for LTE Users
-                    for u in luss:
-                        u.measureSINR(wbss)
-                        SINR.append(u.SINR)
-
-                    service.decide_LTE_bits_per_symbol(lbss,thisparams)
-                    service.calculate_LTE_user_PRB(thisparams, luss)
-
-                    for u in wuss:
-                        u.measureSNR()
-                        SNR.append(u.SNR)
-
-                    service.decide_wifi_bits_per_symbol(wbss, thisparams)
-                    service.calculate_wifi_user_slots(thisparams, wuss)
-
-                    for b in wbss:
-                        b.t_user_list = b.user_list
-                    
-                    allwuss = []
-
-                    for u in wuss:
-                        # tempu = WifiUserEquipment()
-                        tempu = copy.copy(u)
-
-                        allwuss.append(tempu)
-
-                    if verbose.vary_factor == 1:
-                        print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
-                        print("Wifi users {} at iteration {}".format(varyparams.numofWifiUE,tf))
-
-
-                    vary_for_every = thisparams.vary_for_every
-
+            
         #
         # End of subframe iteration loop
 
-
-
-        
         # "This fairness calculation is only for one frame"
         # for the current frame
         U_LTE = LTECountS/total_PRBs
@@ -897,15 +940,19 @@ if __name__ == "__main__":
 
         format_fairness[rl.current_state] = frame_fairness
 
-        rl.UpdateQtable(frame_fairness, thisparams)
+        rl.UpdateQtable(frame_fairness, U_LTE, thisparams)
 
         # "This throughput calculation is only for one frame"
         # for the current frame
         frame_T_LTE = (total_LTE_bits_sent * 10**3)/thisparams.duration_frame
         LTE_Throughput.append(frame_T_LTE)
+        LTE_Power.append(LTEPowerS)
 
         frame_T_Wifi = (total_Wifi_bits_sent * 10**3)/thisparams.duration_frame
         Wifi_Throughput.append(frame_T_Wifi)
+
+        if verbose.LTE_Power_Frame == 1:
+            print("LTE Power Consumed this Frame ",LTEPowerS)
         
         if verbose.CSMA_CA_Logs == 1:
             print("current status of allwuss ",[u.ueID for u in allwuss])
@@ -954,9 +1001,10 @@ if __name__ == "__main__":
     if verbose.Qtable==1:
         print("-------------------------------------------------------")
         print("Final State: {}\n".format(rl.current_state))
-
-        for state in range(0,7):
-            for action in range(0,3):
+        print("\tBack     Stay   Front   Down     Up")
+        for state in range(0,21):
+            print(state," ==> ",end = " ")
+            for action in range(0,5):
                 print("{:.4f}".format(rl.Q_Table[state][action]),end=" ")
             print("\n")
 
@@ -982,6 +1030,12 @@ if __name__ == "__main__":
     if verbose.List_line_LTE_throughput==1:
         print("-------------------------------------------------------")
         for f in LTE_Throughput:
+            print(f)
+        print("-------------------------------------------------------")
+    
+    if verbose.List_line_LTE_Power==1:
+        print("-------------------------------------------------------")
+        for f in LTE_Power:
             print(f)
         print("-------------------------------------------------------")
 

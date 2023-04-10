@@ -18,11 +18,13 @@ class Verbose:
 
     CSMA_CA_Logs = 0
     LTE_proportions = 0
+    LTE_Power_Frame = 0
 
     vary_factor = 1
 
     frame_dictionary = 1
 
+    each_action = 0
     state_action_Qtable = 0
     Qtable = 1
 
@@ -36,5 +38,5 @@ class Verbose:
     List_line_Fairness = 0  # prints long list of fairness values of each iteration
     List_line_LTE_throughput = 0  # prints long list of LTE throughput values of each iteration
     List_line_Wifi_throughput = 0  # prints long list of LTE throughput values of each iteration
-
-    FairnessVsFrameIters = 1
+    List_line_LTE_Power = 0
+    FairnessVsFrameIters = 0

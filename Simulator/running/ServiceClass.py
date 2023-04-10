@@ -467,6 +467,21 @@ class ServiceClass:
             u.req_no_PRB = (u.req_data_rate*(10**3)*10*(10**-3))/(u.bs.bits_per_symbol_of_user[u]*scene_params.PRB_total_symbols)
             u.req_no_PRB = math.ceil(u.req_no_PRB)
 
+    def getTotalRequiredPRB(self,scene_params,luss):
+        total = 0
+
+        for u in luss:
+            total += u.req_no_PRB
+
+        return total
+
+    def getTotalRequiredWifiSlot(self,scene_params,wuss):
+        total = 0
+
+        for u in wuss:
+            total += u.req_no_wifi_slot
+        return total
+
     # This function returns the value 'bits per symbol' for corresponding SNR value
     # from the wifi_MCS dictionary in constant_params
     def get_wifi_bits_per_symbol(self,snr,scene_params):
