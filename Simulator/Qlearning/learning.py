@@ -22,12 +22,14 @@ import numpy as np
 from running.ConstantParams import PARAMS
 
 class learning:
-    # Create Q Table
-
     # Declare and initialize variables
     Epsilon = 0
     LR = 0.01
     Gamma = 0.8
+
+    exploration = 7000
+    DynaQ_Iterations = 100
+
 
     Fairness_Threshold = 0.8
     n = 2
@@ -55,15 +57,29 @@ class learning:
 
     current_action = None
 
-    
-
     Q_Table = np.zeros([21,5],dtype = np.float64)
 
+    # arr = np.ones(21) * 0.00001
+    T_Count = np.array([np.ones(21) * 0.00001 for i in range(21)] * 5).reshape(21, 5, 21)
 
+    R_Expected = np.zeros([21,5],dtype = np.float64)
+
+    do_DynaQ = 0
 
     def ChoosePtoDecideAction(self):
         p = round(random.uniform(0,1),4)
         return p
+
+    def getColumnFromAction(self,action):
+
+        if action == -2:
+            column = 3
+        elif action == 2:
+            column = 4
+        else:
+            column = action+1
+
+        return column
 
     # Function mapping fairness value to reward
     def FairnessToReward(self,Fairness,U_LTE,scene_params):
@@ -85,6 +101,13 @@ class learning:
         
         if self.Q_Table[self.current_state][2] == find:
             return 1
+        
+        if self.Q_Table[self.current_state][3] == find:
+            return -2
+        
+        if self.Q_Table[self.current_state][4] == find:
+            return 2
+
 
     # Function to choose action depending on Epsilon Greedy Algorithm (random number p and Epsilon)
     def ChooseAction(self,p):
@@ -151,13 +174,27 @@ class learning:
     def UpdateQtable(self,Fairness, U_LTE, scene_params):
         current_reward = self.FairnessToReward(Fairness, U_LTE ,scene_params)
 
-        if self.current_action == -2:
-            column = 3
-        elif self.current_action == 2:
-            column = 4
-        else:
-            column = self.current_action+1
+        column = self.getColumnFromAction(self.current_action)
 
         Q_s_a = self.Q_Table[self.previous_state][column]
 
         self.Q_Table[self.previous_state][column] = Q_s_a + self.LR*(self.Gamma * max(self.Q_Table[self.current_state]) + current_reward - Q_s_a)
+
+    def UpdateRexpected(self,Fairness, U_LTE,scene_params):
+        current_reward = self.FairnessToReward(Fairness, U_LTE ,scene_params)
+
+        column = self.getColumnFromAction(self.current_action)
+
+        self.R_Expected[self.previous_state][column] = (1-self.LR)*self.R_Expected[self.previous_state][column] + (self.LR * current_reward) 
+
+    def UpdateQtableDyna(self, S_Rand, r_immediate, S_Dash):
+
+        current_reward = r_immediate
+
+        column = self.getColumnFromAction(self.current_action)
+
+        Q_s_a = self.Q_Table[S_Rand][column]
+
+        self.Q_Table[S_Rand][column] = Q_s_a + self.LR*(self.Gamma * max(self.Q_Table[S_Dash]) + current_reward - Q_s_a)
+
+    
