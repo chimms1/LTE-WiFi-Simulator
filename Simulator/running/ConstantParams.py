@@ -8,7 +8,7 @@ class PARAMS:
     numofLTEUE = 5
     numofWifiUE = 5
     
-    times_frames = 20000    # Simulate for this value x 10ms
+    times_frames = 10    # Simulate for this value x 10ms
 
     vary_load = 0   # set this flag to vary the load in iterations
     vary_for_every = 100    # Load will be changed for these many frame iterations
@@ -48,7 +48,7 @@ class PARAMS:
 
     PRB_total_prbs = 100
 
-    pTx_one_PRB = pTxLTE/(2*PRB_total_prbs*duration_frame*100)
+    pTx_one_PRB = pTxLTE/(2*PRB_total_prbs*duration_frame*100)  
 
     profiles = [128,256,512,1000]
     LTE_ratios = [4,3,2,1]

@@ -279,6 +279,7 @@ if __name__ == "__main__":
             [0,1,1,1,1,0,1,1,1,0]] # 7:3  8:12      388.5:01    12:90
 
     format_fairness = {}
+    format_U_LTE = {}
     #============================================================
     # Modifiying for multiple base stations
 
@@ -396,8 +397,9 @@ if __name__ == "__main__":
     # total_Wifi_slots = 0
 
     vary_for_every = 1
+
     if thisparams.vary_load == 1:
-        
+    
         vary_for_every = thisparams.vary_for_every
     
     Wifi_vary_factor = 1 #   initially set to 1
@@ -413,15 +415,15 @@ if __name__ == "__main__":
         rl.PerformAction()
 
         if verbose.each_action == 1:
-            print("Choosen Action: ",rl.current_action)
+            print("\nChoosen Action: ",rl.current_action)
+            print("New State: ",rl.current_state)
+            print("Frame: ",rl.current_frame)
 
         lbss[0].format = format[rl.current_frame]
 
         if rl.current_action == 2 or rl.current_action == -2:
             thisparams.pTxLTE = rl.original_power/rl.current_pFactor
             
-                
-
             lbss[0].pTx = thisparams.pTxLTE
 
             for lb in lbss:
@@ -939,6 +941,7 @@ if __name__ == "__main__":
         Fairness.append(frame_fairness)
 
         format_fairness[rl.current_state] = frame_fairness
+        format_U_LTE[rl.current_state] = U_LTE
 
         rl.UpdateQtable(frame_fairness, U_LTE, thisparams)
 
@@ -995,7 +998,14 @@ if __name__ == "__main__":
         # print("-------------------------------------------------------")
     
     if verbose.frame_dictionary == 1:
-        print(format_fairness)
+        
+        mykeys = list(format_fairness.keys())
+        mykeys.sort()
+
+
+        print({w: format_fairness[w] for w in mykeys})
+        print("")
+        print({w: format_U_LTE[w] for w in mykeys})
 
 
     if verbose.Qtable==1:

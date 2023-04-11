@@ -30,21 +30,32 @@ class learning:
     Gamma = 0.8
 
     Fairness_Threshold = 0.8
+    U_LTE_Threshold = 0.8
+
     n = 2
 
-    states = [0, 1, 2, 3, 4, 5, 6,
-              7, 8, 9,10,11,12,13,
-             14,15,16,17,18,19,20]
+    states = [[0, 1, 2, 3, 4, 5, 6],
+              [7, 8, 9,10,11,12,13],
+             [14,15,16,17,18,19,20]]
+    
 
     initial_state = 0   # Choose initial state between 0 to 6
 
     current_state = 0
+    state_i = current_state
+    state_j = current_state
+    
     previous_state = 0
 
     current_frame = initial_state
 
+
     original_power = PARAMS().pTxLTE
-    pFactor = [1,0.05,1.5]
+
+    
+    pFactor = [1,1.05,1.1]
+    power_levels = len(pFactor)
+
     current_pFactor = 1
 
     possible_actions = [-1,0,1,-2,2]  # -1 to move backward
@@ -59,14 +70,34 @@ class learning:
 
     Q_Table = np.zeros([21,5],dtype = np.float64)
 
-
-
     def ChoosePtoDecideAction(self):
         p = round(random.uniform(0,1),4)
         return p
+    
+    def MappingFainess(self,Fairness):
 
-    # Function mapping fairness value to reward
-    def FairnessToReward(self,Fairness,U_LTE,scene_params):
+        if Fairness < self.Fairness_Threshold:
+            reward_fx = (self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold)
+        else:
+            reward_fx = (Fairness - self.Fairness_Threshold)/0.2
+
+        return reward_fx
+    
+    def MappingU_LTE(self,U_LTE):
+        if U_LTE < self.U_LTE_Threshold:
+            reward_ux = (U_LTE - self.U_LTE_Threshold) / self.U_LTE_Threshold
+        else:
+            reward_ux = (U_LTE - self.U_LTE_Threshold) / 0.2
+        
+        return reward_ux
+
+    # Function mapping fairness and U_LTE value to reward
+    def RewardFunction(self,Fairness,U_LTE):
+        
+        # reward_fx = self.MappingFainess(Fairness)
+        # reward_ux = self.MappingU_LTE(U_LTE)
+
+        # return reward_fx*reward_ux
         if Fairness < self.Fairness_Threshold:
             reward_fx = ((self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold))*(1-U_LTE)
         else:
@@ -85,6 +116,12 @@ class learning:
         
         if self.Q_Table[self.current_state][2] == find:
             return 1
+        
+        if self.Q_Table[self.current_state][3] == find:
+            return -2
+        
+        if self.Q_Table[self.current_state][4] == find:
+            return 2
 
     # Function to choose action depending on Epsilon Greedy Algorithm (random number p and Epsilon)
     def ChooseAction(self,p):
@@ -105,51 +142,34 @@ class learning:
 
         self.previous_state = self.current_state
 
-        if self.current_action !=2 and self.current_action !=-2: 
-            self.current_state = self.current_state + self.current_action
+        if self.current_action !=2 and self.current_action !=-2:
 
-            if self.current_state <= -1 and self.current_action == -1:
-                self.current_state = 6
+            # self.current_state = self.current_state + self.current_action
+            self.state_i = self.state_i + self.current_action
 
-            elif self.current_state == 7 and self.current_action == 1:
-                self.current_state = 0
 
-            elif self.current_state == 6 and self.current_action == -1:
-                self.current_state = 13
+            if self.state_i > len(self.states[0])-1:
+                self.state_i = 0
             
-            elif self.current_state == 14 and self.current_action == 1:
-                self.current_state = 7
-            
-            elif self.current_state == 13 and self.current_action == -1:
-                self.current_state = 20
-
-            elif self.current_state >= 21 and self.current_action == 1:
-                self.current_state = 14
+            elif self.state_i < 0:
+                self.state_i = len(self.states[0])-1
         
-        elif self.current_action ==2 or self.current_action ==-2:
+        else:
 
-            if self.current_action ==-2:
-                if self.current_state<=13:
-                    self.current_state = self.current_state + 7
-                else:
-                    self.current_state = self.current_state % 7
+            self.state_j = self.state_j - int(self.current_action/2)
+
+            if self.state_j > self.power_levels-1:
+                self.state_j = 0
             
-            elif self.current_action ==2:
-                if self.current_state>=7:
-                    self.current_state = self.current_state - 7
-                else:
-                    self.current_state = self.current_state + 14
-
-        self.current_frame = self.current_state % 7
-        if self.current_state >= 0:
-            self.current_pFactor = self.pFactor[0]
-        if self.current_state >=7:
-            self.current_pFactor = self.pFactor[1]
-        if self.current_state >=14:
-            self.current_pFactor = self.pFactor[2]
+            elif self.state_j < 0:
+                self.state_j = self.power_levels-1
+            
+        self.current_state = self.states[self.state_j][self.state_i]
+        self.current_frame = self.state_i
+        self.current_pFactor = self.pFactor[self.state_j]
 
     def UpdateQtable(self,Fairness, U_LTE, scene_params):
-        current_reward = self.FairnessToReward(Fairness, U_LTE ,scene_params)
+        current_reward = self.RewardFunction(Fairness, U_LTE)
 
         if self.current_action == -2:
             column = 3

@@ -8,8 +8,8 @@ class Verbose:
     Wifi_user_data_rates = 1
     
     LTE_user_SINR_MCS_value = 1 
-    Wifi_user_SNR_MCS_value = 1 
-    
+    Wifi_user_SNR_MCS_value = 1
+
     LTE_user_req_PRB = 1 # use with printing 
     Wifi_user_req_slots = 1 # use with printing SNR MCS
 
