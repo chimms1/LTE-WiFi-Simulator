@@ -38,5 +38,5 @@ class Verbose:
     List_line_Fairness = 0  # prints long list of fairness values of each iteration
     List_line_LTE_throughput = 0  # prints long list of LTE throughput values of each iteration
     List_line_Wifi_throughput = 0  # prints long list of LTE throughput values of each iteration
-    List_line_LTE_Power = 0
+    List_line_LTE_Power = 1
     FairnessVsFrameIters = 0

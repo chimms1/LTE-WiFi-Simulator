@@ -280,6 +280,8 @@ if __name__ == "__main__":
 
     format_fairness = {}
     format_U_LTE = {}
+    format_power = {}
+
     #============================================================
     # Modifiying for multiple base stations
 
@@ -425,6 +427,8 @@ if __name__ == "__main__":
             thisparams.pTxLTE = rl.original_power/rl.current_pFactor
             
             lbss[0].pTx = thisparams.pTxLTE
+
+            thisparams.pTx_one_PRB = thisparams.pTxLTE/(2*thisparams.PRB_total_prbs*thisparams.duration_frame*100)
 
             for lb in lbss:
                 lb.bits_per_symbol_of_user = dict()
@@ -942,8 +946,9 @@ if __name__ == "__main__":
 
         format_fairness[rl.current_state] = frame_fairness
         format_U_LTE[rl.current_state] = U_LTE
+        format_power[rl.current_state] = LTEPowerS
 
-        rl.UpdateQtable(frame_fairness, U_LTE, thisparams)
+        rl.UpdateQtable(frame_fairness, LTEPowerS, thisparams)
 
         # "This throughput calculation is only for one frame"
         # for the current frame
@@ -1006,6 +1011,9 @@ if __name__ == "__main__":
         print({w: format_fairness[w] for w in mykeys})
         print("")
         print({w: format_U_LTE[w] for w in mykeys})
+        print("")
+        print({w: format_power[w] for w in mykeys})
+
 
 
     if verbose.Qtable==1:

@@ -74,7 +74,7 @@ class learning:
         p = round(random.uniform(0,1),4)
         return p
     
-    def MappingFainess(self,Fairness):
+    def MappingFairness(self,Fairness):
 
         if Fairness < self.Fairness_Threshold:
             reward_fx = (self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold)
@@ -92,18 +92,38 @@ class learning:
         return reward_ux
 
     # Function mapping fairness and U_LTE value to reward
-    def RewardFunction(self,Fairness,U_LTE):
+    def RewardFunction(self,Fairness,LTEPowerS,scene_params):
         
-        # reward_fx = self.MappingFainess(Fairness)
+        # reward_fx = self.MappingFairness(Fairness)
         # reward_ux = self.MappingU_LTE(U_LTE)
 
         # return reward_fx*reward_ux
-        if Fairness < self.Fairness_Threshold:
-            reward_fx = ((self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold))*(1-U_LTE)
-        else:
-            reward_fx = ((Fairness - self.Fairness_Threshold)/0.2)*U_LTE
+
+        # if Fairness < self.Fairness_Threshold:
+        #     reward_fx = ((self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold))*(1-U_LTE)
+        # else:
+        #     reward_fx = ((Fairness - self.Fairness_Threshold)/0.2)*U_LTE
         
-        return reward_fx
+        # return reward_fx
+        # reward = (0.8)*Fairness + (0.2)*(1-LTEPowerS/(scene_params.pTxLTE/200000))
+
+
+        # reward_fx = self.MappingFairness(Fairness)
+
+        # if reward_fx>0:
+        #     reward = reward_fx/(LTEPowerS*(10**4))
+        # else:
+        #     reward = reward_fx*LTEPowerS*1000
+
+        ratio = LTEPowerS/(scene_params.pTxLTE/200000)
+
+        ratio2 = Fairness/ratio
+
+        reward = ((2*ratio2) - 1.25)/1.25
+
+
+        return reward
+
     
     def getMaxAction(self):
         find = max(self.Q_Table[self.current_state])
@@ -168,8 +188,8 @@ class learning:
         self.current_frame = self.state_i
         self.current_pFactor = self.pFactor[self.state_j]
 
-    def UpdateQtable(self,Fairness, U_LTE, scene_params):
-        current_reward = self.RewardFunction(Fairness, U_LTE)
+    def UpdateQtable(self,Fairness, LTEPowerS, scene_params):
+        current_reward = self.RewardFunction(Fairness, LTEPowerS,scene_params)
 
         if self.current_action == -2:
             column = 3
