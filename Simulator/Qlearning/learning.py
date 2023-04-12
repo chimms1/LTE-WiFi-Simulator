@@ -79,7 +79,7 @@ class learning:
         p = round(random.uniform(0,1),4)
         return p
     
-    def MappingFainess(self,Fairness):
+    def MappingFairness(self,Fairness):
 
         if Fairness < self.Fairness_Threshold:
             reward_fx = (self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold)
@@ -97,18 +97,28 @@ class learning:
         return reward_ux
 
     # Function mapping fairness and U_LTE value to reward
-    def RewardFunction(self,Fairness,U_LTE):
+    def RewardFunction(self,Fairness,LTEPowerS,scene_params):
         
         # reward_fx = self.MappingFainess(Fairness)
         # reward_ux = self.MappingU_LTE(U_LTE)
 
         # return reward_fx*reward_ux
-        if Fairness < self.Fairness_Threshold:
-            reward_fx = ((self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold))*(1-U_LTE)
-        else:
-            reward_fx = ((Fairness - self.Fairness_Threshold)/0.2)*U_LTE
+        # if Fairness < self.Fairness_Threshold:
+        #     reward_fx = ((self.Fairness_Threshold - Fairness)/((1/self.n)-self.Fairness_Threshold))*(1-U_LTE)
+        # else:
+        #     reward_fx = ((Fairness - self.Fairness_Threshold)/0.2)*U_LTE
         
-        return reward_fx
+        # return reward_fx
+
+        zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
+
+        energy = LTEPowerS/(200*zeroes[self.current_frame]*scene_params.pTx_one_PRB)
+
+        reward = self.MappingFairness(Fairness)/energy
+
+        # reward = self.MappingFairness(Fairness)
+
+        return reward
 
     def RewardBonusDynaQ(self):
 
@@ -180,8 +190,8 @@ class learning:
         self.current_frame = self.state_i
         self.current_pFactor = self.pFactor[self.state_j]
 
-    def UpdateQtable(self,Fairness, U_LTE, scene_params):
-        current_reward = self.RewardFunction(Fairness, U_LTE) + self.RewardBonusDynaQ()
+    def UpdateQtable(self,Fairness, LTEPowerS, scene_params):
+        current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params) + self.RewardBonusDynaQ()
 
         if self.current_action == -2:
             column = 3

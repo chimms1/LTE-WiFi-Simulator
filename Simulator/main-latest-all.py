@@ -206,6 +206,8 @@ if __name__ == "__main__":
         
         print("\nTotal Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
         print("======")
+    
+    x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
 
     #
     # Measuring SNR for Wifi Users
@@ -241,8 +243,9 @@ if __name__ == "__main__":
                     print("Required wifi slots: {}".format(u.req_no_wifi_slot))
         print("\nTotal Required wifi slots: {}".format(service.getTotalRequiredWifiSlot(thisparams, wuss)))
         print("======")
-
     
+    x2_numerator = service.getTotalRequiredWifiSlot(thisparams, wuss)
+
     if verbose.plot_Scene == 1:
         # Creating CSVs
         service.createLocationCSV(wbss, lbss, luss, wuss)
@@ -280,6 +283,7 @@ if __name__ == "__main__":
 
     format_fairness = {}
     format_U_LTE = {}
+    format_power = {}
     #============================================================
     # Modifiying for multiple base stations
 
@@ -940,14 +944,19 @@ if __name__ == "__main__":
         U_LTE = LTECountS/total_PRBs
         U_Wifi = WifiCountS/total_Wifi_slots
 
-        frame_fairness = ((U_LTE+U_Wifi)**2)/(2*((U_LTE**2)+(U_Wifi**2)))
+        x1 = x1_numerator/total_PRBs
+
+        x2 = x2_numerator/total_Wifi_slots
+
+        frame_fairness = ((x1+x2)**2)/(2*((x1**2)+(x2**2)))
 
         Fairness.append(frame_fairness)
 
         format_fairness[rl.current_state] = frame_fairness
         format_U_LTE[rl.current_state] = U_LTE
+        format_power[rl.current_state] = LTEPowerS
 
-        rl.UpdateQtable(frame_fairness, U_LTE, thisparams)
+        rl.UpdateQtable(frame_fairness, LTEPowerS, thisparams)
 
         # "This throughput calculation is only for one frame"
         # for the current frame
@@ -1010,6 +1019,8 @@ if __name__ == "__main__":
         print({w: format_fairness[w] for w in mykeys})
         print("")
         print({w: format_U_LTE[w] for w in mykeys})
+        print("")
+        print({w: format_power[w] for w in mykeys})
 
 
     if verbose.Qtable==1:
