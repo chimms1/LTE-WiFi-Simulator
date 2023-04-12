@@ -22,7 +22,8 @@ import numpy as np
 from running.ConstantParams import PARAMS
 
 class learning:
-    # Create Q Table
+
+    exploration = 10000
 
     # Declare and initialize variables
     Epsilon = 0
@@ -115,12 +116,16 @@ class learning:
         # else:
         #     reward = reward_fx*LTEPowerS*1000
 
-        ratio = LTEPowerS/(scene_params.pTxLTE/200000)
+        # ratio = LTEPowerS/(0.19/100)
 
-        ratio2 = Fairness/ratio
+        # ratio2 = Fairness/ratio
 
-        reward = ((2*ratio2) - 1.25)/1.25
+        # reward = ((2*ratio2) - 1.25)/1.25
+        zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
 
+        energy = LTEPowerS/(200*zeroes[self.current_frame]*scene_params.pTx_one_PRB)
+
+        reward = self.MappingFairness(Fairness)/energy
 
         return reward
 

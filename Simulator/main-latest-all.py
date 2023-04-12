@@ -206,6 +206,7 @@ if __name__ == "__main__":
         
         print("\nTotal Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
         print("======")
+    x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
 
     #
     # Measuring SNR for Wifi Users
@@ -241,6 +242,7 @@ if __name__ == "__main__":
                     print("Required wifi slots: {}".format(u.req_no_wifi_slot))
         print("\nTotal Required wifi slots: {}".format(service.getTotalRequiredWifiSlot(thisparams, wuss)))
         print("======")
+    x2_numerator = service.getTotalRequiredWifiSlot(thisparams, wuss)
 
     
     if verbose.plot_Scene == 1:
@@ -411,6 +413,9 @@ if __name__ == "__main__":
 
     for tf in tqdm(range(0,thisparams.times_frames)):
 
+        if tf>rl.exploration:
+            rl.Epsilon = 0.95
+        
         p = rl.ChoosePtoDecideAction()
 
         rl.ChooseAction(p)
@@ -444,6 +449,8 @@ if __name__ == "__main__":
                 print("New Power: ",thisparams.pTxLTE)
                 print("Total Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
         
+        # x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
+
         
         
         LTECountS=0
@@ -938,9 +945,16 @@ if __name__ == "__main__":
         # "This fairness calculation is only for one frame"
         # for the current frame
         U_LTE = LTECountS/total_PRBs
-        U_Wifi = WifiCountS/total_Wifi_slots
 
-        frame_fairness = ((U_LTE+U_Wifi)**2)/(2*((U_LTE**2)+(U_Wifi**2)))
+        zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
+        # x1 = x1_numerator/0.0019
+        x1 = x1_numerator/total_PRBs
+
+        U_Wifi = WifiCountS/total_Wifi_slots
+        
+        x2 = x2_numerator/total_Wifi_slots
+
+        frame_fairness = ((x1+x2)**2)/(2*((x1**2)+(x2**2)))
 
         Fairness.append(frame_fairness)
 
