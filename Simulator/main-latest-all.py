@@ -1040,6 +1040,32 @@ if __name__ == "__main__":
                 print("{:.4f}".format(rl.Q_Table[state][action]),end=" ")
             print("\n")
 
+        arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+
+        arrowstates = {}
+
+        for st in range(0,21):
+
+            rl.current_state = st
+            max_action = rl.getMaxActionInd()
+
+            arrowstates[st] = arrow[max_action]
+        
+        for powo in range(0,3):
+            for st in range(0,7):
+                st2 = st+powo*7
+                print(st2,end="  ")
+            print("")
+            for st in range(0,7):
+                st2 = st+powo*7
+                print(arrowstates[st2],end="  ")
+            print("\n")
+
+
+
+
+
+
 
     print("-------------------------------------------------------")
 

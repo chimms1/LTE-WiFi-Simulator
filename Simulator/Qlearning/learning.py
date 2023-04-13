@@ -23,7 +23,7 @@ from running.ConstantParams import PARAMS
 
 class learning:
 
-    exploration = 10000
+    exploration = 10000000000
 
     # Declare and initialize variables
     Epsilon = 0
@@ -123,7 +123,7 @@ class learning:
         # reward = ((2*ratio2) - 1.25)/1.25
         zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
 
-        energy = LTEPowerS/(200*zeroes[self.current_frame]*scene_params.pTx_one_PRB)
+        energy = LTEPowerS/(200*zeroes[self.current_frame]*PARAMS().pTx_one_PRB)
 
         reward = self.MappingFairness(Fairness)/energy
 
@@ -147,6 +147,24 @@ class learning:
         
         if self.Q_Table[self.current_state][4] == find:
             return 2
+    
+    def getMaxActionInd(self):
+        find = max(self.Q_Table[self.current_state])
+
+        if self.Q_Table[self.current_state][0] == find:
+            return 0
+
+        if self.Q_Table[self.current_state][1] == find:
+            return 1
+        
+        if self.Q_Table[self.current_state][2] == find:
+            return 2
+        
+        if self.Q_Table[self.current_state][3] == find:
+            return 3
+        
+        if self.Q_Table[self.current_state][4] == find:
+            return 4
 
     # Function to choose action depending on Epsilon Greedy Algorithm (random number p and Epsilon)
     def ChooseAction(self,p):

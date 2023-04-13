@@ -5,10 +5,10 @@ class PARAMS:
     scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 10
-    numofWifiUE = 10
+    numofLTEUE = 15
+    numofWifiUE = 15
     
-    times_frames = 12000    # Simulate for this value x 10ms
+    times_frames = 31000    # Simulate for this value x 10ms
 
     vary_load = 0   # set this flag to vary the load in iterations
     vary_for_every = 100    # Load will be changed for these many frame iterations
@@ -25,7 +25,7 @@ class PARAMS:
     
     prob = 0.5
 
-    noise=-96
+    noise=-80
 
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
