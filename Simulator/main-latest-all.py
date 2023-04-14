@@ -402,9 +402,9 @@ if __name__ == "__main__":
 
     vary_for_every = 1
 
-    if thisparams.vary_load == 1:
+    # if thisparams.vary_load == 1:
     
-        vary_for_every = thisparams.vary_for_every
+    vary_for_every = thisparams.vary_for_every
     
     Wifi_vary_factor = 1 #   initially set to 1
     LTE_vary_factor = 1
@@ -412,6 +412,12 @@ if __name__ == "__main__":
     lbss[0].format = format[rl.initial_state]
 
     for tf in tqdm(range(0,thisparams.times_frames)):
+
+        if tf>rl.exploration:
+            rl.Epsilon = 0.95
+        
+        if tf>thisparams.vary_from:
+            thisparams.vary_load = 1
 
         p = rl.ChoosePtoDecideAction()
 
@@ -1033,6 +1039,26 @@ if __name__ == "__main__":
                 print("{:.4f}".format(rl.Q_Table[state][action]),end=" ")
             print("\n")
 
+        arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+
+        arrowstates = {}
+
+        for st in range(0,21):
+
+            rl.current_state = st
+            max_action = rl.getMaxActionInd()
+
+            arrowstates[st] = arrow[max_action]
+        
+        for powo in range(0,3):
+            for st in range(0,7):
+                st2 = st+powo*7
+                print(st2,end="  ")
+            print("")
+            for st in range(0,7):
+                st2 = st+powo*7
+                print(arrowstates[st2],end="  ")
+            print("\n")
 
     print("-------------------------------------------------------")
 

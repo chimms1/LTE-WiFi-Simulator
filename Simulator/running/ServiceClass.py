@@ -175,7 +175,7 @@ class ServiceClass:
             b = WifiBaseStation()
 
             b.bsID = 0
-            b.x = (PARAMS().length/2)+10
+            b.x = (PARAMS().length/2)+35
             b.y = (PARAMS().breadth/2)
             b.pTx = PARAMS().pTxWifi  # Watts
 
@@ -301,8 +301,8 @@ class ServiceClass:
     def createLTEUsers(self,scene_params):
 
         uss = np.array([])
-        nums1 = np.random.randint(1,PARAMS().length,scene_params.numofLTEUE)
-        nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofLTEUE)
+        nums1 = np.random.randint(35,65,scene_params.numofLTEUE)
+        nums2 = np.random.randint(35,65,scene_params.numofLTEUE)
 
         for i in range(0,scene_params.numofLTEUE):
 
@@ -321,8 +321,8 @@ class ServiceClass:
     def createWifiUsers(self,scene_params):
 
         uss = np.array([])
-        nums1 = np.random.randint(1,PARAMS().length,scene_params.numofWifiUE)
-        nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofWifiUE)
+        nums1 = np.random.randint(65,105,scene_params.numofWifiUE)
+        nums2 = np.random.randint(30,70,scene_params.numofWifiUE)
 
         for i in range(0,scene_params.numofWifiUE):
 
