@@ -24,10 +24,10 @@ from running.ConstantParams import PARAMS
 
 class learning:
 
-    exploration = 31000
+    exploration = 30000
 
     # Declare and initialize variables
-    k = 0.005
+    k = 0.1
     Epsilon = 0
     LR = 0.01
     Gamma = 0.8
@@ -122,7 +122,15 @@ class learning:
 
     def RewardBonusDynaQ(self):
 
-        t = max(self.T_Count[self.previous_state])
+        # t = max(self.T_Count[self.previous_state])
+        if self.current_action == -2:
+            column = 3
+        elif self.current_action == 2:
+            column = 4
+        else:
+            column = self.current_action+1
+
+        t = self.T_Count[self.previous_state][column]
 
         return (self.k * math.sqrt(t))
     
@@ -207,8 +215,12 @@ class learning:
         self.current_frame = self.state_i
         self.current_pFactor = self.pFactor[self.state_j]
 
-    def UpdateQtable(self,Fairness, LTEPowerS, scene_params):
-        current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params) + self.RewardBonusDynaQ()
+    def UpdateQtable(self,Fairness, LTEPowerS, scene_params,current_iteration):
+
+        if current_iteration>self.exploration:
+            current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params) + self.RewardBonusDynaQ()
+        else:
+            current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params)
 
         if self.current_action == -2:
             column = 3

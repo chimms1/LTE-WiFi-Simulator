@@ -8,14 +8,14 @@ class PARAMS:
     numofLTEUE = 10
     numofWifiUE = 10
     
-    times_frames = 50000    # Simulate for this value x 10ms
+    times_frames = 70000    # Simulate for this value x 10ms
 
-    vary_from = 39000
+    vary_from = 40000
     vary_load = 0   # set this flag to vary the load in iterations
-    vary_for_every = 1000    # Load will be changed for these many frame iterations
+    vary_for_every = 0    # Load will be changed for these many frame iterations
 
-    set_users_LTE  = [7,10,9,11,15,9,3,5,10,8,10]
-    set_users_Wifi = [7,6,5,15,11,9,12,5,10,10,8]
+    set_users_LTE  = [5]
+    set_users_Wifi = [5]
 
     vary_iterator = 0   # iterates in the set user list
     # decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]
@@ -26,7 +26,7 @@ class PARAMS:
     
     prob = 0.5
 
-    noise=-96
+    noise=-80
 
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
@@ -49,7 +49,7 @@ class PARAMS:
 
     PRB_total_prbs = 100
 
-    pTx_one_PRB = pTxLTE/(2*PRB_total_prbs*duration_frame*100)
+    pTx_one_PRB = pTxLTE/(2*PRB_total_prbs*duration_frame*100)  
 
     profiles = [128,256,512,1000]
     LTE_ratios = [4,3,2,1]

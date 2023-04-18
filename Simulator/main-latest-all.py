@@ -418,16 +418,14 @@ if __name__ == "__main__":
         
         if tf>thisparams.vary_from:
             thisparams.vary_load = 1
-
+        
         p = rl.ChoosePtoDecideAction()
-
-        rl.ChooseAction(p)
 
         rl.UpdateT_Count()
 
+        rl.ChooseAction(p)
         rl.PerformAction()
 
-    
         if verbose.each_action == 1:
             print("\nChoosen Action: ",rl.current_action)
             print("New State: ",rl.current_state)
@@ -524,8 +522,10 @@ if __name__ == "__main__":
                         service.calculate_LTE_user_PRB(thisparams,[u])
 
                 ###### HERE, Varying of Users starts
-                if thisparams.vary_load == 1 and vary_for_every <=0 :
+                if thisparams.vary_load == 1 and vary_for_every <=0 and thisparams.vary_iterator<=0:
                         
+                        
+
                         # LTE_vary_factor = service.Vary_Load(thisparams, LTE_vary_factor)
                         # Wifi_vary_factor = service.Vary_Load(thisparams, Wifi_vary_factor)
 
@@ -637,11 +637,28 @@ if __name__ == "__main__":
                             tempu = copy.copy(u)
 
                             allwuss.append(tempu)
-                        
+
+                        mykeys = list(format_fairness.keys())
+                        mykeys.sort()
+
+
+                        print({w: format_fairness[w] for w in mykeys})
+                        print("")
+                        print({w: format_U_LTE[w] for w in mykeys})
+                        print("")
+                        print({w: format_power[w] for w in mykeys})
+                        print("")
+
+                        format_fairness  = {}
+                        format_U_LTE = {}
+                        format_power = {}
+
+
                         arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
 
                         arrowstates = {}
                         temp_state = rl.current_state
+
                         for st in range(0,21):
 
                             rl.current_state = st
@@ -659,7 +676,7 @@ if __name__ == "__main__":
                                 print(arrowstates[st2],end="  ")
                             print("\n")
                         rl.current_state = temp_state
-
+                            
                         if verbose.vary_factor == 1:
                             print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
                             print("PRBs Required: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
@@ -976,10 +993,13 @@ if __name__ == "__main__":
         # "This fairness calculation is only for one frame"
         # for the current frame
         U_LTE = LTECountS/total_PRBs
-        U_Wifi = WifiCountS/total_Wifi_slots
 
+        zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
+        # x1 = x1_numerator/0.0019
         x1 = x1_numerator/total_PRBs
 
+        U_Wifi = WifiCountS/total_Wifi_slots
+        
         x2 = x2_numerator/total_Wifi_slots
 
         frame_fairness = ((x1+x2)**2)/(2*((x1**2)+(x2**2)))
@@ -990,7 +1010,7 @@ if __name__ == "__main__":
         format_U_LTE[rl.current_state] = U_LTE
         format_power[rl.current_state] = LTEPowerS
 
-        rl.UpdateQtable(frame_fairness, LTEPowerS, thisparams)
+        rl.UpdateQtable(frame_fairness, LTEPowerS, thisparams,tf)
 
         # "This throughput calculation is only for one frame"
         # for the current frame
@@ -1055,6 +1075,7 @@ if __name__ == "__main__":
         print({w: format_U_LTE[w] for w in mykeys})
         print("")
         print({w: format_power[w] for w in mykeys})
+
 
 
     if verbose.Qtable==1:
