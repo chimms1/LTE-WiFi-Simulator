@@ -440,6 +440,8 @@ if __name__ == "__main__":
             
             lbss[0].pTx = thisparams.pTxLTE
 
+            thisparams.pTx_one_PRB = thisparams.pTxLTE/(2*thisparams.PRB_total_prbs*thisparams.duration_frame*100)
+
             for lb in lbss:
                 lb.bits_per_symbol_of_user = dict()
             
@@ -635,11 +637,37 @@ if __name__ == "__main__":
                             tempu = copy.copy(u)
 
                             allwuss.append(tempu)
+                        
+                        arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+
+                        arrowstates = {}
+                        temp_state = rl.current_state
+                        for st in range(0,21):
+
+                            rl.current_state = st
+                            max_action = rl.getMaxActionInd()
+
+                            arrowstates[st] = arrow[max_action]
+                        
+                        for powo in range(0,3):
+                            for st in range(0,7):
+                                st2 = st+powo*7
+                                print(st2,end="  ")
+                            print("")
+                            for st in range(0,7):
+                                st2 = st+powo*7
+                                print(arrowstates[st2],end="  ")
+                            print("\n")
+                        rl.current_state = temp_state
 
                         if verbose.vary_factor == 1:
                             print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
+                            print("PRBs Required: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
                             print("Wifi users {} at iteration {}".format(varyparams.numofWifiUE,tf))
+                            print("Wifi Slots Required: {}".format(service.getTotalRequiredWifiSlot(thisparams, wuss)))
 
+                        x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
+                        x2_numerator = service.getTotalRequiredWifiSlot(thisparams, wuss)
 
                         vary_for_every = thisparams.vary_for_every
 
