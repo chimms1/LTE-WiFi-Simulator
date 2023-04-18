@@ -206,6 +206,7 @@ if __name__ == "__main__":
         
         print("\nTotal Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
         print("======")
+    
     x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
 
     #
@@ -242,9 +243,9 @@ if __name__ == "__main__":
                     print("Required wifi slots: {}".format(u.req_no_wifi_slot))
         print("\nTotal Required wifi slots: {}".format(service.getTotalRequiredWifiSlot(thisparams, wuss)))
         print("======")
+    
     x2_numerator = service.getTotalRequiredWifiSlot(thisparams, wuss)
 
-    
     if verbose.plot_Scene == 1:
         # Creating CSVs
         service.createLocationCSV(wbss, lbss, luss, wuss)
@@ -283,7 +284,6 @@ if __name__ == "__main__":
     format_fairness = {}
     format_U_LTE = {}
     format_power = {}
-
     #============================================================
     # Modifiying for multiple base stations
 
@@ -402,9 +402,9 @@ if __name__ == "__main__":
 
     vary_for_every = 1
 
-    if thisparams.vary_load == 1:
+    # if thisparams.vary_load == 1:
     
-        vary_for_every = thisparams.vary_for_every
+    vary_for_every = thisparams.vary_for_every
     
     Wifi_vary_factor = 1 #   initially set to 1
     LTE_vary_factor = 1
@@ -416,11 +416,15 @@ if __name__ == "__main__":
         if tf>rl.exploration:
             rl.Epsilon = 0.95
         
+        if tf>thisparams.vary_from:
+            thisparams.vary_load = 1
+
         p = rl.ChoosePtoDecideAction()
 
         rl.ChooseAction(p)
         rl.PerformAction()
 
+    
         if verbose.each_action == 1:
             print("\nChoosen Action: ",rl.current_action)
             print("New State: ",rl.current_state)
@@ -449,8 +453,6 @@ if __name__ == "__main__":
                 print("New Power: ",thisparams.pTxLTE)
                 print("Total Required PRBs: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
         
-        # x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
-
         
         
         LTECountS=0
@@ -632,11 +634,37 @@ if __name__ == "__main__":
                             tempu = copy.copy(u)
 
                             allwuss.append(tempu)
+                        
+                        arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+
+                        arrowstates = {}
+                        temp_state = rl.current_state
+                        for st in range(0,21):
+
+                            rl.current_state = st
+                            max_action = rl.getMaxActionInd()
+
+                            arrowstates[st] = arrow[max_action]
+                        
+                        for powo in range(0,3):
+                            for st in range(0,7):
+                                st2 = st+powo*7
+                                print(st2,end="  ")
+                            print("")
+                            for st in range(0,7):
+                                st2 = st+powo*7
+                                print(arrowstates[st2],end="  ")
+                            print("\n")
+                        rl.current_state = temp_state
 
                         if verbose.vary_factor == 1:
                             print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
+                            print("PRBs Required: {}".format(service.getTotalRequiredPRB(thisparams, luss)))
                             print("Wifi users {} at iteration {}".format(varyparams.numofWifiUE,tf))
+                            print("Wifi Slots Required: {}".format(service.getTotalRequiredWifiSlot(thisparams, wuss)))
 
+                        x1_numerator = service.getTotalRequiredPRB(thisparams, luss)
+                        x2_numerator = service.getTotalRequiredWifiSlot(thisparams, wuss)
 
                         vary_for_every = thisparams.vary_for_every
 
@@ -945,13 +973,10 @@ if __name__ == "__main__":
         # "This fairness calculation is only for one frame"
         # for the current frame
         U_LTE = LTECountS/total_PRBs
+        U_Wifi = WifiCountS/total_Wifi_slots
 
-        zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
-        # x1 = x1_numerator/0.0019
         x1 = x1_numerator/total_PRBs
 
-        U_Wifi = WifiCountS/total_Wifi_slots
-        
         x2 = x2_numerator/total_Wifi_slots
 
         frame_fairness = ((x1+x2)**2)/(2*((x1**2)+(x2**2)))
@@ -1029,7 +1054,6 @@ if __name__ == "__main__":
         print({w: format_power[w] for w in mykeys})
 
 
-
     if verbose.Qtable==1:
         print("-------------------------------------------------------")
         print("Final State: {}\n".format(rl.current_state))
@@ -1060,12 +1084,6 @@ if __name__ == "__main__":
                 st2 = st+powo*7
                 print(arrowstates[st2],end="  ")
             print("\n")
-
-
-
-
-
-
 
     print("-------------------------------------------------------")
 
@@ -1105,4 +1123,3 @@ if __name__ == "__main__":
     
     if verbose.FairnessVsFrameIters == 1:
         graphservice.PlotFairnessFrameIters(Fairness,thisparams.times_frames,thisparams)
-
