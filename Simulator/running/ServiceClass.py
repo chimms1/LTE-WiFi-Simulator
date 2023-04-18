@@ -299,9 +299,7 @@ class ServiceClass:
     # Returns List of User Equipments of size PARAMS.numofLTEUE
     # each UE with a sequential ID and random location in (length,breadth)
     def createLTEUsers(self,scene_params):
-
-        np.random.seed(scene_params.seed_valueLTE)
-
+        # np.random.seed(scene_params.seed_valueLTE)
         uss = np.array([])
         nums1 = np.random.randint(35,65,scene_params.numofLTEUE)
         nums2 = np.random.randint(35,65,scene_params.numofLTEUE)
@@ -321,9 +319,7 @@ class ServiceClass:
     # Returns List of User Equipments of size PARAMS.numofWifiUE
     # each UE with a sequential ID and random location in (length,breadth)
     def createWifiUsers(self,scene_params):
-
-        np.random.seed(scene_params.seed_valueWifi)
-
+        # np.random.seed(scene_params.seed_valueWifi)
         uss = np.array([])
         nums1 = np.random.randint(65,105,scene_params.numofWifiUE)
         nums2 = np.random.randint(30,70,scene_params.numofWifiUE)

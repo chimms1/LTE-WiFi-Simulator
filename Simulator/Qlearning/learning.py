@@ -23,7 +23,7 @@ from running.ConstantParams import PARAMS
 
 class learning:
 
-    exploration = 10000000000
+    exploration = 30000
 
     # Declare and initialize variables
     Epsilon = 0
