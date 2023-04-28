@@ -28,6 +28,39 @@ def bringRealUser(selected_user,wuss):
         if u.ueID == selected_user.ueID:
             return u
 
+def printArrowQtable(rl):
+    arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+
+    arrowstates = {}
+    temp_state = rl.current_state
+
+    for st in range(0,21):
+
+        rl.current_state = st
+        max_action = rl.getMaxActionInd()
+
+        arrowstates[st] = arrow[max_action]
+    
+    for powo in range(0,3):
+        for st in range(0,7):
+            st2 = st+powo*7
+            print(st2,end="  ")
+        print("")
+        for st in range(0,7):
+            st2 = st+powo*7
+            print(arrowstates[st2],end="  ")
+        print("\n")
+    rl.current_state = temp_state
+
+def printQtable(rl):
+    print("Final State: {}\n".format(rl.current_state))
+    print("\tBack     Stay   Front   Down     Up")
+    for state in range(0,21):
+        print(state," ==> ",end = " ")
+        for action in range(0,5):
+            print("{:.4f}".format(rl.Q_Table[state][action]),end=" ")
+        print("\n")
+        
 if __name__ == "__main__":
     print("Hello World!")
 
@@ -412,6 +445,11 @@ if __name__ == "__main__":
     lbss[0].format = format[rl.initial_state]
 
     for tf in tqdm(range(0,thisparams.times_frames)):
+
+        if tf>0 and tf%10000 == 0:
+            print("\n\nIteration: ",tf)
+            printQtable(rl)
+            printArrowQtable(rl)
 
         if tf>rl.exploration:
             rl.Epsilon = 0.95
@@ -1109,6 +1147,10 @@ if __name__ == "__main__":
 
     print("-------------------------------------------------------")
 
+    if verbose.FairnessVsFrameIters == 1:
+        graphservice.PlotFrameIters(Fairness,thisparams.times_frames,thisparams,"Fairness")
+        graphservice.PlotFrameIters(LTE_Throughput, thisparams.times_frames, thisparams, "LTE Throughput (mbps)")
+        graphservice.PlotFrameIters(Wifi_Throughput, thisparams.times_frames, thisparams, "Wifi Throughput (mbps)")
     
     if verbose.Table_Fairness_LTH_WTH==1:
         print("Fairness  LT  WT")
@@ -1142,6 +1184,3 @@ if __name__ == "__main__":
         for f in Wifi_Throughput:
             print(f)
         print("-------------------------------------------------------")
-    
-    if verbose.FairnessVsFrameIters == 1:
-        graphservice.PlotFairnessFrameIters(Fairness,thisparams.times_frames,thisparams)

@@ -739,11 +739,16 @@ class GraphService:
 
         plt.show()
 
-    def PlotFairnessFrameIters(self,Fairness,time_frames,scene_params):
+    def PlotFrameIters(self,Fairness,time_frames,scene_params,quantity):
 
         sns.lineplot(x=[i for i in range(time_frames)], y=Fairness)
-        plt.title("Fairness vs Frame Iterations (10 ms)",fontsize=18)
-        plt.xlabel("Frame Iteration (10 ms)",fontsize=15)
-        plt.ylabel("Fairness",fontsize=15)
-        plt.ylim(0.5,1)
+        plt.title(quantity+" vs Frame Iterations (10 ms)",fontsize=29)
+        plt.xlabel("Frame Iteration (10 ms)",fontsize=26)
+        plt.ylabel(quantity,fontsize=26)
+        plt.xticks(fontsize=21)
+        plt.yticks(fontsize=21)
+
+        if quantity == "Fairness":
+            plt.ylim(0.5,1)
+
         plt.show()
