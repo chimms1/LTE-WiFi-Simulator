@@ -29,8 +29,8 @@ class learning:
     # Declare and initialize variables
     k = 0.1
     Epsilon = 0
-    LR = 0.01
-    Gamma = 0.8
+    LR = 0.05
+    Gamma = 0.6
 
     Fairness_Threshold = 0.8
     U_LTE_Threshold = 0.8

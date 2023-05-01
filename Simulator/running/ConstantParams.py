@@ -5,17 +5,17 @@ class PARAMS:
     scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 10
-    numofWifiUE = 10
+    numofLTEUE = 5
+    numofWifiUE = 5
     
-    times_frames = 70000    # Simulate for this value x 10ms
+    times_frames = 100000    # Simulate for this value x 10ms
 
     vary_from = 40000
     vary_load = 0   # set this flag to vary the load in iterations
     vary_for_every = 0    # Load will be changed for these many frame iterations
 
-    set_users_LTE  = [5]
-    set_users_Wifi = [5]
+    set_users_LTE  = [15]
+    set_users_Wifi = [3]
 
     vary_iterator = 0   # iterates in the set user list
     # decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]
@@ -58,8 +58,8 @@ class PARAMS:
     wifi_profile_prob = []
     LTE_profile_c_prob = []
     wifi_profile_c_prob = []
-    seed_valueLTE = 10
-    seed_valueWifi = 10
+    seed_valueLTE = 100
+    seed_valueWifi = 100
 
     LTE_MCS = {-6.936:0.1523,-5.147:0.2344,-3.18:0.377,-1.253:0.6016,0.761:0.877,2.699:1.1758,4.694:1.4766,6.525:1.9141,8.573:2.4063,10.366:2.7305,12.289:3.3223,14.173:3.9023,15.888:4.5234,17.814:5.1152,19.829:5.5547}
     wifi_MCS = {2:7.2, 5:14.4, 9:21.7, 11:28.9, 15:43.3, 18:57.8, 20:65.0, 25:72.2, 29:86.7}

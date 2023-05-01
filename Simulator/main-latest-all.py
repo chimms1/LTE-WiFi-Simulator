@@ -28,6 +28,40 @@ def bringRealUser(selected_user,wuss):
         if u.ueID == selected_user.ueID:
             return u
 
+def printArrowQtable(rl):
+    arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+
+    arrowstates = {}
+    temp_state = rl.current_state
+
+    for st in range(0,21):
+
+        rl.current_state = st
+        max_action = rl.getMaxActionInd()
+
+        arrowstates[st] = arrow[max_action]
+    
+    for powo in range(0,3):
+        for st in range(0,7):
+            st2 = st+powo*7
+            print(st2,end="  ")
+        print("")
+        for st in range(0,7):
+            st2 = st+powo*7
+            print(arrowstates[st2],end="  ")
+        print("\n")
+    rl.current_state = temp_state
+
+def printQtable(rl):
+    print("Final State: {}\n".format(rl.current_state))
+    print("\tBack     Stay   Front   Down     Up")
+    for state in range(0,21):
+        print(state," ==> ",end = " ")
+        for action in range(0,5):
+            print("{:.4f}".format(rl.Q_Table[state][action]),end=" ")
+        print("\n")
+
+
 if __name__ == "__main__":
     print("Hello World!")
 
@@ -412,9 +446,14 @@ if __name__ == "__main__":
     lbss[0].format = format[rl.initial_state]
 
     for tf in tqdm(range(0,thisparams.times_frames)):
+        
+        if tf>0 and tf%10000 == 0:
+            print("\n\nIteration: ",tf)
+            printQtable(rl)
+            printArrowQtable(rl)
 
         if tf>rl.exploration:
-            rl.Epsilon = 0.95
+            rl.Epsilon = 0.90
         
         if tf>thisparams.vary_from:
             thisparams.vary_load = 1
@@ -522,7 +561,7 @@ if __name__ == "__main__":
                         service.calculate_LTE_user_PRB(thisparams,[u])
 
                 ###### HERE, Varying of Users starts
-                if thisparams.vary_load == 1 and vary_for_every <=0 and thisparams.vary_iterator<=0:
+                if thisparams.vary_load == 1 and vary_for_every <=0 and thisparams.vary_iterator<=len(thisparams.set_users_LTE)-1:
                         
                         
 
@@ -654,28 +693,9 @@ if __name__ == "__main__":
                         format_power = {}
 
 
-                        arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
+                        printQtable(rl)
 
-                        arrowstates = {}
-                        temp_state = rl.current_state
-
-                        for st in range(0,21):
-
-                            rl.current_state = st
-                            max_action = rl.getMaxActionInd()
-
-                            arrowstates[st] = arrow[max_action]
-                        
-                        for powo in range(0,3):
-                            for st in range(0,7):
-                                st2 = st+powo*7
-                                print(st2,end="  ")
-                            print("")
-                            for st in range(0,7):
-                                st2 = st+powo*7
-                                print(arrowstates[st2],end="  ")
-                            print("\n")
-                        rl.current_state = temp_state
+                        printArrowQtable(rl)
                             
                         if verbose.vary_factor == 1:
                             print("LTE users {} at iteration {}".format(varyparams.numofLTEUE,tf))
@@ -1080,34 +1100,9 @@ if __name__ == "__main__":
 
     if verbose.Qtable==1:
         print("-------------------------------------------------------")
-        print("Final State: {}\n".format(rl.current_state))
-        print("\tBack     Stay   Front   Down     Up")
-        for state in range(0,21):
-            print(state," ==> ",end = " ")
-            for action in range(0,5):
-                print("{:.4f}".format(rl.Q_Table[state][action]),end=" ")
-            print("\n")
+        printQtable(rl)
 
-        arrow = {0:"⬅️",1:"🔄",2:"➡️",3:"⬇️",4:"⬆️"}
-
-        arrowstates = {}
-
-        for st in range(0,21):
-
-            rl.current_state = st
-            max_action = rl.getMaxActionInd()
-
-            arrowstates[st] = arrow[max_action]
-        
-        for powo in range(0,3):
-            for st in range(0,7):
-                st2 = st+powo*7
-                print(st2,end="  ")
-            print("")
-            for st in range(0,7):
-                st2 = st+powo*7
-                print(arrowstates[st2],end="  ")
-            print("\n")
+        printArrowQtable(rl)
 
     print("-------------------------------------------------------")
 
