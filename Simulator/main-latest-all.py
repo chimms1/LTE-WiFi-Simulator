@@ -558,7 +558,7 @@ if __name__ == "__main__":
                         service.calculate_LTE_user_PRB(thisparams,[u])
 
                 ###### HERE, Varying of Users starts
-                if thisparams.vary_load == 1 and vary_for_every <=0 and thisparams.vary_iterator<=0:
+                if thisparams.vary_load == 1 and vary_for_every <=0 and thisparams.vary_iterator<=len(thisparams.set_users_LTE)-1:
                         
                         
 
@@ -1149,8 +1149,8 @@ if __name__ == "__main__":
 
     if verbose.FairnessVsFrameIters == 1:
         graphservice.PlotFrameIters(Fairness,thisparams.times_frames,thisparams,"Fairness")
-        graphservice.PlotFrameIters(LTE_Throughput, thisparams.times_frames, thisparams, "LTE Throughput (mbps)")
-        graphservice.PlotFrameIters(Wifi_Throughput, thisparams.times_frames, thisparams, "Wifi Throughput (mbps)")
+        # graphservice.PlotFrameIters(LTE_Throughput, thisparams.times_frames, thisparams, "LTE Throughput (mbps)")
+        # graphservice.PlotFrameIters(Wifi_Throughput, thisparams.times_frames, thisparams, "Wifi Throughput (mbps)")
     
     if verbose.Table_Fairness_LTH_WTH==1:
         print("Fairness  LT  WT")
