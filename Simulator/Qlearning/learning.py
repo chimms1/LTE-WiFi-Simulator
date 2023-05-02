@@ -217,10 +217,10 @@ class learning:
 
     def UpdateQtable(self,Fairness, LTEPowerS, scene_params,current_iteration):
 
-        if current_iteration>self.exploration:
-            current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params) + self.RewardBonusDynaQ()
-        else:
-            current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params)
+        # if current_iteration>self.exploration:
+        current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params) + self.RewardBonusDynaQ()
+        # else:
+            # current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params)
 
         if self.current_action == -2:
             column = 3
@@ -235,8 +235,10 @@ class learning:
 
     def UpdateT_Count(self):
 
-        for t in range(0,len(self.possible_actions)):
-            self.T_Count[self.current_state][t] += 1
+        # for t in range(0,len(self.possible_actions)):
+        #     self.T_Count[self.current_state][t] += 1
+
+        self.T_Count += 1
 
         self.T_Count[self.current_state][self.current_action] = 0
         

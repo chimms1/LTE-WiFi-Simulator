@@ -6,16 +6,16 @@ class PARAMS:
     numofLTEBS = 1
     numofWifiBS = 1
     numofLTEUE = 5
-    numofWifiUE = 5
+    numofWifiUE = 15
     
-    times_frames = 100000    # Simulate for this value x 10ms
+    times_frames = 140000    # Simulate for this value x 10ms
 
     vary_from = 40000
     vary_load = 0   # set this flag to vary the load in iterations
     vary_for_every = 0    # Load will be changed for these many frame iterations
 
-    set_users_LTE  = [15]
-    set_users_Wifi = [3]
+    set_users_LTE  = [10]
+    set_users_Wifi = [10]
 
     vary_iterator = 0   # iterates in the set user list
     # decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]

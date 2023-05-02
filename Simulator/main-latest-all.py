@@ -453,7 +453,7 @@ if __name__ == "__main__":
             printArrowQtable(rl)
 
         if tf>rl.exploration:
-            rl.Epsilon = 0.90
+            rl.Epsilon = 0.95
         
         if tf>thisparams.vary_from:
             thisparams.vary_load = 1
