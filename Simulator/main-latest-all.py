@@ -398,6 +398,9 @@ if __name__ == "__main__":
     lbss[0].format = format[rl.initial_state]
 
     for tf in tqdm(range(0,thisparams.times_frames)):
+        
+        if tf>rl.exploration:
+            rl.Epsilon = 0.95
 
         p = rl.ChoosePtoDecideAction()
 

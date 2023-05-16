@@ -24,6 +24,8 @@ from running.ConstantParams import PARAMS
 class learning:
     # Create Q Table
 
+    exploration = 10000
+
     # Declare and initialize variables
     Epsilon = 0
     LR = 0.01
