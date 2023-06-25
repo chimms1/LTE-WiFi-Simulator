@@ -29,7 +29,7 @@ class LTEUserEquipment:
         dist = ((b.x-self.x)**2 + (b.y-self.y)**2 )**0.5
 
         pathloss = float()
-        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+19-28
+        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+0-28
 
         #Measure power
         prcvd = float()
@@ -90,7 +90,7 @@ class LTEUserEquipment:
 
         if maxsinr < given_sinr[0]:
             print("Deleting user with SINR: ",maxsinr)
-            return -1
+            return maxind
 
         return maxind
 
@@ -142,7 +142,7 @@ class WifiUserEquipment:
 
         pathloss = float()
 
-        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+19-28
+        pathloss=20*math.log(2400,10)+30*math.log(dist,10)+0-28
 
         #Measure power
         prcvd = float()
