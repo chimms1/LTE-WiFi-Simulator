@@ -74,8 +74,9 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <!-- <li><a href="#roadmap">Roadmap</a></li> -->
-    <!-- <li><a href="#contributing">Contributing</a></li> -->
+    <li><a href="#branch-info">Information on git branches</a></li>
+    <!-- <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li> -->
     <li><a href="#license">License</a></li>
     <li><a href="#developed-by">Developed by</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -172,8 +173,13 @@ All the entities are modeled into various classes
 6. Complete research work done in this project is yet to be released
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
+## Branch Info
+1. `main`: has contents of rl-dfs
+2. `rl-dfs`: Contains algorithm with 7 states for Dynamic Frame Selection based on Q-Learning
+3. `Power-State`: Contains algorithm with 21 states for energy efficient Dynamic Frame Selection based on Q-Learning
+4. `dyna-q`: Contains algorithm with 21 states for energy efficient Dynamic Frame Selection based on Dyna-Q+
+5. `CSMA/CA`: Development branch used to test implementation of CSMA/CA algorithm present in main file.
+6. `dev-y`: Development branch, used for implementation and testing
 <!-- ROADMAP -->
 <!-- ## Roadmap
 
@@ -212,7 +218,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the LGPL2.1 License. See `LICENSE.txt` for more information.
+Distributed under the LGPL-2.1 License. See `LICENSE.txt` for more information.
 
 <!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
