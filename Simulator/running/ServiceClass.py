@@ -175,7 +175,7 @@ class ServiceClass:
             b = WifiBaseStation()
 
             b.bsID = 0
-            b.x = (PARAMS().length/2)+35
+            b.x = (PARAMS().length/2)+25
             b.y = (PARAMS().breadth/2)
             b.pTx = PARAMS().pTxWifi  # Watts
 
@@ -301,16 +301,26 @@ class ServiceClass:
     def createLTEUsers(self,scene_params):
         np.random.seed(scene_params.seed_valueLTE)
         uss = np.array([])
-        nums1 = np.random.randint(35,65,scene_params.numofLTEUE)
-        nums2 = np.random.randint(35,65,scene_params.numofLTEUE)
+        nums1 = np.random.randint(30,70,scene_params.numofLTEUE)
+        nums2 = np.random.randint(30,70,scene_params.numofLTEUE)
 
         for i in range(0,scene_params.numofLTEUE):
 
             u = LTEUserEquipment()
 
             u.ueID = i
-            u.x = nums1[i]
-            u.y = nums2[i]
+            
+            if nums1[i] == 50 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            elif nums1[i] == 75 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            else:
+                u.x = nums1[i]
+                u.y = nums2[i]
 
             uss = np.append(uss,u)
         
@@ -321,16 +331,26 @@ class ServiceClass:
     def createWifiUsers(self,scene_params):
         np.random.seed(scene_params.seed_valueWifi)
         uss = np.array([])
-        nums1 = np.random.randint(65,105,scene_params.numofWifiUE)
-        nums2 = np.random.randint(30,70,scene_params.numofWifiUE)
+        nums1 = np.random.randint(45,105,scene_params.numofWifiUE)
+        nums2 = np.random.randint(20,80,scene_params.numofWifiUE)
 
         for i in range(0,scene_params.numofWifiUE):
 
             u = WifiUserEquipment()
 
             u.ueID = i
-            u.x = nums1[i]
-            u.y = nums2[i]
+
+            if nums1[i] == 50 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            elif nums1[i] == 75 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            else:
+                u.x = nums1[i]
+                u.y = nums2[i]
             
 
             uss = np.append(uss,u)
@@ -393,7 +413,7 @@ class ServiceClass:
             k=0
             for i in scene_params.LTE_profile_c_prob:
                 if(temp_prob<=i):
-                    u.req_data_rate= scene_params.profiles[k]
+                    u.req_data_rate= scene_params.LTEprofiles[k]
                     break
                 k+=1
         
@@ -407,7 +427,7 @@ class ServiceClass:
             k=0
             for i in scene_params.wifi_profile_c_prob:
                 if(temp_prob2<=i):
-                    u.req_data_rate=scene_params.profiles[k]
+                    u.req_data_rate=scene_params.Wifiprofiles[k]
                     break
                 k+=1
     
@@ -739,16 +759,11 @@ class GraphService:
 
         plt.show()
 
-    def PlotFrameIters(self,Fairness,time_frames,scene_params,quantity):
+    def PlotFairnessFrameIters(self,Fairness,time_frames,scene_params):
 
         sns.lineplot(x=[i for i in range(time_frames)], y=Fairness)
-        plt.title(quantity+" vs Frame Iterations (10 ms)",fontsize=29)
-        plt.xlabel("Frame Iteration (10 ms)",fontsize=26)
-        plt.ylabel(quantity,fontsize=26)
-        plt.xticks(fontsize=21)
-        plt.yticks(fontsize=21)
-
-        if quantity == "Fairness":
-            plt.ylim(0.5,1)
-
+        plt.title("Fairness vs Frame Iterations (10 ms)",fontsize=18)
+        plt.xlabel("Frame Iteration (10 ms)",fontsize=15)
+        plt.ylabel("Fairness",fontsize=15)
+        plt.ylim(0.5,1)
         plt.show()

@@ -7,9 +7,9 @@ class Verbose:
     LTE_user_data_rates = 1
     Wifi_user_data_rates = 1
     
-    LTE_user_SINR_MCS_value = 1 
-    Wifi_user_SNR_MCS_value = 1
-
+    LTE_user_SINR_MCS_value = 1
+    Wifi_user_SNR_MCS_value = 1 
+    
     LTE_user_req_PRB = 1 # use with printing 
     Wifi_user_req_slots = 1 # use with printing SNR MCS
 
@@ -20,9 +20,9 @@ class Verbose:
     LTE_proportions = 0
     LTE_Power_Frame = 0
 
-    vary_factor = 1
+    vary_factor = 0
 
-    frame_dictionary = 1
+    frame_dictionary = 0
 
     each_action = 0
     state_action_Qtable = 0
