@@ -90,7 +90,7 @@ class LTEUserEquipment:
 
         if maxsinr < given_sinr[0]:
             print("Deleting user with SINR: ",maxsinr)
-            return -1
+            return maxind
 
         return maxind
 

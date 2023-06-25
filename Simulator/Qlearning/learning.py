@@ -1,21 +1,4 @@
-# Initialize Q table
-#     create a table(may be list) of 7 coumns and 3 rows
-#           FS1 FS2 FS3 FS4 FS5 FS6 FS7
-#     stay   -    -    -   -    -     -    
-#     back   -    -    -   -    -     -     
-#     front  -    -    -   -    -     -    -
-
-# while
-# choose current state
-# choose random no p
-#     if p<epsilon
-#         action(a)=argmax Q(s,a)
-#     else
-#         choose random action
-# perform action(a) calculate reward(run simulation and map fairness to get reward)
-# update Q 
-# current state=new state
-
+# Leaning class as per DynaQ+ algorithm
 import random
 import numpy as np
 import math
@@ -24,11 +7,13 @@ from running.ConstantParams import PARAMS
 
 class learning:
 
-    exploration = 30000
+    exploration = 30000 # No. of iterations for exploration
+
+    do_dyna = 0 # variable used in runtime, do not change
 
     # Declare and initialize variables
-    k = 0.1
-    Epsilon = 0
+    k = 0.05
+    Epsilon = 0 # epsilon value for exploration, exploitation epsilon is in main file
     LR = 0.05
     Gamma = 0.6
 
@@ -56,7 +41,7 @@ class learning:
     original_power = PARAMS().pTxLTE
 
     
-    pFactor = [1,1.05,1.1]
+    pFactor = [1,1.05,1.10]
     power_levels = len(pFactor)
 
     current_pFactor = 1
@@ -97,7 +82,7 @@ class learning:
         return reward_ux
 
     # Function mapping fairness and U_LTE value to reward
-    def RewardFunction(self,Fairness,LTEPowerS,scene_params):
+    def RewardFunction(self,Fairness,LTEPowerS,U_LTE,scene_params):
         
         # reward_fx = self.MappingFainess(Fairness)
         # reward_ux = self.MappingU_LTE(U_LTE)
@@ -114,7 +99,24 @@ class learning:
 
         energy = LTEPowerS/(200*zeroes[self.current_frame]*PARAMS().pTx_one_PRB)
 
-        reward = self.MappingFairness(Fairness)/energy
+        # if U_LTE <1:
+        #     reward = self.MappingFairness(Fairness)/(LTEPowerS*(1-U_LTE))
+        # else:
+        #     reward = self.MappingFairness(Fairness)/(LTEPowerS*(1-0.999999))
+
+        reward = (self.MappingFairness(Fairness)/LTEPowerS)
+
+        # fairness_weight = 0.3
+        # utilization_weight = 0.2
+        # power_consumption_weight = 0.5
+
+        # fairness_normalized = (self.MappingFairness(Fairness) + 1) / 2  # Normalize fairness to the range [0, 1]
+        # utilization_normalized = U_LTE
+        # power_consumption_normalized = (0.00152 - LTEPowerS) / (0.00152 - 0.0000008636363635)  # Normalize power consumption to the range [0, 1]
+
+        # reward = (fairness_normalized * fairness_weight) + (utilization_normalized * utilization_weight) + (power_consumption_normalized * power_consumption_weight)
+
+
 
         # reward = self.MappingFairness(Fairness)
 
@@ -215,12 +217,22 @@ class learning:
         self.current_frame = self.state_i
         self.current_pFactor = self.pFactor[self.state_j]
 
-    def UpdateQtable(self,Fairness, LTEPowerS, scene_params,current_iteration):
+    def UpdateQtable(self,Fairness, LTEPowerS, U_LTE, scene_params,current_iteration):
 
-        # if current_iteration>self.exploration:
-        current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params) + self.RewardBonusDynaQ()
-        # else:
-            # current_reward = self.RewardFunction(Fairness, LTEPowerS, scene_params)
+        if current_iteration>self.exploration and self.do_dyna == 1:
+            
+            current_reward = self.RewardFunction(Fairness, LTEPowerS, U_LTE, scene_params)
+            
+            if current_reward<=0:
+                current_reward -= self.RewardBonusDynaQ()
+            else:
+                current_reward += self.RewardBonusDynaQ()
+        
+        
+        else:
+            current_reward = self.RewardFunction(Fairness, LTEPowerS, U_LTE, scene_params)
+        
+        # print(Fairness,current_reward)
 
         if self.current_action == -2:
             column = 3

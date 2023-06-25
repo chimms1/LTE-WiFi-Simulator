@@ -4,6 +4,7 @@ import math
 from tqdm import tqdm
 from collections import Counter
 import copy
+import os
 
 from running.ConstantParams import PARAMS
 from running.ServiceClass import ServiceClass
@@ -13,7 +14,7 @@ from entities.UserEquipment import WifiUserEquipment
 
 from Qlearning.learning import learning
 
-
+# Count users connected to a BS
 def count_users(bs_array):
     usercount = 0
     for b in bs_array:
@@ -68,6 +69,12 @@ if __name__ == "__main__":
     # for num in userscenes:
     thisparams = PARAMS()   # this is object of constant params to be used in main
 
+    import sys
+    thisparams.seed_valueLTE = int(sys.argv[1])
+    thisparams.seed_valueWifi = int(sys.argv[1])
+
+    print(thisparams.seed_valueLTE)
+
     service = ServiceClass()
     graphservice = GraphService()
     verbose = Verbose()
@@ -75,10 +82,13 @@ if __name__ == "__main__":
     rl = learning()
 
     # Scene1: 1 LTE & 1 Wi-Fi (colocated)
+
+    # ---Not updated----
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
     # Scene3: 3 LTE & 3  Wi-Fi
     # Scene4: 1 LTE & 3 Wi-Fi
     # Scene5: 3 LTE & 1 Wi-Fi
+    #--------------------------
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
@@ -90,7 +100,7 @@ if __name__ == "__main__":
     if scene != 0:
         print("Caution: Choosing scene other than 0 will override values set (no. of BS, UE) in PARAMS")
 
-    check = input("Continue? [Y/n]: ")
+    check = 'Y'
 
     if check == 'N' or check == 'n':
         exit()
@@ -171,7 +181,8 @@ if __name__ == "__main__":
 
     if verbose.profile_and_probability == 1:
         print("\n=== Profile and Probability Info ===")
-        print("DataRate Profiles: ",thisparams.profiles)
+        print("DataRate LTE Profiles: ",thisparams.LTEprofiles)
+        print("DataRate Wifi Profiles: ",thisparams.Wifiprofiles)
         print("LTE user ratio:    ",thisparams.LTE_ratios)
         print("Wifi user ratio:   ",thisparams.wifi_ratios)
         print("\nLTE Prob: ",thisparams.LTE_profile_prob)
@@ -251,8 +262,8 @@ if __name__ == "__main__":
 
     service.decide_wifi_bits_per_symbol(wbss, thisparams)
     
-    for u in wuss:
-        print("Wifi userid {}: {:.4f}".format(u.ueID,u.SNR))
+    # for u in wuss:
+    #     print("Wifi userid {}: {:.4f}".format(u.ueID,u.SNR))
 
     if verbose.Wifi_BS_Req_by_user == 1:
         print("\n=== Wifi BS Dictionary of User req bits ===")
@@ -279,6 +290,12 @@ if __name__ == "__main__":
         print("======")
     
     x2_numerator = service.getTotalRequiredWifiSlot(thisparams, wuss)
+
+    ltereq = service.getTotalRequiredPRB(thisparams,luss)
+    wifireq = service.getTotalRequiredWifiSlot(thisparams,wuss)
+
+    # print(ltereq)
+    # print(wifireq)
 
     if verbose.plot_Scene == 1:
         # Creating CSVs
@@ -318,7 +335,7 @@ if __name__ == "__main__":
     format_fairness = {}
     format_U_LTE = {}
     format_power = {}
-    #============================================================
+    #=======Old version with single frame simulation=====================================================
     # Modifiying for multiple base stations
 
     # formats_required = int(input("Enter the number of formats to simulate[1-7]: "))
@@ -379,11 +396,18 @@ if __name__ == "__main__":
     # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
     # exit()
 
+    # These lists store their respective values over each frame iteration
     Fairness = []   # Stores fairness for each frame combination
     LTE_Throughput = [] # Stores throughput of LTE
     LTE_Power = []
 
     Wifi_Throughput = [] # Stores total throughput of Wifi
+    ECR = []
+    Utilization = []
+    Wifi_Utilization = []
+    Frame_choosen = []
+    LTE_User_satisfy = []
+    Wifi_User_satisfy = []
 
 
     #Simulation starts
@@ -423,9 +447,10 @@ if __name__ == "__main__":
     # WifiCountS=0
     # WifiCountU=0
 
-    channel_busy = 0
+    channel_busy = 0    # flag to denote channel busy
 
-    CTS = 0
+    # CSMA/CA stuff
+    CTS = 0 # this is set to number of slots for which a wifi user gets CTS
     tuserlist = []
     RTSuserlist = []
     FinishedWifilist = []
@@ -447,13 +472,23 @@ if __name__ == "__main__":
 
     for tf in tqdm(range(0,thisparams.times_frames)):
         
-        if tf>0 and tf%10000 == 0:
-            print("\n\nIteration: ",tf)
-            printQtable(rl)
-            printArrowQtable(rl)
+        # if tf>0 and tf%10000  == 0 and tf>=rl.exploration:
+        #     print("\n\nIteration: ",tf)
+        #     printQtable(rl)
+        #     printArrowQtable(rl)
 
-        if tf>rl.exploration:
-            rl.Epsilon = 0.95
+        # if tf>0 and tf%45000 == 0 and tf>=rl.exploration and rl.do_dyna == 1:
+        #     print("do_dyna set to 0")
+        #     rl.do_dyna = 0
+        
+        # if tf>0 and tf%1000 == 0 and tf>=thisparams.vary_from and rl.do_dyna == 1:
+        #     if rl.Epsilon+0.05<=0.90:
+        #         rl.Epsilon+=0.05
+                
+            # print("Epsilon changed to: ",rl.Epsilon)
+
+        if tf>rl.exploration and rl.do_dyna==0:
+            rl.Epsilon = 0.90
         
         if tf>thisparams.vary_from:
             thisparams.vary_load = 1
@@ -471,6 +506,7 @@ if __name__ == "__main__":
             print("Frame: ",rl.current_frame)
 
         lbss[0].format = format[rl.current_frame]
+        Frame_choosen.append(rl.current_state)
 
         if rl.current_action == 2 or rl.current_action == -2:
             thisparams.pTxLTE = rl.original_power/rl.current_pFactor
@@ -563,8 +599,6 @@ if __name__ == "__main__":
                 ###### HERE, Varying of Users starts
                 if thisparams.vary_load == 1 and vary_for_every <=0 and thisparams.vary_iterator<=len(thisparams.set_users_LTE)-1:
                         
-                        
-
                         # LTE_vary_factor = service.Vary_Load(thisparams, LTE_vary_factor)
                         # Wifi_vary_factor = service.Vary_Load(thisparams, Wifi_vary_factor)
 
@@ -692,6 +726,10 @@ if __name__ == "__main__":
                         format_U_LTE = {}
                         format_power = {}
 
+                        rl.do_dyna = 1
+                        rl.Epsilon = 0.0
+
+                        print("do_dyna set to 1")
 
                         printQtable(rl)
 
@@ -1016,11 +1054,13 @@ if __name__ == "__main__":
 
         zeroes = {0:2,1:4,2:6,3:6,4:7,5:8,6:3}
         # x1 = x1_numerator/0.0019
-        x1 = x1_numerator/total_PRBs
+        # x1 = x1_numerator/total_PRBs
+        x1 = U_LTE
 
         U_Wifi = WifiCountS/total_Wifi_slots
         
-        x2 = x2_numerator/total_Wifi_slots
+        # x2 = x2_numerator/total_Wifi_slots
+        x2 = U_Wifi
 
         frame_fairness = ((x1+x2)**2)/(2*((x1**2)+(x2**2)))
 
@@ -1030,13 +1070,20 @@ if __name__ == "__main__":
         format_U_LTE[rl.current_state] = U_LTE
         format_power[rl.current_state] = LTEPowerS
 
-        rl.UpdateQtable(frame_fairness, LTEPowerS, thisparams,tf)
+        rl.UpdateQtable(frame_fairness, LTEPowerS,U_LTE, thisparams,tf)
 
         # "This throughput calculation is only for one frame"
         # for the current frame
         frame_T_LTE = (total_LTE_bits_sent * 10**3)/thisparams.duration_frame
         LTE_Throughput.append(frame_T_LTE)
         LTE_Power.append(LTEPowerS)
+        ECR.append((100*LTEPowerS)/frame_T_LTE)
+        Utilization.append(U_LTE)
+        Wifi_Utilization.append(U_Wifi)
+        LTE_User_satisfy.append(LTECountS/ltereq)
+        # print(LTECountS)
+        Wifi_User_satisfy.append(WifiCountS/wifireq)
+        # print(WifiCountS)
 
         frame_T_Wifi = (total_Wifi_bits_sent * 10**3)/thisparams.duration_frame
         Wifi_Throughput.append(frame_T_Wifi)
@@ -1142,3 +1189,60 @@ if __name__ == "__main__":
     
     if verbose.FairnessVsFrameIters == 1:
         graphservice.PlotFairnessFrameIters(Fairness,thisparams.times_frames,thisparams)
+
+    # #=============== Uncomment this part to store data in excel sheet ===============
+
+    # # Get the current file's directory path
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # # Go two directories behind
+    # two_dirs_behind = os.path.abspath(os.path.join(current_dir, ".."))
+
+    # if os.name == "posix":
+    #     scenename = "/" + str(os.path.abspath(os.path.join(current_dir,".."))).split("/")[-1]
+    # else:
+    #     scenename = "\\" + str(os.path.abspath(os.path.join(current_dir,".."))).split("\\")[-1]
+
+    # excelpath = two_dirs_behind + "-avg.xlsx"
+    # csvpath = two_dirs_behind + ".csv"
+
+    # # print(two_dirs_behind)
+    # # print(scenename)
+    # # print(excelpath)
+
+    # data = pd.read_excel(excelpath)
+
+    # data[0][0] += sum(Fairness[:rl.exploration+1])
+    # data[0][1] += sum(Fairness[rl.exploration:])
+
+    # data[0][2] += sum(LTE_Throughput[:rl.exploration+1])
+    # data[0][3] += sum(LTE_Throughput[rl.exploration:])
+
+    # data[0][4] += sum(Wifi_Throughput[:rl.exploration+1])
+    # data[0][5] += sum(Wifi_Throughput[rl.exploration:])
+
+    # data[0][6] += sum(LTE_Power[:rl.exploration+1])
+    # data[0][7] += sum(LTE_Power[rl.exploration:])
+
+    # data[0][8] += sum(Utilization[:rl.exploration+1])
+    # data[0][9] += sum(Utilization[rl.exploration:])
+
+    # data[0][10] += sum(Wifi_Utilization[:rl.exploration+1])
+    # data[0][11] += sum(Wifi_Utilization[rl.exploration:])
+
+    # data[0][12] += sum(ECR[:rl.exploration+1])
+    # data[0][13] += sum(ECR[rl.exploration:])
+
+    # data[0][14] += sum(LTE_User_satisfy[:rl.exploration+1])
+    # data[0][15] += sum(LTE_User_satisfy[rl.exploration:])
+
+    # data[0][16] += sum(Wifi_User_satisfy[:rl.exploration+1])
+    # data[0][17] += sum(Wifi_User_satisfy[rl.exploration:])
+    
+
+    # # Store frame number,iteration in csv file
+    # savefile = open(csvpath,"a")
+    # savefile.write(str(max(set(Frame_choosen[rl.exploration:]), key=Frame_choosen.count))+"\n")
+    # savefile.close()
+
+    # data.to_excel(excelpath,index=False)
