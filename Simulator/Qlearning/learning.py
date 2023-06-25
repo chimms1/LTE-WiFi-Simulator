@@ -1,21 +1,4 @@
-# Initialize Q table
-#     create a table(may be list) of 7 coumns and 3 rows
-#           FS1 FS2 FS3 FS4 FS5 FS6 FS7
-#     stay   -    -    -   -    -     -    
-#     back   -    -    -   -    -     -     
-#     front  -    -    -   -    -     -    -
-
-# while
-# choose current state
-# choose random no p
-#     if p<epsilon
-#         action(a)=argmax Q(s,a)
-#     else
-#         choose random action
-# perform action(a) calculate reward(run simulation and map fairness to get reward)
-# update Q 
-# current state=new state
-
+# Learning class as per Q-learning algorithm
 import random
 import numpy as np
 

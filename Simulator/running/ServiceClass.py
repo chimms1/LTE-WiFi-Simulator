@@ -175,7 +175,7 @@ class ServiceClass:
             b = WifiBaseStation()
 
             b.bsID = 0
-            b.x = (PARAMS().length/2)+10
+            b.x = (PARAMS().length/2)+25
             b.y = (PARAMS().breadth/2)
             b.pTx = PARAMS().pTxWifi  # Watts
 
@@ -299,18 +299,28 @@ class ServiceClass:
     # Returns List of User Equipments of size PARAMS.numofLTEUE
     # each UE with a sequential ID and random location in (length,breadth)
     def createLTEUsers(self,scene_params):
-
+        np.random.seed(scene_params.seed_valueLTE)
         uss = np.array([])
-        nums1 = np.random.randint(1,PARAMS().length,scene_params.numofLTEUE)
-        nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofLTEUE)
+        nums1 = np.random.randint(30,70,scene_params.numofLTEUE)
+        nums2 = np.random.randint(30,70,scene_params.numofLTEUE)
 
         for i in range(0,scene_params.numofLTEUE):
 
             u = LTEUserEquipment()
 
             u.ueID = i
-            u.x = nums1[i]
-            u.y = nums2[i]
+            
+            if nums1[i] == 50 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            elif nums1[i] == 75 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            else:
+                u.x = nums1[i]
+                u.y = nums2[i]
 
             uss = np.append(uss,u)
         
@@ -319,18 +329,28 @@ class ServiceClass:
     # Returns List of User Equipments of size PARAMS.numofWifiUE
     # each UE with a sequential ID and random location in (length,breadth)
     def createWifiUsers(self,scene_params):
-
+        np.random.seed(scene_params.seed_valueWifi)
         uss = np.array([])
-        nums1 = np.random.randint(1,PARAMS().length,scene_params.numofWifiUE)
-        nums2 = np.random.randint(1,PARAMS().breadth,scene_params.numofWifiUE)
+        nums1 = np.random.randint(45,105,scene_params.numofWifiUE)
+        nums2 = np.random.randint(20,80,scene_params.numofWifiUE)
 
         for i in range(0,scene_params.numofWifiUE):
 
             u = WifiUserEquipment()
 
             u.ueID = i
-            u.x = nums1[i]
-            u.y = nums2[i]
+
+            if nums1[i] == 50 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            elif nums1[i] == 75 and nums2[i] == 50 :
+                u.x = nums1[i]
+                u.y = nums2[i]+5
+
+            else:
+                u.x = nums1[i]
+                u.y = nums2[i]
             
 
             uss = np.append(uss,u)
@@ -393,7 +413,7 @@ class ServiceClass:
             k=0
             for i in scene_params.LTE_profile_c_prob:
                 if(temp_prob<=i):
-                    u.req_data_rate= scene_params.profiles[k]
+                    u.req_data_rate= scene_params.LTEprofiles[k]
                     break
                 k+=1
         
@@ -407,7 +427,7 @@ class ServiceClass:
             k=0
             for i in scene_params.wifi_profile_c_prob:
                 if(temp_prob2<=i):
-                    u.req_data_rate=scene_params.profiles[k]
+                    u.req_data_rate=scene_params.Wifiprofiles[k]
                     break
                 k+=1
     
@@ -509,6 +529,21 @@ class ServiceClass:
     #                                                               / (available datarate)
             u.req_no_wifi_slot = (u.req_data_rate*10)/(u.bs.bits_per_symbol_of_user[u]*9)
             u.req_no_wifi_slot = math.ceil(u.req_no_wifi_slot)
+
+    def getTotalRequiredPRB(self,scene_params,luss):
+        total = 0
+
+        for u in luss:
+            total += u.req_no_PRB
+
+        return total
+
+    def getTotalRequiredWifiSlot(self,scene_params,wuss):
+        total = 0
+
+        for u in wuss:
+            total += u.req_no_wifi_slot
+        return total
 
     def sendRTS(self,scene_params,RTSuserlist):
 
