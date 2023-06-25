@@ -1,3 +1,1 @@
-# LTE-WiFi-Coexistence
-# Under Development
-# Documentation for this project is yet to be added
+## Development branch used to test implementation of CSMA/CA algorithm present in main file.
