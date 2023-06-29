@@ -163,6 +163,10 @@ All the entities are modeled into various classes
 3. Set flags in `Print.py` to print information.
 4. Do additional configurations if required.
 5. Run `main-latest-all.py`
+ ```sh
+python main-latest-all.py <seed-value>
+ ```
+6. Setting a seed value will help in recreating UE deployments.
 
 ## NOTE
 1. Currently, only a single LTE BS and WiFi AP can be used.
