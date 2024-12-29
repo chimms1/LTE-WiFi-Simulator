@@ -7,7 +7,7 @@ class Verbose:
     LTE_user_data_rates = 1
     Wifi_user_data_rates = 1
     
-    LTE_user_SINR_MCS_value = 1
+    LTE_user_SINR_MCS_value = 1 
     Wifi_user_SNR_MCS_value = 1 
     
     LTE_user_req_PRB = 1 # use with printing 
@@ -24,7 +24,7 @@ class Verbose:
     frame_dictionary = 0
 
     state_action_Qtable = 0
-    Qtable = 1
+    Qtable = 0
 
 
     plot_Scene = 1 # plotting graph of positioning of BS and UE in the scene

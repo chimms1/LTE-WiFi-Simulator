@@ -1,7 +1,7 @@
 import os
-import sys
 
-times = int(sys.argv[1])
+times = 500
+
 
 # Get the current file's directory path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,4 +24,4 @@ for i in range(times):
     print(i)
     os.system("python"+" "+str(mainfilepath)+" "+str(i))
 
-# os.system("python compute7.py "+str(times))
+os.system("python compute7.py "+str(times))

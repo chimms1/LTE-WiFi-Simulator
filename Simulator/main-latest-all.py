@@ -14,7 +14,7 @@ from entities.UserEquipment import WifiUserEquipment
 
 from Qlearning.learning import learning
 
-# Count users connected to a BS
+
 def count_users(bs_array):
     usercount = 0
     for b in bs_array:
@@ -48,13 +48,10 @@ if __name__ == "__main__":
     rl = learning()
 
     # Scene1: 1 LTE & 1 Wi-Fi (colocated)
-
-    # ---Not updated----
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
     # Scene3: 3 LTE & 3  Wi-Fi
     # Scene4: 1 LTE & 3 Wi-Fi
     # Scene5: 3 LTE & 1 Wi-Fi
-    #--------------------------
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
@@ -77,7 +74,6 @@ if __name__ == "__main__":
         else:
             print("Error: Vary for every iteration and number of user counts are mismatched")
             exit()
-
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(thisparams,scene)
     wbss = service.createWifiBaseStations(thisparams,scene)
@@ -217,14 +213,14 @@ if __name__ == "__main__":
 
     #
     # Measuring SNR for Wifi Users
-    # for u in wuss:
-    #     u.measureSNR()
-    #     SNR.append(u.SNR)
+    for u in wuss:
+        u.measureSNR()
+        SNR.append(u.SNR)
 
     service.decide_wifi_bits_per_symbol(wbss, thisparams)
     
-    for u in wuss:
-        print("Wifi userid {}: {:.4f}".format(u.ueID,u.SNR))
+    # for u in wuss:
+    #     print("Wifi userid {}: {:.4f}".format(u.ueID,u.SNR))
 
     if verbose.Wifi_BS_Req_by_user == 1:
         print("\n=== Wifi BS Dictionary of User req bits ===")
@@ -249,12 +245,11 @@ if __name__ == "__main__":
                     print("Required wifi slots: {}".format(u.req_no_wifi_slot))
         print("======")
 
-    # Store total request by users
     ltereq = service.getTotalRequiredPRB(thisparams,luss)
     wifireq = service.getTotalRequiredWifiSlot(thisparams,wuss)
 
-    # print(ltereq)
-    # print(wifireq)
+    print(ltereq)
+    print(wifireq)
     
     if verbose.plot_Scene == 1:
         # Creating CSVs
@@ -283,17 +278,16 @@ if __name__ == "__main__":
             # '0'/'1' --> SLOT 
 
     # [0,1,1,1,1,0,1,1,1,1]              wifi:LTE   y2:x2       y1:x1
-    format=[[0,1,1,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
-            [0,1,1,1,0,0,1,1,1,0], # 6:4  7:16      333:01      16:90
-            [0,1,1,0,0,0,1,1,0,0], # 4:6  4:24      222:01      24:90
-            [0,1,1,1,1,0,0,0,0,0], # 4:6  4:24      222:01      24:90
-            [0,1,1,1,0,0,0,0,0,0], # 3:7  3:28      166.5:01    28:90        
-            [0,1,1,0,0,0,0,0,0,0], # 2:8  2:32      111:01      32:90
-            [0,1,1,1,1,0,1,1,1,0]] # 7:3  8:12      388.5:01    12:90
+    format=[[0,1,1,1,1,1,1,1,1,1], # 8:2  9:8       444:01      8:90  
+            [0,0,1,1,1,1,1,1,1,1], # 6:4  7:16      333:01      16:90
+            [0,0,0,1,1,1,1,1,1,1], # 4:6  4:24      222:01      24:90
+            [0,0,0,0,1,1,1,1,1,1], # 4:6  4:24      222:01      24:90
+            [0,0,0,0,0,1,1,1,1,1], # 3:7  3:28      166.5:01    28:90        
+            [0,0,0,0,0,0,1,1,1,1], # 2:8  2:32      111:01      32:90
+            [0,0,0,0,0,0,0,1,1,1]] # 7:3  8:12      388.5:01    12:90
 
     format_fairness = {}
-
-    #======Old version with single frame simulation======================================================
+    #============================================================
     # Modifiying for multiple base stations
 
     # formats_required = int(input("Enter the number of formats to simulate[1-7]: "))
@@ -354,7 +348,6 @@ if __name__ == "__main__":
     # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
     # exit()
 
-    # These lists store their respective values over each frame iteration
     Fairness = []   # Stores fairness for each frame combination
     LTE_Throughput = [] # Stores throughput of LTE
     LTE_Power = []
@@ -366,6 +359,13 @@ if __name__ == "__main__":
     Frame_choosen = []
     LTE_User_satisfy = []
     Wifi_User_satisfy = []
+
+    #Simulation starts
+    # for simulation_iterator in range(0,len(chosen_formats)):
+
+    # for b in lbss:
+    #     b.lusscount=b.lusscount2
+
 
     for b in wbss:
         b.t_user_list = b.user_list
@@ -397,14 +397,16 @@ if __name__ == "__main__":
     # WifiCountS=0
     # WifiCountU=0
 
-    channel_busy = 0    # flag to denote channel busy
+    channel_busy = 0
 
-    # CSMA/CA stuff
-    CTS = 0 # this is set to number of slots for which a wifi user gets CTS
+    CTS = 0
     tuserlist = []
     RTSuserlist = []
     FinishedWifilist = []
+    # FinishedLTElist = []
 
+    # total_PRBs = 0
+    # total_Wifi_slots = 0
 
     vary_for_every = 1
     if thisparams.vary_load == 1:
@@ -428,6 +430,11 @@ if __name__ == "__main__":
 
         lbss[0].format = format[rl.current_state]
         Frame_choosen.append(rl.current_state)
+
+        # Store frame number,iteration in csv file
+        savefile = open("/home/anyamanaska/Desktop/New-Archive/single/FnumVsIters7-30.csv","a")
+        savefile.write(str(tf)+","+str(rl.current_state)+"\n")
+        savefile.close()
         
         LTECountS=0
         LTECountU=0
@@ -1033,8 +1040,6 @@ if __name__ == "__main__":
     
     if verbose.FairnessVsFrameIters == 1:
         graphservice.PlotFairnessFrameIters(Fairness,thisparams.times_frames,thisparams)
-    
-    # #=============== Uncomment this part to store data in excel sheet ===============
 
     # # Get the current file's directory path
     # current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1112,9 +1117,7 @@ if __name__ == "__main__":
 
 
 
-    # Uncomment this entire half to run the simulation only for a single frame
-    # Does not contain any print
-    # Mode(Frame chosen in each iteration)
+
 
 
 
@@ -1764,32 +1767,31 @@ if __name__ == "__main__":
     # # print(sum(Utilization))
     # # print(sum(ECR))
 
-    # # #=============== Uncomment this part to store data in excel sheet ===============
-    # # data = pd.read_excel(excelpath)
+    # data = pd.read_excel(excelpath)
 
-    # # data[0][20] += sum(Fairness)
+    # data[0][20] += sum(Fairness)
 
-    # # data[0][21] += sum(LTE_Throughput)
+    # data[0][21] += sum(LTE_Throughput)
 
-    # # data[0][22] += sum(Wifi_Throughput)
+    # data[0][22] += sum(Wifi_Throughput)
 
-    # # data[0][23] += sum(LTE_Power)
+    # data[0][23] += sum(LTE_Power)
 
-    # # data[0][24] += sum(Utilization)
+    # data[0][24] += sum(Utilization)
 
-    # # data[0][25] += sum(Wifi_Utilization)
+    # data[0][25] += sum(Wifi_Utilization)
 
-    # # data[0][26] += sum(ECR)
+    # data[0][26] += sum(ECR)
 
-    # # data[0][27] += sum(LTE_User_satisfy)
+    # data[0][27] += sum(LTE_User_satisfy)
 
-    # # data[0][28] += sum(Wifi_User_satisfy)
+    # data[0][28] += sum(Wifi_User_satisfy)
     
 
-    # # # Store frame number,iteration in csv file
-    # # # savefile = open("/home/anyamanaska/vscodium-python/mproject/Paper-Results-final/7-10-10.csv","a")
-    # # # savefile.write(str(max(set(Frame_choosen[rl.exploration:]), key=Frame_choosen.count))+"\n")
-    # # # savefile.close()
+    # # Store frame number,iteration in csv file
+    # # savefile = open("/home/anyamanaska/vscodium-python/mproject/Paper-Results-final/7-10-10.csv","a")
+    # # savefile.write(str(max(set(Frame_choosen[rl.exploration:]), key=Frame_choosen.count))+"\n")
+    # # savefile.close()
 
-    # # data.to_excel(excelpath,index=False)
+    # data.to_excel(excelpath,index=False)
     
