@@ -5,31 +5,31 @@ class PARAMS:
     scene = 1
     numofLTEBS = 1
     numofWifiBS = 1
-    numofLTEUE = 15
-    numofWifiUE = 15
+    numofLTEUE = 5
+    numofWifiUE = 5
     
-    times_frames = 40000    # Simulate for this value x 10ms
+    times_frames = 120000    # Simulate for this value x 10ms
 
-    vary_from = 400000000   # Change of load at this iteration number, give smaller value than times_frames if you want to vary the load
-    vary_load = 0   # this flag is used in runtime, do not set this
-    vary_for_every = 0    # Load will be changed for these many frame iterations
+    vary_from = 40000
+    vary_load = 1   # set this flag to vary the load in iterations
+    vary_for_every = 40000    # Load will be changed for these many frame iterations
 
-    # Load changed to given set of users, Fully functional load change is not yet implemented
-    # Limited to only one change.
-    set_users_LTE  = [20]
-    set_users_Wifi = [5]
+    set_users_LTE  = [30,30]
+    set_users_Wifi = [5,5]
 
     vary_iterator = 0   # iterates in the set user list
+    # decrease_factors = [0.5, 0.6, 0.7, 0.8, 0.9,1]
+    # increase_factors = [1.1, 1.2, 1.3, 1.4, 1.5]
 
-    # Deplpyment area
     length = 100
     breadth = 100
     
-    prob = 0.5  # Probability of transmission
+    prob = 0.5
+
+    noise=-80
 
     pTxWifi = .19    # Unit: Watt
     pTxLTE = .19   # Unit: Watt
-    noise = -80 # Noise in environment
 
     duration_frame = 10 # 10 ms
     duration_subframe = 1   # 1 ms
@@ -42,44 +42,35 @@ class PARAMS:
     PRB_symbols = 7 # this is 7 symbols per resource block
     PRB_subcarriers = 12 # this is 12 subcarriers per resource block (derived value)
     
-    PRB_total_symbols = PRB_subcarriers*PRB_symbols # Symbols in one PRB
+    PRB_total_symbols = PRB_subcarriers*PRB_symbols
 
     PRB_subcarrier_bandwidth = 15 # KHz
     PRB_bandwidth = 180 # KHz
 
     PRB_total_prbs = 100
 
-    pTx_one_PRB = pTxLTE/(2*PRB_total_prbs*duration_frame*100)
+    pTx_one_PRB = pTxLTE/(2*PRB_total_prbs*duration_frame*100)  
 
-    # Profile of Users
     LTEprofiles = [128,256,512,1024]
     Wifiprofiles = [256,512,1024,2048]
     LTE_ratios = [4,3,2,1]
     wifi_ratios = [1,2,3,4]
-    # Lists to allocate profiles, do not edit
     LTE_profile_prob = []
     wifi_profile_prob = []
     LTE_profile_c_prob = []
     wifi_profile_c_prob = []
+    seed_valueLTE = 100
+    seed_valueWifi = 100
 
-    # Seed value, now passed from command line while execution
-    seed_valueLTE = 10
-    seed_valueWifi = 10
-
-    # MCS Table stored in dictionary
-    LTE_MCS = {-6.936:0.1523,-5.147:0.2344,-3.18:0.377,-1.253:0.6016,0.761:0.877,2.699:1.1758,4.694:1.4766,6.525:1.9141,8.573:2.4063,10.366:2.7305,12.289:3.3223,14.173:3.9023,15.888:4.5234,17.814:5.1152,19.829:5.5547}
+    LTE_MCS = {-6.936:0.1523,-5.147:0.2344,-3.18:0.377,-1.253:0.6016,0.761:0.877,2.699:1.1758,4.694:1.4766,6.525:1.9141,8.573:2.4063,10.366:2.7305,12.289:3.3223,14.173:3.9023,15.888:4.5234,17.814:5.1152,19.829:5.5547, 21:6.5,22:7.5}
     wifi_MCS = {2:7.2, 5:14.4, 9:21.7, 11:28.9, 15:43.3, 18:57.8, 20:65.0, 25:72.2, 29:86.7}
 
-    # Backoff range for CSMA/CA
-    # in slots
     backoff_lower = 5
     backoff_upper = 20
 
     SIFS = 1    # Slots
     DIFS_slots = 2 + SIFS    # Slots
 
-    # Conversion functions, may have incorrect name or remain unused
-    
     def get_bits_per_slot_from_Kbps(self,value_Kbps):
 
         return (value_Kbps/2)
@@ -109,3 +100,5 @@ class PARAMS:
     def get_mWatt_from_dBm(self,value_dBm):
         val_mWatt = 10**(value_dBm/10)
         return val_mWatt/1000
+
+    # noise = get_dBm_from_Watt((get_Watt_from_dBm(PARAMS().temp_noise)*20*(10**6)))#convert to dbm from watt (get watt from dbm(temp_noise) *20*10^6)

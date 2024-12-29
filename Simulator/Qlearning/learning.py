@@ -1,4 +1,21 @@
-# Leaning class as per DynaQ+ algorithm
+# Initialize Q table
+#     create a table(may be list) of 7 coumns and 3 rows
+#           FS1 FS2 FS3 FS4 FS5 FS6 FS7
+#     stay   -    -    -   -    -     -    
+#     back   -    -    -   -    -     -     
+#     front  -    -    -   -    -     -    -
+
+# while
+# choose current state
+# choose random no p
+#     if p<epsilon
+#         action(a)=argmax Q(s,a)
+#     else
+#         choose random action
+# perform action(a) calculate reward(run simulation and map fairness to get reward)
+# update Q 
+# current state=new state
+
 import random
 import numpy as np
 import math
@@ -7,13 +24,13 @@ from running.ConstantParams import PARAMS
 
 class learning:
 
-    exploration = 30000 # No. of iterations for exploration
+    exploration = 30000
 
-    do_dyna = 0 # variable used in runtime, do not change
+    do_dyna = 0
 
     # Declare and initialize variables
     k = 0.05
-    Epsilon = 0 # epsilon value for exploration, exploitation epsilon is in main file
+    Epsilon = 0
     LR = 0.05
     Gamma = 0.6
 

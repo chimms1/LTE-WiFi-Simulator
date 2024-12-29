@@ -14,7 +14,7 @@ from entities.UserEquipment import WifiUserEquipment
 
 from Qlearning.learning import learning
 
-# Count users connected to a BS
+
 def count_users(bs_array):
     usercount = 0
     for b in bs_array:
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     thisparams.seed_valueLTE = int(sys.argv[1])
     thisparams.seed_valueWifi = int(sys.argv[1])
 
-    print(thisparams.seed_valueLTE)
+    print("Entered seed: ",thisparams.seed_valueLTE)
 
     service = ServiceClass()
     graphservice = GraphService()
@@ -82,13 +82,10 @@ if __name__ == "__main__":
     rl = learning()
 
     # Scene1: 1 LTE & 1 Wi-Fi (colocated)
-
-    # ---Not updated----
     # Scene2: 1 LTE & 1 Wi-Fi (apart)
     # Scene3: 3 LTE & 3  Wi-Fi
     # Scene4: 1 LTE & 3 Wi-Fi
     # Scene5: 3 LTE & 1 Wi-Fi
-    #--------------------------
 
     # Else choose scene 0 for random allocation of numbers specified in params
 
@@ -110,7 +107,7 @@ if __name__ == "__main__":
             print("Number of users will be varied for every {}th iteration".format(thisparams.vary_for_every))
         else:
             print("Error: Vary for every iteration and number of user counts are mismatched")
-            exit()
+            # exit()
     # Create BS and UE using Service Class
     lbss = service.createLTEBaseStations(thisparams,scene)
     wbss = service.createWifiBaseStations(thisparams,scene)
@@ -324,18 +321,18 @@ if __name__ == "__main__":
             # '0'/'1' --> SLOT 
 
     # [0,1,1,1,1,0,1,1,1,1]              wifi:LTE   y2:x2       y1:x1
-    format=[[0,1,1,1,1,0,1,1,1,1], # 8:2  9:8       444:01      8:90 
-            [0,1,1,1,0,0,1,1,1,0], # 6:4  7:16      333:01      16:90
-            [0,1,1,0,0,0,1,1,0,0], # 4:6  4:24      222:01      24:90
-            [0,1,1,1,1,0,0,0,0,0], # 4:6  4:24      222:01      24:90
-            [0,1,1,1,0,0,0,0,0,0], # 3:7  3:28      166.5:01    28:90        
-            [0,1,1,0,0,0,0,0,0,0], # 2:8  2:32      111:01      32:90
-            [0,1,1,1,1,0,1,1,1,0]] # 7:3  8:12      388.5:01    12:90
+    format=[[0,1,1,1,1,1,1,1,1,1], # 8:2  9:8       444:01      8:90  
+            [0,0,1,1,1,1,1,1,1,1], # 6:4  7:16      333:01      16:90
+            [0,0,0,1,1,1,1,1,1,1], # 4:6  4:24      222:01      24:90
+            [0,0,0,0,1,1,1,1,1,1], # 4:6  4:24      222:01      24:90
+            [0,0,0,0,0,1,1,1,1,1], # 3:7  3:28      166.5:01    28:90        
+            [0,0,0,0,0,0,1,1,1,1], # 2:8  2:32      111:01      32:90
+            [0,0,0,0,0,0,0,1,1,1]] # 7:3  8:12      388.5:01    12:90
 
     format_fairness = {}
     format_U_LTE = {}
     format_power = {}
-    #=======Old version with single frame simulation=====================================================
+    #============================================================
     # Modifiying for multiple base stations
 
     # formats_required = int(input("Enter the number of formats to simulate[1-7]: "))
@@ -396,7 +393,6 @@ if __name__ == "__main__":
     # print("Copy LTE users: {} Wifi users: {}".format(count_users(copy_lbss),count_users(copy_wbss)))
     # exit()
 
-    # These lists store their respective values over each frame iteration
     Fairness = []   # Stores fairness for each frame combination
     LTE_Throughput = [] # Stores throughput of LTE
     LTE_Power = []
@@ -447,10 +443,9 @@ if __name__ == "__main__":
     # WifiCountS=0
     # WifiCountU=0
 
-    channel_busy = 0    # flag to denote channel busy
+    channel_busy = 0
 
-    # CSMA/CA stuff
-    CTS = 0 # this is set to number of slots for which a wifi user gets CTS
+    CTS = 0
     tuserlist = []
     RTSuserlist = []
     FinishedWifilist = []
@@ -472,21 +467,22 @@ if __name__ == "__main__":
 
     for tf in tqdm(range(0,thisparams.times_frames)):
         
-        # if tf>0 and tf%10000  == 0 and tf>=rl.exploration:
-        #     print("\n\nIteration: ",tf)
-        #     printQtable(rl)
-        #     printArrowQtable(rl)
+        if tf>0 and tf%5000  == 0 and tf>=rl.exploration:
+            print("\n\nIteration: ",tf)
+            printQtable(rl)
+            printArrowQtable(rl)
 
-        # if tf>0 and tf%45000 == 0 and tf>=rl.exploration and rl.do_dyna == 1:
-        #     print("do_dyna set to 0")
-        #     rl.do_dyna = 0
+        if tf>0 and tf%45000 == 0 and tf>=rl.exploration and rl.do_dyna == 1:
+            print("do_dyna set to 0")
+            rl.do_dyna = 0
         
-        # if tf>0 and tf%1000 == 0 and tf>=thisparams.vary_from and rl.do_dyna == 1:
-        #     if rl.Epsilon+0.05<=0.90:
-        #         rl.Epsilon+=0.05
+        if tf>0 and tf%1000 == 0 and tf>=thisparams.vary_from and rl.do_dyna == 1:
+            if rl.Epsilon+0.05<=0.90:
+                rl.Epsilon+=0.05
                 
-            # print("Epsilon changed to: ",rl.Epsilon)
+            print("Epsilon changed to: ",rl.Epsilon)
 
+        # Do exploitation
         if tf>rl.exploration and rl.do_dyna==0:
             rl.Epsilon = 0.90
         
@@ -507,6 +503,11 @@ if __name__ == "__main__":
 
         lbss[0].format = format[rl.current_frame]
         Frame_choosen.append(rl.current_state)
+
+        # Store frame number,iteration in csv file
+        savefile = open("/home/anyamanaska/Desktop/New-Archive/single/FnumVsIters21-25.csv","a")
+        savefile.write(str(tf)+","+str(rl.current_state)+"\n")
+        savefile.close()
 
         if rl.current_action == 2 or rl.current_action == -2:
             thisparams.pTxLTE = rl.original_power/rl.current_pFactor
@@ -632,6 +633,8 @@ if __name__ == "__main__":
                         varyparams = PARAMS()
                         varyparams.numofLTEUE = newLTEuserscount
                         varyparams.numofWifiUE = newWifiuserscount
+                        varyparams.seed_valueLTE = thisparams.seed_valueLTE
+                        varyparams.seed_valueWifi = thisparams.seed_valueWifi
 
                         luss = service.createLTEUsers(varyparams)
                         wuss = service.createWifiUsers(varyparams)
@@ -726,10 +729,10 @@ if __name__ == "__main__":
                         format_U_LTE = {}
                         format_power = {}
 
-                        rl.do_dyna = 1
+                        rl.do_dyna = 0
                         rl.Epsilon = 0.0
 
-                        print("do_dyna set to 1")
+                        print("do_dyna set to ",rl.do_dyna)
 
                         printQtable(rl)
 
@@ -1190,59 +1193,57 @@ if __name__ == "__main__":
     if verbose.FairnessVsFrameIters == 1:
         graphservice.PlotFairnessFrameIters(Fairness,thisparams.times_frames,thisparams)
 
-    # #=============== Uncomment this part to store data in excel sheet ===============
+    # Get the current file's directory path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # # Get the current file's directory path
-    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go two directories behind
+    two_dirs_behind = os.path.abspath(os.path.join(current_dir, ".."))
 
-    # # Go two directories behind
-    # two_dirs_behind = os.path.abspath(os.path.join(current_dir, ".."))
+    if os.name == "posix":
+        scenename = "/" + str(os.path.abspath(os.path.join(current_dir,".."))).split("/")[-1]
+    else:
+        scenename = "\\" + str(os.path.abspath(os.path.join(current_dir,".."))).split("\\")[-1]
 
-    # if os.name == "posix":
-    #     scenename = "/" + str(os.path.abspath(os.path.join(current_dir,".."))).split("/")[-1]
-    # else:
-    #     scenename = "\\" + str(os.path.abspath(os.path.join(current_dir,".."))).split("\\")[-1]
+    excelpath = two_dirs_behind + "-avg.xlsx"
+    csvpath = two_dirs_behind + ".csv"
 
-    # excelpath = two_dirs_behind + "-avg.xlsx"
-    # csvpath = two_dirs_behind + ".csv"
+    # print(two_dirs_behind)
+    # print(scenename)
+    # print(excelpath)
 
-    # # print(two_dirs_behind)
-    # # print(scenename)
-    # # print(excelpath)
+    data = pd.read_excel(excelpath)
 
-    # data = pd.read_excel(excelpath)
+    data[0][0] += sum(Fairness[:rl.exploration+1])
+    data[0][1] += sum(Fairness[rl.exploration:])
 
-    # data[0][0] += sum(Fairness[:rl.exploration+1])
-    # data[0][1] += sum(Fairness[rl.exploration:])
+    data[0][2] += sum(LTE_Throughput[:rl.exploration+1])
+    data[0][3] += sum(LTE_Throughput[rl.exploration:])
 
-    # data[0][2] += sum(LTE_Throughput[:rl.exploration+1])
-    # data[0][3] += sum(LTE_Throughput[rl.exploration:])
+    data[0][4] += sum(Wifi_Throughput[:rl.exploration+1])
+    data[0][5] += sum(Wifi_Throughput[rl.exploration:])
 
-    # data[0][4] += sum(Wifi_Throughput[:rl.exploration+1])
-    # data[0][5] += sum(Wifi_Throughput[rl.exploration:])
+    data[0][6] += sum(LTE_Power[:rl.exploration+1])
+    data[0][7] += sum(LTE_Power[rl.exploration:])
 
-    # data[0][6] += sum(LTE_Power[:rl.exploration+1])
-    # data[0][7] += sum(LTE_Power[rl.exploration:])
+    data[0][8] += sum(Utilization[:rl.exploration+1])
+    data[0][9] += sum(Utilization[rl.exploration:])
 
-    # data[0][8] += sum(Utilization[:rl.exploration+1])
-    # data[0][9] += sum(Utilization[rl.exploration:])
+    data[0][10] += sum(Wifi_Utilization[:rl.exploration+1])
+    data[0][11] += sum(Wifi_Utilization[rl.exploration:])
 
-    # data[0][10] += sum(Wifi_Utilization[:rl.exploration+1])
-    # data[0][11] += sum(Wifi_Utilization[rl.exploration:])
+    data[0][12] += sum(ECR[:rl.exploration+1])
+    data[0][13] += sum(ECR[rl.exploration:])
 
-    # data[0][12] += sum(ECR[:rl.exploration+1])
-    # data[0][13] += sum(ECR[rl.exploration:])
+    data[0][14] += sum(LTE_User_satisfy[:rl.exploration+1])
+    data[0][15] += sum(LTE_User_satisfy[rl.exploration:])
 
-    # data[0][14] += sum(LTE_User_satisfy[:rl.exploration+1])
-    # data[0][15] += sum(LTE_User_satisfy[rl.exploration:])
-
-    # data[0][16] += sum(Wifi_User_satisfy[:rl.exploration+1])
-    # data[0][17] += sum(Wifi_User_satisfy[rl.exploration:])
+    data[0][16] += sum(Wifi_User_satisfy[:rl.exploration+1])
+    data[0][17] += sum(Wifi_User_satisfy[rl.exploration:])
     
 
-    # # Store frame number,iteration in csv file
-    # savefile = open(csvpath,"a")
-    # savefile.write(str(max(set(Frame_choosen[rl.exploration:]), key=Frame_choosen.count))+"\n")
-    # savefile.close()
+    # Store frame number,iteration in csv file
+    savefile = open(csvpath,"a")
+    savefile.write(str(max(set(Frame_choosen[rl.exploration:]), key=Frame_choosen.count))+"\n")
+    savefile.close()
 
-    # data.to_excel(excelpath,index=False)
+    data.to_excel(excelpath,index=False)

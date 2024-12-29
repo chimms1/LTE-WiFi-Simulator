@@ -20,13 +20,13 @@ class Verbose:
     LTE_proportions = 0
     LTE_Power_Frame = 0
 
-    vary_factor = 0
+    vary_factor = 1
 
     frame_dictionary = 0
 
     each_action = 0
     state_action_Qtable = 0
-    Qtable = 1
+    Qtable = 0
 
 
     plot_Scene = 1 # plotting graph of positioning of BS and UE in the scene
